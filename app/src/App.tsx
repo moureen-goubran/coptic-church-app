@@ -10,15 +10,16 @@ import { MapView } from "./components/MapView";
 import { PlaceSheet } from "./components/PlaceSheet";
 import { CorrectionForm } from "./components/CorrectionForm";
 import { Icon, Logo, placeName, regionLine } from "./components/bits";
+import { FeastStrip, FeastsView } from "./components/Feasts";
 
-type Tab = "churches" | "about";
+type Tab = "churches" | "feasts" | "about";
 const SIZES = [0.875, 0.9375, 1.0625, 1.1875, 1.3125];
 const PAGE = 40;
 
 function readHash(): { tab: Tab; place: string | null } {
   const m = location.hash.match(/^#\/(place)\/([a-z0-9-]+)$/);
   if (m) return { tab: "churches", place: m[2] };
-  return { tab: location.hash === "#/about" ? "about" : "churches", place: null };
+  return { tab: location.hash === "#/about" ? "about" : location.hash === "#/feasts" ? "feasts" : "churches", place: null };
 }
 
 export function App() {
@@ -128,8 +129,11 @@ export function App() {
 
       {!online && <div class="callout">{t.offline}</div>}
 
+      <FeastStrip t={t} lang={lang} />
+
       <nav class="tabs" role="tablist">
         <button role="tab" type="button" aria-selected={route.tab === "churches"} onClick={() => go("#/")}><Icon name="church" />{t.tabChurches}</button>
+        <button role="tab" type="button" aria-selected={route.tab === "feasts"} onClick={() => go("#/feasts")}><Icon name="calendar" />{t.tabFeasts}</button>
         <button role="tab" type="button" aria-selected={route.tab === "about"} onClick={() => go("#/about")}><Icon name="info" />{t.tabAbout}</button>
       </nav>
 
@@ -181,6 +185,8 @@ export function App() {
         </div>
         {data && <p class="muted small">{t.updated(fmtDate(data.generated, lang))}</p>}
       </main>}
+
+      {route.tab === "feasts" && <FeastsView t={t} lang={lang} />}
 
       {route.tab === "about" && <main class="stack">
         <section class="card prose">

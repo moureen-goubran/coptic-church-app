@@ -29,6 +29,7 @@ const PATHS: Record<string, string> = {
   share: "M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5",
   flag: "M5 21V4M5 4h11l-2 4 2 4H5",
   church: "M12 2v4M10 4h4M6 21V11l6-5 6 5v10M10 21v-5h4v5",
+  calendar: "M4 6h16v14H4z M4 10h16 M8 3v4 M16 3v4 M12 14v4 M10 16h4",
   info: "M12 8h.01M11 12h1v5h1 M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z",
 };
 export function Icon({ name }: { name: string }) {

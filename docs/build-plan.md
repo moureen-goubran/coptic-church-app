@@ -15,6 +15,7 @@ A free, installable web app at `church.datumarc.com` that lets anyone find a Cop
 5. **Installable and works offline** (add to home screen; the list is saved on the phone).
 6. **About and privacy pages** that say what `safety-and-accounts.md` promises.
 7. **Corrections box:** no name, email or phone; Turnstile bot check; blocks contact info and links; goes to a private admin inbox only.
+8. **Feasts & Fasts** (added October 26, 2026): next-feast strip with a calendar, fast start dates, Wednesday/Friday rule, today's Coptic date with the Synaxarium, and the monthly commemorations of the Virgin Mary (21st) and Archangel Michael (12th). Dates are computed for any year in `app/src/lib/coptic.ts`, so there's no yearly list to update.
 
 ## Not in version 1 (later)
 
