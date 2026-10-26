@@ -4,6 +4,7 @@ import {
   type Fast, type Feast, addDays, commDates, commOn, COMMS, copticParts, daysBetween, fastOn, feastsAround,
   iso, isWedFriFast, parseIso, synaxUrl, upcomingFasts,
 } from "../lib/coptic";
+import { downloadIcs } from "../lib/cal";
 
 type P = { t: Strings; lang: Lang };
 const loc = (lang: Lang) => (lang === "ar" ? "ar-EG" : "en-US");
@@ -18,21 +19,8 @@ const Arrow = ({ d }: { d: string }) => <svg viewBox="0 0 16 16" fill="none" str
 const PREV = "M10 3 5 8l5 5", NEXT = "m6 3 5 5-5 5", CLOSE = "M4 4l8 8M12 4l-8 8";
 const CalIcon = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="2" /><path d="M2 7h12M5 1.5v3M11 1.5v3" /></svg>;
 
-// A one-off all-day calendar entry the phone's calendar app can open. Nothing leaves the phone.
-function addToCalendar(title: string, start: string, end: string) {
-  const d = (s: string) => s.replaceAll("-", "");
-  const body = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//My Coptic Church//EN", "BEGIN:VEVENT",
-    `UID:${d(start)}-${title.replace(/\W+/g, "-")}@mycopticchurch`, `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d+/g, "")}`,
-    `DTSTART;VALUE=DATE:${d(start)}`, `DTEND;VALUE=DATE:${d(addDays(end, 1))}`, `SUMMARY:${title.replace(/[,;\\]/g, m => "\\" + m)}`,
-    "END:VEVENT", "END:VCALENDAR"].join("\r\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([body], { type: "text/calendar" }));
-  a.download = `${d(start)}.ics`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
 const AddCal = ({ t, title, start, end }: { t: Strings; title: string; start: string; end: string }) =>
-  <button class="btn small" type="button" onClick={e => { e.stopPropagation(); addToCalendar(title, start, end); }}><CalIcon />{t.addCal}</button>;
+  <button class="btn small" type="button" onClick={e => { e.stopPropagation(); downloadIcs({ title, date: start, endDate: end }); }}><CalIcon />{t.addCal}</button>;
 
 // Month grid used by the feast calendar and the Synaxarium day picker.
 function MonthGrid({ t, lang, month, feasts, selected, onPick, coptic }: P & { month: string; feasts: Feast[]; selected: string; onPick: (d: string) => void; coptic?: boolean }) {
@@ -115,6 +103,14 @@ export function StatusChips({ t, lang }: P) {
     out.push(<span class="chip big gold">{t.fastStarts(nx.name[lang], rel(t, daysBetween(t0, nx.start)))}</span>);
   }
   return <div class="chips">{out}</div>;
+}
+
+// "Times often change during the Nativity Fast…", or near a major feast. Empty otherwise.
+export function seasonLine(t: Strings, lang: Lang, t0 = todayIso()): string {
+  const cur = fastOn(t0);
+  if (cur) return t.seasonNow(cur.name[lang]);
+  const feast = feastsAround(t0, 0, 2).find(f => f.kind === "major");
+  return feast ? t.seasonFeast(feast.name[lang], daysBetween(t0, feast.date) === 0 ? t.today.toLowerCase() : longDate(feast.date, lang)) : "";
 }
 
 // "Next commemoration: Virgin Mary · Saturday, October 31"

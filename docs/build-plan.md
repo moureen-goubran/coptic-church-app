@@ -18,11 +18,12 @@ A free, installable web app at `church.datumarc.com` that lets anyone find a Cop
 8. **Church details** (added October 26, 2026): logo, parking, office email, live stream, social media, giving, church forms, calendar subscribe, clergy names and first-visit tips. Outside links are admin-approved and limited to a safe list.
 9. **Today tab** (added October 26, 2026, now the home screen): today's and the Coptic date, fasting status, the Synaxarium, the next service (closest church when location is on), My Events (services saved on this phone with the star) and Coming Up.
 10. **Feasts & Fasts** (added October 26, 2026): next-feast strip with a calendar, fast start dates, Wednesday/Friday rule, today's Coptic date with the Synaxarium, and the monthly commemorations of the Virgin Mary (21st) and Archangel Michael (12th). Dates are computed for any year in `app/src/lib/coptic.ts`, so there's no yearly list to update.
+11. **Events tab** (added October 26, 2026, built like the demo): Church, Type, Day and Date filters (pick more than one), search, a "Showing" bar, Group By Day/Church/Type with Expand All, Special Dates cards, Also Offered (ministries with no published time), and Save or Share on every item (My Events, Apple/Outlook calendar file, Google Calendar, WhatsApp, text, email, copy). Each church keeps one color. Special dates also show on Today and on the church's page. Data: weekly times in `services`, everything else in the new `events` table, which clergy will fill once logins exist.
 
 ## Not in version 1 (later)
 
 - Clergy logins and editing (version 2).
-- Events, classes and announcements beyond the 4 demo churches.
+- Event times beyond the 4 demo churches (the Events tab is ready; clergy add them in version 2).
 - Newcomer help (immigration, language, jobs), Church Supplies, other countries' screens.
 
 ## Stack (updated after M's feedback: real database now)

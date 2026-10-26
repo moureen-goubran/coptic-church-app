@@ -1,11 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { matches, norm } from "../src/lib/search";
 import { milesBetween } from "../src/lib/geo";
-import { nextService } from "../src/lib/time";
+import { nextService, serviceKey } from "../src/lib/time";
+import { fromService, nextDateFor, notOver, onDate, specialDates, upcomingItems } from "../src/lib/events";
+import { googleCalUrl, icsText } from "../src/lib/cal";
 import { screenMessage } from "../../supabase/functions/_shared/screen";
 import { parseCsv } from "../scripts/csv.mjs";
 import { loadData } from "../scripts/load-data.mjs";
-import type { Place, Service } from "../src/lib/types";
+import type { ChurchEvent, Place, Service } from "../src/lib/types";
 
 const place = (o: Partial<Place>): Place => ({
   id: "x", name: "St. Mark Coptic Orthodox Church", name_ar: "كنيسة مارمرقس", type: "church", street: null, city: "Jersey City", city_ar: null,
@@ -68,12 +70,40 @@ describe("data files", () => {
   });
 });
 
-describe("upcoming services", () => {
-  it("lists the next two weeks of weekly services in order, skipping ones already started today", async () => {
-    const { upcoming } = await import("../src/lib/time");
-    const s = (day: number, start: string): Service => ({ place_id: "x", day, start, end: null, kind: "liturgy", title_en: `${day} ${start}`, title_ar: null, room_en: null, room_ar: null, last_verified: null });
-    const now = new Date(2026, 9, 26, 9, 0); // Monday 9:00
-    const list = upcoming([s(1, "08:00"), s(1, "19:00"), s(0, "08:00")], now);
-    expect(list.map(o => [o.s.title_en, o.inDays])).toEqual([["1 19:00", 0], ["0 08:00", 6], ["1 08:00", 7], ["1 19:00", 7], ["0 08:00", 13]]);
+describe("events", () => {
+  const s = (day: number, start: string): Service => ({ place_id: "x", day, start, end: null, kind: "liturgy", title_en: `${day} ${start}`, title_ar: null, room_en: null, room_ar: null, last_verified: null });
+  const ev = (o: Partial<ChurchEvent>): ChurchEvent => ({ place_id: "x", date: null, end_date: null, start: null, end: null, kind: "meeting", title_en: "E", title_ar: null, room_en: null, room_ar: null, last_verified: null, ...o });
+  const now = new Date(2026, 9, 26, 9, 0); // Monday, October 26, 9:00
+
+  it("lists two weeks of services and special dates in order, skipping what already started today", () => {
+    const list = upcomingItems([s(1, "08:00"), s(1, "19:00"), s(0, "08:00")], [ev({ title_en: "Vespers", date: "2026-10-27", start: "19:00" }), ev({ title_en: "Far", date: "2026-12-01", start: "10:00" })], now);
+    expect(list.map(i => [i.title_en, i.date])).toEqual([["1 19:00", "2026-10-26"], ["Vespers", "2026-10-27"], ["0 08:00", "2026-11-01"], ["1 08:00", "2026-11-02"],
+      ["1 19:00", "2026-11-02"], ["0 08:00", "2026-11-08"]]);
+  });
+  it("keeps an event listed until it ends, and a retreat for all its days", () => {
+    expect(notOver(ev({ date: "2026-10-26", start: "08:00", end: "10:00" }), now)).toBe(true);
+    expect(notOver(ev({ date: "2026-10-26", start: "08:00" }), now)).toBe(false);
+    expect(notOver(ev({ date: "2026-10-25", end_date: "2026-10-27" }), now)).toBe(true);
+    expect(notOver(ev({ date: "2026-10-25" }), now)).toBe(false);
+    expect(specialDates([ev({ date: "2026-11-02", title_en: "B" }), ev({ date: "2026-10-24", end_date: "2026-10-28", title_en: "A" }), ev({ title_en: "undated" })], now).map(i => i.title_en)).toEqual(["A", "B"]);
+  });
+  it("finds the next date for a weekly service, and everything on one date", () => {
+    expect(nextDateFor(1, "08:00", now)).toBe("2026-11-02");
+    expect(nextDateFor(1, "19:00", now)).toBe("2026-10-26");
+    expect(onDate([s(0, "08:00"), s(1, "08:00")], [ev({ date: "2026-10-31", end_date: "2026-11-01", start: "07:00", title_en: "Retreat" })], "2026-11-01").map(i => i.title_en)).toEqual(["Retreat", "0 08:00"]);
+  });
+  it("saves a weekly service under the same key as before", () => {
+    expect(fromService(s(0, "08:00"), "2026-11-01").key).toBe(serviceKey(s(0, "08:00")));
+  });
+});
+
+describe("calendar", () => {
+  it("makes timed and all-day calendar entries", () => {
+    const timed = icsText({ title: "Vespers, St. Mark", date: "2026-11-06", start: "20:00", location: "St. Mark; Jersey City" }, new Date(Date.UTC(2026, 9, 26)));
+    expect(timed).toContain("DTSTART:20261106T200000\r\nDTEND:20261106T210000");
+    expect(timed).toContain("SUMMARY:Vespers\\, St. Mark");
+    expect(timed).toContain("LOCATION:St. Mark\\; Jersey City");
+    expect(icsText({ title: "Retreat", date: "2026-11-06", endDate: "2026-11-08" })).toContain("DTEND;VALUE=DATE:20261109");
+    expect(googleCalUrl({ title: "Vespers", date: "2026-11-06", start: "20:00", end: "20:45" })).toContain("dates=20261106T200000%2F20261106T204500");
   });
 });

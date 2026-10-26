@@ -1,13 +1,14 @@
 import type { Lang, Strings } from "../i18n";
-import type { Place, Service } from "../lib/types";
-import { fmtTime, serviceKey, upcoming } from "../lib/time";
-import { copticParts, fastOn, feastsAround, iso, daysBetween } from "../lib/coptic";
-import { Icon, mapsLinks, placeName, telHref } from "./bits";
-import { StatusChips, Synaxarium } from "./Feasts";
+import type { ChurchEvent, Place, Service } from "../lib/types";
+import { fmtTime } from "../lib/time";
+import { type Item, byWhen, fromService, nextDateFor, specialDates, upcomingItems } from "../lib/events";
+import { copticParts, iso } from "../lib/coptic";
+import { Icon, mapsLinks, placeName, shortName, telHref } from "./bits";
+import { StatusChips, Synaxarium, seasonLine } from "./Feasts";
+import { dayLabel, itemTitle } from "./Events";
 
-type Occ = { s: Service; date: Date; inDays: number };
 interface Props {
-  t: Strings; lang: Lang; places: Map<string, Place>; services: Service[];
+  t: Strings; lang: Lang; places: Map<string, Place>; services: Service[]; events: ChurchEvent[];
   saved: Set<string>; toggleSave: (k: string) => void;
   nearest: Place[] | null; // places with services, closest first (when location is on)
   distanceOf: (p: Place) => string | null;
@@ -15,40 +16,38 @@ interface Props {
 }
 
 const loc = (lang: Lang) => (lang === "ar" ? "ar-EG" : "en-US");
-const shortName = (p: Place, lang: Lang) => placeName(p, lang)
-  .replace(/ (Coptic Orthodox )?(Church|Community)( \(.*\))?$/, "").replace(/^كنيسة /, "").replace(/ القبطية الأرثوذكسية$/, "");
 
-export function TodayView({ t, lang, places, services, saved, toggleSave, nearest, distanceOf, onOpen, onLocate }: Props) {
+export function TodayView({ t, lang, places, services, events, saved, toggleSave, nearest, distanceOf, onOpen, onLocate }: Props) {
   const now = new Date(), t0 = iso(now), p = copticParts(now);
-  const when = (o: Occ) => (o.inDays === 0 ? t.today : o.inDays === 1 ? t.tomorrow : o.date.toLocaleDateString(loc(lang), { weekday: "short", month: "short", day: "numeric" }));
-  const title = (s: Service) => (lang === "ar" && s.title_ar) || s.title_en;
+  const when = (it: Item) => dayLabel(t, lang, it.date!, it.end_date);
+  const time = (it: Item) => (it.start ? fmtTime(it.start, lang) : t.allDay);
 
   // Next service: at the closest church that has times, otherwise the soonest anywhere.
-  let next: Occ | undefined, label = t.nextAny;
+  // The next service or event: at the closest church that has times, otherwise the soonest anywhere.
+  let next: Item | undefined, label = t.nextAny;
   if (nearest?.length) {
     const near = nearest[0];
-    next = upcoming(services.filter(s => s.place_id === near.id), now)[0];
+    next = upcomingItems(services.filter(s => s.place_id === near.id), events.filter(e => e.place_id === near.id), now)[0];
     if (next) label = t.nextNear(distanceOf(near) ?? "");
   }
-  const all = upcoming(services, now);
+  const all = upcomingItems(services, events, now);
   next ??= all[0];
-  const nextPlace = next && places.get(next.s.place_id);
+  const nextPlace = next && places.get(next.place_id);
   const maps = nextPlace && mapsLinks(nextPlace);
+  const season = seasonLine(t, lang, t0);
 
-  const cur = fastOn(t0);
-  const feast = feastsAround(t0, 0, 2).find(f => f.kind === "major");
-  const season = cur ? t.seasonNow(cur.name[lang]) : feast ? t.seasonFeast(feast.name[lang], daysBetween(t0, feast.date) === 0 ? t.today.toLowerCase() : new Date(feast.date + "T12:00").toLocaleDateString(loc(lang), { weekday: "long", month: "long", day: "numeric" })) : "";
-
-  const mine = all.filter(o => saved.has(serviceKey(o.s))).filter((o, i, a) => a.findIndex(x => serviceKey(x.s) === serviceKey(o.s)) === i);
+  // Saved items: each weekly service once (its next date) and every saved special date still ahead.
+  const mine = [...services.filter(s => saved.has(fromService(s, "").key)).map(s => fromService(s, nextDateFor(s.day, s.start, now))),
+    ...specialDates(events, now).filter(it => saved.has(it.key))].sort(byWhen(t0));
   const comingIds = nearest?.length ? new Set(nearest.slice(0, 5).map(x => x.id)) : null;
-  const coming = all.filter(o => !comingIds || comingIds.has(o.s.place_id)).slice(0, 4);
+  const coming = all.filter(it => !comingIds || comingIds.has(it.place_id)).slice(0, 4);
 
-  const row = (o: Occ) => {
-    const pl = places.get(o.s.place_id);
+  const row = (it: Item) => {
+    const pl = places.get(it.place_id);
     return (
-      <button type="button" class="mrow" key={serviceKey(o.s) + o.inDays} onClick={() => onOpen(o.s.place_id)}>
-        <span class="w"><b>{when(o)}</b><span class="num">{fmtTime(o.s.start, lang)}</span></span>
-        <span><span class="t">{title(o.s)}</span><span class="s">{pl ? shortName(pl, lang) : ""}</span></span>
+      <button type="button" class="mrow" key={it.key + it.date} onClick={() => onOpen(it.place_id)}>
+        <span class="w"><b>{when(it)}</b><span class="num">{time(it)}</span></span>
+        <span><span class="t">{itemTitle(it, lang)}</span><span class="s">{pl ? shortName(pl, lang) : ""}</span></span>
         <svg class="chev flip" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16"><path d="m6 3 5 5-5 5" /></svg>
       </button>
     );
@@ -70,8 +69,8 @@ export function TodayView({ t, lang, places, services, saved, toggleSave, neares
       {next && nextPlace && <div class="nextcard">
         <button type="button" class="top" onClick={() => onOpen(nextPlace.id)}>
           <span class="lbl">{label}</span>
-          <span class="big">{when(next)} · <span class="num">{fmtTime(next.s.start, lang)}</span></span>
-          <span class="ttl">{title(next.s)}</span>
+          <span class="big">{when(next)} · <span class="num">{time(next)}</span></span>
+          <span class="ttl">{itemTitle(next, lang)}</span>
           <span class="s">{placeName(nextPlace, lang)}</span>
         </button>
         {season && <div class="seasonal">{season}</div>}
@@ -79,7 +78,7 @@ export function TodayView({ t, lang, places, services, saved, toggleSave, neares
         <div class="bar">
           {maps && <a href={maps.google} target="_blank" rel="noopener noreferrer"><Icon name="nav" />{t.directions}</a>}
           {nextPlace.phone && <a href={telHref(nextPlace.phone)}><Icon name="phone" />{t.call}</a>}
-          <button type="button" aria-pressed={saved.has(serviceKey(next.s))} onClick={() => toggleSave(serviceKey(next!.s))}>{saved.has(serviceKey(next.s)) ? "★ " + t.saved : "☆ " + t.save}</button>
+          <button type="button" aria-pressed={saved.has(next.key)} onClick={() => toggleSave(next!.key)}>{saved.has(next.key) ? "★ " + t.saved : "☆ " + t.save}</button>
         </div>
       </div>}
 
@@ -87,7 +86,7 @@ export function TodayView({ t, lang, places, services, saved, toggleSave, neares
       {mine.length ? <div class="mini">{mine.map(row)}</div> : <div class="tip">{t.saveTip}</div>}
 
       {coming.length > 0 && <>
-        <div class="sec-h"><h2>{t.comingUp}</h2><a class="linkbtn" href="#/churches">{t.tabChurches}</a></div>
+        <div class="sec-h"><h2>{t.comingUp}</h2><a class="linkbtn" href="#/events">{t.tabEvents}</a></div>
         <div class="mini">{coming.map(row)}</div>
       </>}
 

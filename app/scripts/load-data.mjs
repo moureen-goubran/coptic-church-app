@@ -7,6 +7,7 @@ const read = name => parseCsv(readFileSync(new URL(name, DATA), "utf8"));
 
 export const TYPES = ["church", "mission", "community", "monastery", "convent", "retreat_center", "diocese_office", "seminary", "school"];
 export const KINDS = ["liturgy", "praise", "bible", "youth", "meeting", "classes", "servants"];
+export const EVENT_KINDS = [...KINDS, "retreat", "social"];
 export const LINK_KINDS = ["live", "facebook", "instagram", "youtube", "x", "tiktok", "donate", "calendar", "form", "clergy_page", "other"];
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 // Outside links must go to a known platform or the church's own website (safety-and-accounts.md).
@@ -53,6 +54,22 @@ export function loadData() {
       last_verified: opt(r.source_checked),
     };
   });
+  // One-off events (with a date) and "also offered" ministries (no date or time published).
+  const DATE = /^\d{4}-\d{2}-\d{2}$/, TIME = /^\d{2}:\d{2}$/;
+  const events = read("events.csv").map((r, i) => {
+    const at = `events row ${i + 2}`;
+    if (!ids.has(r.place_id)) errors.push(`${at}: unknown place ${r.place_id}`);
+    if (!EVENT_KINDS.includes(r.kind)) errors.push(`${at}: unknown kind ${r.kind}`);
+    if (r.date && !DATE.test(r.date)) errors.push(`${at}: date must look like 2026-11-01`);
+    if (r.end_date && (!r.date || !DATE.test(r.end_date) || r.end_date < r.date)) errors.push(`${at}: bad end_date`);
+    if (!r.date && (r.start || r.end_date)) errors.push(`${at}: a time needs a date`);
+    if ((r.start && !TIME.test(r.start)) || (r.end && (!TIME.test(r.end) || !r.start))) errors.push(`${at}: bad time`);
+    if (!r.title_en || r.title_en.length > 140) errors.push(`${at}: title_en must be 2 to 140 characters`);
+    return {
+      place_id: r.place_id, date: opt(r.date), end_date: opt(r.end_date), start: opt(r.start), end: opt(r.end), kind: r.kind,
+      title_en: r.title_en, title_ar: opt(r.title_ar), room_en: opt(r.room_en), room_ar: opt(r.room_ar), last_verified: opt(r.source_checked),
+    };
+  });
   const check = (file, i, r) => { if (!ids.has(r.place_id)) errors.push(`${file} row ${i + 2}: unknown place ${r.place_id}`); if (r.email && !EMAIL.test(r.email)) errors.push(`${file} row ${i + 2}: bad email`); };
   const details = read("place_details.csv").map((r, i) => {
     check("place_details", i, r);
@@ -76,5 +93,5 @@ export function loadData() {
     if (!SAFE_HOSTS.some(d => under(h, d)) && !(site && under(h, site))) errors.push(`links row ${i + 2}: ${h} isn't on the safe list (SAFE_HOSTS in app/scripts/load-data.mjs) or the church's own website`);
     return { place_id: r.place_id, kind: r.kind, url: r.url, label_en: opt(r.label_en), label_ar: opt(r.label_ar), last_verified: opt(r.source_checked) };
   });
-  return { places, services, details, clergy, links, errors };
+  return { places, services, events, details, clergy, links, errors };
 }

@@ -1,19 +1,21 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { Clergy, Details, Link, Place, Service } from "../lib/types";
+import type { ChurchEvent, Clergy, Details, Link, Place, Service } from "../lib/types";
 import type { Lang, Strings } from "../i18n";
 import { fmtDate, fmtTime, nextService, serviceKey } from "../lib/time";
 import { regionLine } from "./bits";
 import { CorrectionForm } from "./CorrectionForm";
 import { placeName, addressLine, telHref, mapsLinks, Icon, SocialIcon } from "./bits";
 import { CalendarSubscribe, ChurchSections, churchBits, ext } from "./ChurchInfo";
+import { alsoOffered, specialDates } from "../lib/events";
+import { dayLabel, itemTitle } from "./Events";
 
 interface Props {
-  place: Place; services: Service[]; details: Details | null; clergy: Clergy[]; links: Link[];
+  place: Place; services: Service[]; events: ChurchEvent[]; details: Details | null; clergy: Clergy[]; links: Link[];
   saved: Set<string>; toggleSave: (k: string) => void;
-  t: Strings; lang: Lang; distance: string | null; onClose: () => void;
+  t: Strings; lang: Lang; distance: string | null; onClose: () => void; onSeeEvents: () => void;
 }
 
-export function PlaceSheet({ place: p, services, details: d, clergy, links, saved, toggleSave, t, lang, distance, onClose }: Props) {
+export function PlaceSheet({ place: p, services, events, details: d, clergy, links, saved, toggleSave, t, lang, distance, onClose, onSeeEvents }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [showFix, setShowFix] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -29,6 +31,8 @@ export function PlaceSheet({ place: p, services, details: d, clergy, links, save
 
   const byDay = [0, 1, 2, 3, 4, 5, 6].map(d => services.filter(s => s.day === d).sort((a, b) => a.start.localeCompare(b.start))).map((list, d) => ({ d, list })).filter(x => x.list.length);
   const nx = nextService(services);
+  const special = specialDates(events), undated = alsoOffered(events);
+  const star = (k: string) => <button type="button" class="star" aria-pressed={saved.has(k)} aria-label={saved.has(k) ? t.saved : t.save} title={saved.has(k) ? t.saved : t.save} onClick={() => toggleSave(k)}>{saved.has(k) ? "★" : "☆"}</button>;
   const maps = mapsLinks(p);
   const { live, parking } = churchBits(d, links, lang);
   const share = async () => {
@@ -81,7 +85,7 @@ export function PlaceSheet({ place: p, services, details: d, clergy, links, save
                       <span class="num time">{fmtTime(s.start, lang)}{s.end ? `–${fmtTime(s.end, lang)}` : ""}</span>
                       <span>{lang === "ar" && s.title_ar || s.title_en}{(s.room_en || s.room_ar) && <small class="muted"> · {lang === "ar" && s.room_ar || s.room_en}</small>}</span>
                       <span class={`chip ty-${s.kind}`}>{t.kinds[s.kind]}</span>
-                      <button type="button" class="star" aria-pressed={saved.has(serviceKey(s))} aria-label={saved.has(serviceKey(s)) ? t.saved : t.save} title={saved.has(serviceKey(s)) ? t.saved : t.save} onClick={() => toggleSave(serviceKey(s))}>{saved.has(serviceKey(s)) ? "★" : "☆"}</button>
+                      {star(serviceKey(s))}
                     </li>
                   ))}
                 </ul>
@@ -89,6 +93,22 @@ export function PlaceSheet({ place: p, services, details: d, clergy, links, save
             ))}
             <p class="note">{t.callFirst}</p>
           </>}
+          {special.length > 0 && <div class="dayblock">
+            <h4>{t.specialTitle}</h4>
+            <ul class="svc">{special.map(it => (
+              <li key={it.key}>
+                <span class="num time">{dayLabel(t, lang, it.date!, it.end_date)}{it.start && <> · {fmtTime(it.start, lang)}</>}</span>
+                <span>{itemTitle(it, lang)}{(it.room_en || it.room_ar) && <small class="muted"> · {lang === "ar" && it.room_ar || it.room_en}</small>}</span>
+                <span class={`chip ty-${it.kind}`}>{t.kinds[it.kind]}</span>
+                {star(it.key)}
+              </li>
+            ))}</ul>
+          </div>}
+          {undated.length > 0 && <div class="dayblock">
+            <h4>{t.alsoOffered}</h4>
+            <ul class="svc">{undated.map(it => <li key={it.key} class="und"><span>{itemTitle(it, lang)}</span><span class={`chip ty-${it.kind}`}>{t.kinds[it.kind]}</span></li>)}</ul>
+          </div>}
+          {(byDay.length > 0 || events.length > 0) && <button class="btn small" type="button" onClick={onSeeEvents}><Icon name="clock" />{t.seeEvents}</button>}
           <CalendarSubscribe details={d} links={links} t={t} lang={lang} />
         </section>
 
