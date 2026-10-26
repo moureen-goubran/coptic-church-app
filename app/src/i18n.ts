@@ -168,6 +168,7 @@ const en = {
   // Events
   tabEvents: "Events",
   qEvents: "Search the schedule",
+  qEnter: "Press Enter to keep a search as a filter. Add more than one to see either.", findIn: "Type to find", qFeasts: "Search feasts, fasts and saints",
   eventsNote: "Times change, and some updates are only announced in church. Call before you go.",
   specialTitle: "Special Dates", alsoOffered: "Also Offered (Day and Time Not Published)", undatedWhen: "Day and time not published",
   noEvents: "Nothing matches these filters.",
@@ -363,6 +364,7 @@ const ar: Strings = {
   // Events
   tabEvents: "الفعاليات",
   qEvents: "ابحث في الفعاليات",
+  qEnter: "اضغط Enter لتثبيت البحث كفلتر. أضف أكثر من بحث لترى أيًّا منها.", findIn: "اكتب للبحث", qFeasts: "ابحث في الأعياد والأصوام والقديسين",
   eventsNote: "المواعيد قد تتغير، وبعض الإعلانات تكون في الكنيسة فقط. اتصل قبل الذهاب.",
   specialTitle: "مواعيد خاصة", alsoOffered: "خدمات أخرى (اليوم والموعد غير منشورين)", undatedWhen: "اليوم والموعد غير منشورين",
   noEvents: "لا توجد مواعيد بهذه الاختيارات.",

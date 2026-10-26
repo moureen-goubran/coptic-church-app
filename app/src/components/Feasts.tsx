@@ -6,7 +6,8 @@ import {
 } from "../lib/coptic";
 import { downloadIcs } from "../lib/cal";
 import { store } from "../lib/store";
-import { SortBy } from "./bits";
+import { Icon, SortBy } from "./bits";
+import { norm } from "../lib/search";
 
 type P = { t: Strings; lang: Lang };
 const loc = (lang: Lang) => (lang === "ar" ? "ar-EG" : "en-US");
@@ -190,21 +191,45 @@ export function FeastsView({ t, lang }: P) {
     const list = feastsAround(t0, 60, 330);
     return sort === "name" ? list.sort((a, b) => coll(a.name[lang], b.name[lang])) : sort === "importance" ? list.sort((a, b) => RANK[a.kind] - RANK[b.kind] || a.date.localeCompare(b.date)) : list;
   }, [t0, sort, lang]);
-  const fastsSorted = sort === "name" ? [...fasts].sort((a, b) => coll(a.name[lang], b.name[lang])) : fasts;
+  // Search: live text plus searches kept as bubbles (Enter); a row shows if it matches the text and any bubble.
+  const [q, setQ] = useState("");
+  const [terms, setTerms] = useState<string[]>([]);
+  const toks = norm(q).split(" ").filter(Boolean), tterms = terms.map(x => norm(x).split(" ").filter(Boolean));
+  const hit = (...words: string[]) => (h => (!toks.length || toks.every(x => h.includes(x))) && (!tterms.length || tterms.some(tk => tk.every(x => h.includes(x)))))(norm(words.join(" ")));
+  const searching = toks.length > 0 || terms.length > 0;
+  const keep = () => { const v = q.trim(); if (v && !terms.includes(v)) setTerms([...terms, v]); setQ(""); };
+  const fastsSorted = (sort === "name" ? [...fasts].sort((a, b) => coll(a.name[lang], b.name[lang])) : fasts).filter(f => hit(f.name.en, f.name.ar));
+  const comms = COMMS.filter(c => hit(c.title.en, c.title.ar, t.commName[c.key]));
+  const feastsShown = feasts.filter(f => hit(f.name.en, f.name.ar, t.feastKinds[f.kind]));
   return (
     <main class="stack">
+      <label class="search">
+        <Icon name="search" />
+        <input type="search" placeholder={t.qFeasts} aria-label={t.qFeasts} enterKeyHint="search" value={q} onInput={e => setQ((e.target as HTMLInputElement).value)}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); keep(); } }} />
+      </label>
+      {q.trim() && <p class="muted small hint">{t.qEnter}</p>}
+      {terms.length > 0 && <div class="showing">
+        <b>{t.showing}</b>
+        {terms.map(x => <span class="chip" key={x}>“{x}”<button type="button" aria-label={`${t.removeF} ${x}`} onClick={() => setTerms(terms.filter(y => y !== x))}>✕</button></span>)}
+        <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setTerms([])}>{t.clearAll}</button>
+      </div>}
+      {searching && !fastsSorted.length && !comms.length && !feastsShown.length && <div class="empty">{t.noEvents}</div>}
       <div class="sortrow"><StatusChips t={t} lang={lang} />
         <SortBy t={t} value={sort} onChange={setSort} options={[["date", t.sortSoonest], ["name", t.sortName], ["importance", t.sortImportance]]} /></div>
 
+      {fastsSorted.length > 0 && <>
       <div class="sec-h"><h2>{t.fastsTitle}</h2></div>
       <p class="muted small lead">{t.fastsNote}</p>
       <div class="fastlist">{fastsSorted.map(f => <FastCard f={f} t={t} lang={lang} key={f.key} />)}</div>
-      <div class="card"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p></div>
+      </>}
+      {(!searching || hit(t.wedFriTitle, t.wedFriBody)) && <div class="card"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p></div>}
 
+      {comms.length > 0 && <>
       <div class="sec-h"><h2>{t.commTitle}</h2><a class="linkbtn" href={synaxUrl(t0)} target="_blank" rel="noopener noreferrer">{t.synaxToday}</a></div>
       <p class="muted small lead">{t.commNote}</p>
       <div class="fastlist">
-        {COMMS.map(c => {
+        {comms.map(c => {
           const ds = commDates(c.day, t0, 3), name = t.commName[c.key];
           return (
             <div class="card commcard" key={c.key}>
@@ -216,10 +241,12 @@ export function FeastsView({ t, lang }: P) {
           );
         })}
       </div>
+      </>}
 
+      {feastsShown.length > 0 && <>
       <div class="sec-h"><h2>{t.feastsTitle}</h2></div>
       <div class="feastlist">
-        {feasts.map(f => {
+        {feastsShown.map(f => {
           const dd = daysBetween(t0, f.date);
           return (
             <div class={"feastrow" + (dd < 0 ? " past" : "")} key={f.date + f.name.en}>
@@ -230,6 +257,7 @@ export function FeastsView({ t, lang }: P) {
           );
         })}
       </div>
+      </>}
       <p class="muted small">{t.feastSource}</p>
     </main>
   );

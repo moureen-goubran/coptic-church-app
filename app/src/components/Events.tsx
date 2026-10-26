@@ -10,8 +10,9 @@ import { store } from "../lib/store";
 import { Icon, SortBy, addressLine, churchColor, placeName, shortName } from "./bits";
 import { seasonLine } from "./Feasts";
 
-export type EvFilters = { churches: string[]; kinds: string[]; days: number[]; date: string };
-export const NO_FILTERS: EvFilters = { churches: [], kinds: [], days: [], date: "" };
+// terms: searches kept as filter bubbles (Enter in the search box); an item shows if it matches any of them.
+export type EvFilters = { churches: string[]; kinds: string[]; days: number[]; date: string; terms: string[] };
+export const NO_FILTERS: EvFilters = { churches: [], kinds: [], days: [], date: "", terms: [] };
 export const KIND_ORDER = ["liturgy", "praise", "bible", "youth", "meeting", "classes", "servants", "retreat", "social"];
 type Grp = "day" | "church" | "type";
 type DD = "churches" | "kinds" | "days" | "date";
@@ -104,6 +105,7 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
   const [grp, setGrpState] = useState<Grp>(() => store.get<Grp>("evGroup", "day"));
   const setGrp = (g: Grp) => { setGrpState(g); store.set("evGroup", g); };
   const [dd, setDd] = useState<DD | null>(null);
+  const [find, setFind] = useState("");
   const [sort, setSortState] = useState<string>(() => store.get("evSort", "time"));
   const setSort = (v: string) => { setSortState(v); store.set("evSort", v); };
   const [openG, setOpenG] = useState<Record<string, boolean>>({});
@@ -125,12 +127,18 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
     const name = (id: string) => shortName(places.get(id)!, lang);
     return ids.sort((a, b) => name(a).localeCompare(name(b), loc(lang)));
   }, [services, events, places, lang]);
+  // The Church filter lists every church, not only the ones with something listed.
+  const allIds = useMemo(() => {
+    const name = (id: string) => shortName(places.get(id)!, lang);
+    return [...places.keys()].sort((a, b) => name(a).localeCompare(name(b), loc(lang)));
+  }, [places, lang]);
   const kinds = KIND_ORDER.filter(k => services.some(s => s.kind === k) || events.some(e => e.kind === k));
 
   const hay = (it: Item) => itemHay(it, P(it.place_id), t);
   const toks = norm(q).split(" ").filter(Boolean);
+  const terms = (F.terms ?? []).map(x => norm(x).split(" ").filter(Boolean));
   const ok = (it: Item) => (!F.churches.length || F.churches.includes(it.place_id)) && (!F.kinds.length || F.kinds.includes(it.kind))
-    && (!toks.length || (h => toks.every(x => h.includes(x)))(hay(it)));
+    && (h => (!toks.length || toks.every(x => h.includes(x))) && (!terms.length || terms.some(tk => tk.every(x => h.includes(x)))))(hay(it));
 
   // Sort by: soonest (each list's own time order), church name, or title.
   const coll = (a: string, b: string) => a.localeCompare(b, lang === "ar" ? "ar" : "en");
@@ -152,7 +160,7 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
   };
   const label = (base: string, vals: string[]) => (vals.length ? `${base}: ${vals[0]}${vals.length > 1 ? " +" + num(vals.length - 1) : ""}` : base);
   const ddBtn = (k: DD, text: string, on: boolean) => (
-    <button class={"ddb" + (on ? " on" : "")} type="button" aria-expanded={dd === k} onClick={() => setDd(dd === k ? null : k)}><span>{text}</span><Caret /></button>
+    <button class={"ddb" + (on ? " on" : "")} type="button" aria-expanded={dd === k} onClick={() => { setDd(dd === k ? null : k); setFind(""); }}><span>{text}</span><Caret /></button>
   );
   const foot = (k: DD) => (
     <div class="ddfoot">
@@ -164,7 +172,14 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
     <label class="opt"><input type="checkbox" checked={checked} onChange={onChange} /><span class="dot" style={{ "--cc": color }} /><span>{text}</span>{side && <small class="muted num">{side}</small>}</label>
   );
 
+  // Type-to-find box at the top of a filter list.
+  const findToks = norm(find).split(" ").filter(Boolean);
+  const found = (...words: (string | null | undefined)[]) => !findToks.length || (h => findToks.every(x => h.includes(x)))(norm(words.filter(Boolean).join(" ")));
+  const findBox = <input class="ddfind" type="search" placeholder={t.findIn} aria-label={t.findIn} value={find} autoFocus onInput={e => setFind((e.target as HTMLInputElement).value)} />;
+  const keep = () => { const v = q.trim(); if (v && !(F.terms ?? []).includes(v)) set({ terms: [...(F.terms ?? []), v] }); setQ(""); };
+
   const pills: [string, string, () => void][] = [
+    ...(F.terms ?? []).map(x => [`“${x}”`, `q${x}`, () => set({ terms: F.terms.filter(y => y !== x) })] as [string, string, () => void]),
     ...F.churches.filter(id => places.has(id)).map(id => [shortName(P(id)!, lang), `c${id}`, () => toggle("churches", id)] as [string, string, () => void]),
     ...F.kinds.map(k => [t.kinds[k] ?? k, `k${k}`, () => toggle("kinds", k)] as [string, string, () => void]),
     ...dayOrder.filter(d => F.days.includes(d)).map(d => [t.days[d], `d${d}`, () => toggle("days", d)] as [string, string, () => void]),
@@ -212,17 +227,20 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
         <div class="dd">
           {ddBtn("churches", label(t.ddChurch, F.churches.filter(id => places.has(id)).map(id => shortName(P(id)!, lang))), F.churches.length > 0)}
           {dd === "churches" && <div class="pop-panel ddp">
-            {churchIds.map(id => opt(F.churches.includes(id), () => toggle("churches", id), churchColor(id), shortName(P(id)!, lang), distanceOf(P(id)!)))}
+            {findBox}
+            {allIds.filter(id => { const p = P(id)!; return found(placeName(p, "en"), placeName(p, "ar"), p.city, p.state); })
+              .map(id => { const p = P(id)!; return opt(F.churches.includes(id), () => toggle("churches", id), churchColor(id), shortName(p, lang),
+                [lang === "ar" && p.city_ar || p.city, p.state, distanceOf(p)].filter(Boolean).join(" · ")); })}
             {foot("churches")}
           </div>}
         </div>
         <div class="dd">
           {ddBtn("kinds", label(t.ddType, F.kinds.map(k => t.kinds[k] ?? k)), F.kinds.length > 0)}
-          {dd === "kinds" && <div class="pop-panel ddp">{kinds.map(k => opt(F.kinds.includes(k), () => toggle("kinds", k), `var(--ty-${k})`, t.kinds[k] ?? k))}{foot("kinds")}</div>}
+          {dd === "kinds" && <div class="pop-panel ddp">{findBox}{kinds.filter(k => found(t.kinds[k], k)).map(k => opt(F.kinds.includes(k), () => toggle("kinds", k), `var(--ty-${k})`, t.kinds[k] ?? k))}{foot("kinds")}</div>}
         </div>
         <div class="dd">
           {ddBtn("days", label(t.ddDay, dayOrder.filter(d => F.days.includes(d)).map(d => new Date(2026, 0, 4 + d).toLocaleDateString(loc(lang), { weekday: "short" }))), F.days.length > 0)}
-          {dd === "days" && <div class="pop-panel ddp">{dayOrder.map(d => opt(F.days.includes(d), () => toggle("days", d), `var(--day${d})`, t.days[d]))}{foot("days")}</div>}
+          {dd === "days" && <div class="pop-panel ddp">{findBox}{dayOrder.filter(d => found(t.days[d])).map(d => opt(F.days.includes(d), () => toggle("days", d), `var(--day${d})`, t.days[d]))}{foot("days")}</div>}
         </div>
         <div class="dd">
           {ddBtn("date", F.date ? `${t.ddDate}: ${fmt(F.date, lang, { month: "short", day: "numeric" })}` : t.ddDate, !!F.date)}
@@ -234,10 +252,12 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
         </div>
         <label class="search">
           <Icon name="search" />
-          <input type="search" placeholder={t.qEvents} aria-label={t.qEvents} value={q} onInput={e => setQ((e.target as HTMLInputElement).value)} />
+          <input type="search" placeholder={t.qEvents} aria-label={t.qEvents} title={t.qEnter} enterKeyHint="search" value={q} onInput={e => setQ((e.target as HTMLInputElement).value)}
+            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); keep(); } }} />
         </label>
       </div>
 
+      {q.trim() && <p class="muted small hint">{t.qEnter}</p>}
       <div class="showing">
         <b>{t.showing}</b>
         {pills.length ? <>

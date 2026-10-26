@@ -32,8 +32,8 @@ export function WelcomeView({ t, lang, resources, q, setQ, regions, homeRegion }
   const hit = (...words: string[]) => !toks.length || has(norm(words.join(" ")));
 
   const links = resources.filter(r => r.kind === "link" && fits(r) && (!toks.length || has(resourceHay(r)))).sort((a, b) => local(a) - local(b));
-  // Videos show up once at least one is recorded, so the tab doesn't open on a list of "Coming soon".
-  const videos = resources.some(r => r.kind === "video" && r.url) ? resources.filter(r => r.kind === "video" && fits(r) && (!toks.length || has(resourceHay(r)))) : [];
+  // Video walkthroughs, as in the demo; ones not recorded yet show as "Coming soon".
+  const videos = resources.filter(r => r.kind === "video" && fits(r) && (!toks.length || has(resourceHay(r))));
   const placeName = where ? stateNameIn(st, lang) : "";
   const show = [
     links.length > 0 || (!!toks.length && hit(t.helpLinks, t.helpLinksSub)),

@@ -297,3 +297,7 @@ details.acc > .accbody { padding: 0 16px 16px; display: flex; flex-direction: co
 .res .item p { margin: 0; font-size: .85rem; color: var(--muted); }
 .res .item .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: auto; }
 .linkbtn.claim { color: var(--blue); }
+
+/* Type-to-find box at the top of a filter list; hint under a search box. */
+.ddfind { font: inherit; font-size: var(--fs-sm); width: 100%; box-sizing: border-box; padding: 8px 10px; margin: 0 0 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); position: sticky; top: 0; z-index: 1; }
+.hint { margin: -6px 0 0; font-size: var(--fs-xs); }
