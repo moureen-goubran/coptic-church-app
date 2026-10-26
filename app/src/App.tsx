@@ -10,7 +10,7 @@ import { MapView } from "./components/MapView";
 import { PlaceSheet } from "./components/PlaceSheet";
 import { ChurchCard } from "./components/ChurchInfo";
 import { CorrectionForm } from "./components/CorrectionForm";
-import { Icon, Logo, placeName, regionLine } from "./components/bits";
+import { Icon, Logo, SortBy, placeName, regionLine } from "./components/bits";
 import { FeastStrip, FeastsView } from "./components/Feasts";
 import { TodayView } from "./components/Today";
 import { GlobalSearch } from "./components/GlobalSearch";
@@ -46,6 +46,8 @@ export function App() {
   const [mapView, setMapView] = useState<[[number, number], [number, number]] | null>(null);
   const [gsOpen, setGsOpen] = useState(false);
   const [evQ, setEvQ] = useState("");
+  const [churchSort, setChurchSortState] = useState<string>(() => store.get("churchSort", "recommended"));
+  const setChurchSort = (v: string) => { setChurchSortState(v); store.set("churchSort", v); };
   const [locMsg, setLocMsg] = useState<string | null>(null);
   const [pop, setPop] = useState<"loc" | "settings" | null>(null);
   const [shown, setShown] = useState(PAGE);
@@ -86,7 +88,7 @@ export function App() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
-  useEffect(() => setShown(PAGE), [q, stateF, typeF, userLoc, mapView]);
+  useEffect(() => setShown(PAGE), [q, stateF, typeF, userLoc, mapView, churchSort]);
   // Typing a search or picking a filter takes over from the map area.
   useEffect(() => setMapView(null), [q, stateF, typeF]);
 
@@ -118,21 +120,18 @@ export function App() {
   const inView = (p: Place) => !mapView || (p.lat !== null && p.lng !== null && p.lng >= mapView[0][0] && p.lng <= mapView[1][0] && p.lat >= mapView[0][1] && p.lat <= mapView[1][1]);
   const results = useMemo(() => {
     const list = (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q)) && inView(p));
-    if (userLoc) return list.map(p => [p, dist(p) ?? Infinity] as const).sort((a, b) => a[1] - b[1]).map(x => x[0]);
-    return list.sort((a, b) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
-  }, [data, q, stateF, typeF, userLoc, mapView]);
+    const byState = (a: Place, b: Place) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name);
+    const near = (a: Place, b: Place) => (dist(a) ?? Infinity) - (dist(b) ?? Infinity);
+    const name = (a: Place, b: Place) => placeName(a, lang).localeCompare(placeName(b, lang), lang === "ar" ? "ar" : "en");
+    const full = (a: Place, b: Place) => Number(servicesBy.has(b.id)) - Number(servicesBy.has(a.id));
+    // "Recommended": closest first when your location is on, otherwise churches with full schedules first.
+    const cmp = { recommended: userLoc ? near : (a: Place, b: Place) => full(a, b) || byState(a, b), near: userLoc ? near : byState, name, state: byState,
+      verified: (a: Place, b: Place) => (b.last_verified ?? "").localeCompare(a.last_verified ?? "") || byState(a, b) }[churchSort] ?? byState;
+    return list.sort(cmp);
+  }, [data, q, stateF, typeF, userLoc, mapView, churchSort, lang]);
   const mapPlaces = useMemo(() => (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q))), [data, q, stateF, typeF]);
 
   const [focus, setFocus] = useState<string | null>(null);
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(store.get<string[]>("openGroups", [])));
-  useEffect(() => store.set("openGroups", [...openGroups]), [openGroups]);
-  const filtered = !!(q || stateF || typeF || userLoc || mapView);
-  // State groups, in the same order as the list: country, then state name.
-  const groups = useMemo(() => {
-    const m = new Map<string, Place[]>();
-    for (const p of results) { const k = `${p.country}-${p.state}`; if (!m.has(k)) m.set(k, []); m.get(k)!.push(p); }
-    return [...m].map(([k, list]) => [k, stateName(list[0].state, list[0].country) + (list[0].country !== "US" ? `, ${COUNTRY_NAMES[list[0].country]?.[lang] ?? list[0].country}` : ""), list] as const);
-  }, [results, lang]);
   const card = (p: Place) => (
     <ChurchCard key={p.id} place={p} details={detailsBy.get(p.id) ?? null} clergy={clergyBy.get(p.id) ?? []} links={linksBy.get(p.id) ?? []}
       services={servicesBy.get(p.id) ?? []} distance={fmtMi(p)} active={focus === p.id} t={t} lang={lang}
@@ -234,32 +233,17 @@ export function App() {
             <option value="">{t.allTypes}</option>
             {types.map(k => <option value={k} key={k}>{t.types[k] ?? k}</option>)}
           </select>
+          <SortBy t={t} value={churchSort} onChange={v => { setChurchSort(v); if (v === "near" && !userLoc) findMe(); }}
+            options={[["recommended", t.sortRecommended], ["near", t.sortNear], ["name", t.sortName], ["state", t.sortState], ["verified", t.sortVerified]]} />
           <span class="muted small count" role="status">{data ? t.results(results.length) : "…"}</span>
         </div>
         {mapView && !q && !stateF && !typeF && <div class="showing"><span>{t.inMapArea(results.length)}</span>
           <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setMapView(null)}>{t.fullMap}</button></div>}
 
         {data && results.length === 0 && <div class="empty">{t.noneFound}</div>}
-        {filtered ? <>
-          <div class="cgrid">{results.slice(0, shown).map(card)}</div>
-          {results.length > shown && <button class="btn" type="button" onClick={() => setShown(shown + PAGE * 3)}>{`+ ${results.length - shown}`}</button>}
-        </> : data && <>
-          {results.some(p => servicesBy.has(p.id)) && <>
-            <div class="sec-h"><h3>{t.featuredH}</h3></div>
-            <div class="cgrid">{results.filter(p => servicesBy.has(p.id)).map(card)}</div>
-          </>}
-          <div class="sec-h"><h3>{t.allH(results.length)}</h3></div>
-          <p class="muted small lead">{t.setLocHint}</p>
-          {groups.map(([key, label, list]) => (
-            <details class="grp" key={key} open={openGroups.has(key)} onToggle={e => {
-              const open = (e.currentTarget as HTMLDetailsElement).open;
-              setOpenGroups(prev => { const n = new Set(prev); if (open) n.add(key); else n.delete(key); return n; });
-            }}>
-              <summary>{label}<span class="gn num">{list.length.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}</span></summary>
-              {openGroups.has(key) && <div class="grpbody"><div class="cgrid">{list.map(card)}</div></div>}
-            </details>
-          ))}
-        </>}
+        {data && !userLoc && !q && !stateF && !typeF && !mapView && <p class="muted small lead">{t.setLocHint}</p>}
+        <div class="cgrid">{results.slice(0, shown).map(card)}</div>
+        {results.length > shown && <button class="btn more" type="button" onClick={() => setShown(shown + PAGE * 3)}>{t.showMore(results.length - shown)}</button>}
         {data && <p class="muted small">{t.updated(fmtDate(data.generated, lang))}</p>}
       </main>}
 

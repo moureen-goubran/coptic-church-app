@@ -240,3 +240,11 @@ html[lang="ar"] .gsg h4 { letter-spacing: 0; }
 .gsmore { border: 0; background: none; color: var(--lapis); font: inherit; font-size: .82rem; cursor: pointer; padding: 4px 6px; text-align: start; }
 .pickbar { position: absolute; top: 10px; inset-inline-start: 10px; inset-inline-end: 56px; z-index: 5; background: var(--lapis); color: var(--surface); border-radius: 8px; padding: 6px 10px; font-size: .84rem; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pickbar button { border: 0; background: var(--surface); color: var(--lapis); border-radius: 6px; font: inherit; font-size: .78rem; padding: 2px 8px; cursor: pointer; }
+
+/* Sort by (Churches, Events, Feasts & Fasts) */
+.sortby { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--muted); }
+.sortby select { height: 34px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .84rem; padding: 0 10px; }
+.filters .sortby { flex: 1 1 180px; }
+.filters .sortby select { flex: 1; height: 38px; }
+.sortrow { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+.btn.more { align-self: center; }

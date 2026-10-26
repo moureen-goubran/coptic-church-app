@@ -170,6 +170,9 @@ const en = {
   icsCal: "Add to Apple or Outlook Calendar", gcal: "Add to Google Calendar", shareNative: "Share…", whatsapp: "Send on WhatsApp",
   shareSms: "Send as a text message", shareEmail: "Send by email", copyDetails: "Copy Details",
   seeEvents: "See this church's events",
+  sortBy: "Sort by", sortRecommended: "Recommended", sortNear: "Nearest to me", sortName: "Name (A–Z)", sortState: "State and city",
+  sortVerified: "Recently verified", showMore: (n: number) => `Show more (${n} left)`,
+  sortSoonest: "Soonest first", sortChurch: "Church (A–Z)", sortImportance: "Major feasts first",
 };
 
 type Strings = typeof en;
@@ -338,6 +341,9 @@ const ar: Strings = {
   icsCal: "إضافة إلى تقويم Apple أو Outlook", gcal: "إضافة إلى تقويم Google", shareNative: "مشاركة…", whatsapp: "إرسال عبر واتساب",
   shareSms: "إرسال كرسالة نصية", shareEmail: "إرسال بالبريد الإلكتروني", copyDetails: "نسخ التفاصيل",
   seeEvents: "فعاليات هذه الكنيسة",
+  sortBy: "ترتيب حسب", sortRecommended: "المقترح", sortNear: "الأقرب إليّ", sortName: "الاسم (أ–ي)", sortState: "الولاية والمدينة",
+  sortVerified: "الأحدث تحققًا", showMore: (n: number) => `عرض المزيد (${n.toLocaleString("ar-EG")} متبقية)`,
+  sortSoonest: "الأقرب موعدًا", sortChurch: "الكنيسة (أ–ي)", sortImportance: "الأعياد السيدية الكبرى أولًا",
 };
 
 export const STRINGS: Record<Lang, Strings> = { en, ar };
