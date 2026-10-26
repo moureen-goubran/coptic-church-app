@@ -103,7 +103,7 @@ export function FeastStrip({ t, lang }: P) {
 }
 
 /* ---------- status chips: fasting today, current or next fast ---------- */
-function StatusChips({ t, lang }: P) {
+export function StatusChips({ t, lang }: P) {
   const t0 = todayIso(), cur = fastOn(t0);
   const out = [];
   if (cur || isWedFriFast(t0)) out.push(<span class="chip big">{t.fastingDay}</span>);
@@ -117,8 +117,14 @@ function StatusChips({ t, lang }: P) {
   return <div class="chips">{out}</div>;
 }
 
+// "Next commemoration: Virgin Mary · Saturday, October 31"
+function nextComm(t: Strings, lang: Lang, t0: string) {
+  const [c, d] = COMMS.map(c => [c, commDates(c.day, addDays(t0, 1), 1)[0]] as const).sort((a, b) => a[1].localeCompare(b[1]))[0];
+  return t.commNext(t.commName[c.key], fmt(d, lang, { weekday: "long", month: "long", day: "numeric" }));
+}
+
 /* ---------- Synaxarium: one day at a time, with a Coptic-date picker ---------- */
-function Synaxarium({ t, lang }: P) {
+export function Synaxarium({ t, lang, inHero }: P & { inHero?: boolean }) {
   const t0 = todayIso();
   const [day, setDay] = useState(t0);
   const [cal, setCal] = useState(false);
@@ -128,13 +134,14 @@ function Synaxarium({ t, lang }: P) {
   const move = (d: string) => { setDay(d); setMonth(d.slice(0, 7)); };
   const months = [...new Set([month + "-01", addDays(addMonth(month, 1) + "-01", -1)].map(d => t.copticMonths[copticParts(parseIso(d)).month - 1]))].join(" – ");
   return (
-    <div class="card synax">
+    <div class={inHero ? "synax in-hero" : "card synax"}>
       <div class="sx">
         <button class="sxbtn flip" type="button" aria-label={t.prevDay} onClick={() => move(addDays(day, -1))}><Arrow d={PREV} /></button>
         <div class="sxbody">
           <span class="sxdate">{t.synaxL} · {fmt(day, lang, { weekday: "short", month: "short", day: "numeric" })}</span>
-          <b class="sxcop">{t.copticDate(p.day, t.copticMonths[p.month - 1], p.year)}</b>
-          {cm && <span>{day === t0 ? t.commToday(t.commName[cm.key]) : cm.title[lang]}</span>}
+          {!(inHero && day === t0) && <b class="sxcop">{t.copticDate(p.day, t.copticMonths[p.month - 1], p.year)}</b>}
+          {cm && <b>{day === t0 ? t.commToday(t.commName[cm.key]) : cm.title[lang]}</b>}
+          {!cm && day === t0 && <span>{nextComm(t, lang, t0)}</span>}
           {fe.map(f => <span>{f.name[lang]}</span>)}
           <span class="sxlinks">
             <a href={synaxUrl(day)} target="_blank" rel="noopener noreferrer">{day === t0 ? t.synaxToday : t.synaxDay}</a>
@@ -181,7 +188,6 @@ export function FeastsView({ t, lang }: P) {
   return (
     <main class="stack">
       <StatusChips t={t} lang={lang} />
-      <Synaxarium t={t} lang={lang} />
 
       <div class="sec-h"><h2>{t.fastsTitle}</h2></div>
       <p class="muted small lead">{t.fastsNote}</p>
