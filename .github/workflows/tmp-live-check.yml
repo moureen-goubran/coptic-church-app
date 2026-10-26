@@ -1,0 +1,20 @@
+name: tmp live check
+on:
+  push:
+    branches: [claude/project-thread-xuqasw]
+    paths: [".github/workflows/tmp-live-check.yml"]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for SITE in https://coptic-church-app.moureenjgoubran.workers.dev https://coptic.myorthodoxchurch.com; do
+            echo "== $SITE"
+            html=$(curl -sL "$SITE/")
+            js=$(echo "$html" | grep -o '/assets/index-[^"]*\.js' | head -1)
+            echo "bundle $js"
+            body=$(curl -sL "$SITE$js")
+            echo "turnstile key present: $(echo "$body" | grep -o '0x4[A-Za-z0-9_-]\{10,\}' | head -1 | cut -c1-6)..."
+            echo "new card build (Is this your church): $(echo "$body" | grep -c 'Is this your church')"
+          done
+          curl -s -o /dev/null -w "function preflight %{http_code}\n" -X OPTIONS -H "Origin: https://coptic-church-app.moureenjgoubran.workers.dev" "${{ vars.SUPABASE_URL }}/functions/v1/submit-correction" || true
