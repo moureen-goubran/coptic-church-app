@@ -16,4 +16,4 @@ jobs:
           KEY: ${{ vars.SUPABASE_ANON_KEY }}
         run: |
           if [ -z "$URL" ]; then echo "Supabase not set up yet; skipping."; exit 0; fi
-          curl -fsS "$URL/rest/v1/public_places?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"
+          curl -fsS "$URL/rest/v1/public_places?select=id&limit=1" -H "apikey: $KEY"

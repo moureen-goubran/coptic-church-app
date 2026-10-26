@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { SUPABASE_URL, SUPABASE_ANON_KEY, TURNSTILE_SITE_KEY } from "../config";
+import { SUPABASE_URL, SUPABASE_ANON_KEY, TURNSTILE_SITE_KEY, supabaseHeaders } from "../config";
 import { screenMessage } from "../../../supabase/functions/_shared/screen";
 import type { Strings } from "../i18n";
 
@@ -45,7 +45,7 @@ export function CorrectionForm({ placeId, t, lang }: { placeId: string | null; t
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-correction`, {
         method: "POST",
-        headers: { "content-type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        headers: { "content-type": "application/json", ...supabaseHeaders() },
         body: JSON.stringify({ place_id: placeId, message: r.text, token }),
       });
       if (res.status === 422) { const { error } = await res.json(); setProblem(t.screen[error] ?? t.sendFail); setState("idle"); return; }

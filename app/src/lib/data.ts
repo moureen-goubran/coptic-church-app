@@ -1,4 +1,4 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../config";
+import { SUPABASE_URL, SUPABASE_ANON_KEY, supabaseHeaders } from "../config";
 import type { Dataset, Place, Service } from "./types";
 
 // The app always starts from the built-in copy (instant, works offline, survives a paused
@@ -11,7 +11,7 @@ export async function loadBuiltIn(): Promise<Dataset> {
 
 export async function loadLive(): Promise<Dataset | null> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
-  const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+  const headers = supabaseHeaders();
   const get = async <T,>(path: string): Promise<T[]> => {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 8000);
