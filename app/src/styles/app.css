@@ -170,16 +170,42 @@ html[lang="ar"] .nextcard .lbl { letter-spacing: 0; }
 .center { display: flex; justify-content: center; }
 
 /* Churches tab: card grid and state groups (from the demo) */
-.cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; align-items: start; }
-.ccard { cursor: pointer; }
-.ccard .cbanner { margin: -14px -16px 0; padding: 12px 16px; border-radius: 13px 13px 0 0; }
-.ccard .actions { flex-wrap: wrap; }
+.cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; align-items: stretch; }
+.ccard { cursor: pointer; font-size: var(--fs-sm); }
+/* Logos: every church's logo sits in the same neutral, fixed-height box so different brand styles don't clash. */
+.ccard .cbanner, .ccard .cbanner.dark { margin: -14px -16px 0; padding: 0 16px; height: 76px; box-sizing: border-box; border-radius: 13px 13px 0 0; background: #f6efe3; } /* always light: most logos are dark ink */
+.ccard .cbanner img { max-height: 52px; max-width: 70%; object-fit: contain; }
 .ccard .next { box-sizing: border-box; }
 .ccard .morebody { display: flex; flex-direction: column; gap: 10px; }
-.ccard .note { font-size: .8rem; color: var(--muted); margin: 0; }
-.cfoot .linkbtn { font-size: .78rem; }
+/* Type scale on the card: name 20, next service 16, body 14, labels 12. */
+.ccard h2 { font-size: var(--fs-lg); line-height: 1.25; }
+.ccard .city, .ccard .next small, .ccard .note { font-size: var(--fs-xs); }
+.ccard .next { font-size: var(--fs-sm); }
+.ccard .next b { display: block; font-size: var(--fs-md); font-weight: 600; }
+.ccard .facts, .ccard details.more summary { font-size: var(--fs-sm); }
+.ccard .note { color: var(--muted); margin: 0; }
+.ccard :is(.menu-item, .clergy, .clergy a, .visit, .social a) { font-size: var(--fs-sm); }
+.ccard :is(.chip, .cfoot, .cfoot .num) { font-size: var(--fs-xs); }
+/* Buttons: one row, same place on every card (pinned to the bottom of equal-height cards). */
+.ccard .actions { margin-top: auto; flex-wrap: nowrap; }
+.ccard .actions > .btn, .ccard .actions summary.btn { font-size: var(--fs-sm); }
+.ccard .actions .btn.icon { padding-inline: 9px; }
+.ccard .next { position: relative; padding-inline-end: 28px; }
+.ccard .next::after { content: "›"; position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); font-size: var(--fs-lg); color: var(--muted); }
+html[dir="rtl"] .ccard .next::after { content: "‹"; }
+/* Phones: 44px tap targets (kids tap less precisely than adults). */
+@media (max-width: 600px) {
+  .ccard .actions > .btn, .ccard .actions summary.btn { height: 44px; box-sizing: border-box; justify-content: center; }
+  .ccard .actions > :not(.icon) { flex: 1 1 0; }
+  .ccard .actions > details > summary.btn { width: 100%; }
+  .ccard .actions .btn.icon { width: 44px; }
+  .ccard details.more summary { padding-block: 10px; }
+}
+/* Maroon means "act": only Call. Report a problem stays on the card (kids must find it) but in muted grey. */
 .reportrow { display: flex; justify-content: flex-end; margin-bottom: -6px; }
-.reportrow .linkbtn, .morebody > .linkbtn { font-size: .78rem; }
+.reportrow .linkbtn { color: var(--muted); font-size: var(--fs-xs); }
+.reportrow .linkbtn svg { width: 13px; height: 13px; }
+.cfoot .linkbtn, .morebody > .linkbtn { font-size: var(--fs-xs); }
 details.evmenu { position: relative; display: inline-block; }
 details.evmenu summary { list-style: none; }
 details.evmenu summary::-webkit-details-marker { display: none; }
