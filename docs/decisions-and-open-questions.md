@@ -39,6 +39,7 @@ Last updated: October 26, 2026
 - Sources conflict on St. Mark's clergy phone and on Virgin Mary & St. John's address and phone.
 - The St. Abanoub & St. Antonious Sunday liturgy time is an assumption.
 - One PayPal link in the demo uses `http://`. Switch it to `https://`.
+- Synaxarium links go to st-takla.org (same as the demo). Check that a few days open correctly, especially the Nasie month.
 
 ## Renewals
 
