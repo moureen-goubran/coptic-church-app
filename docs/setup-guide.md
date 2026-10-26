@@ -51,7 +51,7 @@ On the **Variables** tab, click **New repository variable** for each:
    - Under **Advanced settings**, set **Path** (root directory) to `app`
    - Under **Build variables**, add `NODE_VERSION` = `22`, `VITE_SUPABASE_URL` = Project URL, `VITE_SUPABASE_ANON_KEY` = anon key
    - Click **Deploy**. You get a free link ending in `.workers.dev`. Tell Claude when it's done.
-3. Open **Turnstile → Add widget**. Name: `corrections box`. Hostnames: `church.datumarc.com` and your `.workers.dev` address. Mode: **Managed**. **Save** the **Site key** and the **Secret key**.
+3. Open **Turnstile → Add widget**. Name: `report box`. Hostnames: `coptic.myorthodoxchurch.com` and `coptic-church-app.moureenjgoubran.workers.dev`. Mode: **Managed**. **Save** the **Site key** and the **Secret key**.
    - Put the Secret key in GitHub (table above, `TURNSTILE_SECRET`).
    - In your Cloudflare project → **Settings → Build → Variables**, add `VITE_TURNSTILE_SITE_KEY` = Site key, then redeploy (**Deployments → ⋯ → Retry build**).
 
@@ -69,6 +69,17 @@ The weekly link check already catches spam and expired church sites. This adds G
 4. Menu (☰) → **APIs & Services → Credentials → + Create credentials → API key**. Copy the key.
 5. On the same page, click the key's name. Under **API restrictions**, pick **Restrict key**, tick **Safe Browsing API**, and click **Save**.
 6. On GitHub, open the repo, then **Settings → Secrets and variables → Actions → New repository secret**. Name: `SAFE_BROWSING_KEY`. Secret: paste the key. Click **Add secret**.
+
+## 6. Emails for reports and suggestions (free)
+
+Every report and suggestion is emailed to you. Safety concerns arrive as **URGENT: MY-COPTIC-CHURCH CONCERN**, suggestions as **SUGGESTION: MY-COPTIC-CHURCH**, and other reports as **REPORT: MY-COPTIC-CHURCH**.
+
+1. Go to resend.com and sign up **with the Gmail you want the emails in**. Free plan, no card.
+2. Left menu: **API Keys → Create API key**. Name `report box`, permission **Sending access**. Copy the key.
+3. On GitHub (**Settings → Secrets and variables → Actions → New repository secret**), add two secrets:
+   - `RESEND_API_KEY` = the key
+   - `NOTIFY_EMAIL` = your Gmail address
+4. Tell Claude. Claude runs **Actions → Deploy database** so the new settings take effect.
 
 ## What runs by itself after this
 

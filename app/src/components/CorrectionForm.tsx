@@ -24,6 +24,9 @@ export function CorrectionForm({ placeId, t, lang, intro, label }: { placeId: st
   const [state, setState] = useState<"idle" | "sending" | "sent" | "fail">("idle");
   const [problem, setProblem] = useState<string | null>(null);
   const [token, setToken] = useState("");
+  // Reports (not the suggestion box) say what kind of problem it is; safety concerns are emailed as urgent.
+  const [topic, setTopic] = useState<"info" | "safety" | "other">("info");
+  const isReport = !intro;
   const widget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export function CorrectionForm({ placeId, t, lang, intro, label }: { placeId: st
       const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-correction`, {
         method: "POST",
         headers: { "content-type": "application/json", ...supabaseHeaders() },
-        body: JSON.stringify({ place_id: placeId, message: r.text, token }),
+        body: JSON.stringify({ place_id: placeId, message: r.text, topic: isReport ? topic : "suggestion", token }),
       });
       if (res.status === 422) { const { error } = await res.json(); setProblem(t.screen[error] ?? t.sendFail); setState("idle"); return; }
       setState(res.ok ? "sent" : "fail");
@@ -58,6 +61,10 @@ export function CorrectionForm({ placeId, t, lang, intro, label }: { placeId: st
   return (
     <form class="f" onSubmit={submit}>
       <p class="muted small">{intro ?? t.reportIntro}</p>
+      {isReport && <div class="topics" role="radiogroup" aria-label={t.reportLabel}>
+        {(["info", "safety", "other"] as const).map(k => <button type="button" key={k} role="radio" aria-checked={topic === k} aria-pressed={topic === k} onClick={() => setTopic(k)}>{t.topics[k]}</button>)}
+      </div>}
+      {isReport && topic === "safety" && <p class="status warn" role="note">{t.safetyNow}</p>}
       <label for="fix">{label ?? t.reportLabel}</label>
       <textarea id="fix" maxLength={1000} rows={4} value={msg} onInput={e => setMsg((e.target as HTMLTextAreaElement).value)} autocomplete="off" />
       <div ref={widget} />

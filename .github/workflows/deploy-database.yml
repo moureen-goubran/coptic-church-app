@@ -47,5 +47,8 @@ jobs:
         run: |
           supabase functions deploy submit-correction --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
           if [ -n "${{ secrets.TURNSTILE_SECRET }}" ]; then
-            supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" TURNSTILE_SECRET="${{ secrets.TURNSTILE_SECRET }}" ALLOWED_ORIGIN="${{ vars.SITE_ORIGIN || 'https://church.datumarc.com' }}"
+            supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" TURNSTILE_SECRET="${{ secrets.TURNSTILE_SECRET }}" ALLOWED_ORIGIN="${{ vars.SITE_ORIGIN || 'https://coptic.myorthodoxchurch.com,https://coptic-church-app.moureenjgoubran.workers.dev' }}"
+          fi
+          if [ -n "${{ secrets.RESEND_API_KEY }}" ] && [ -n "${{ secrets.NOTIFY_EMAIL }}" ]; then
+            supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}" NOTIFY_EMAIL="${{ secrets.NOTIFY_EMAIL }}"
           fi

@@ -10,6 +10,10 @@ body { margin: 0; }
 .prose p, .prose ul, .prose ol { margin: 0 0 6px; }
 .prose li { margin-bottom: 3px; }
 .sizes.three { grid-template-columns: repeat(3, 1fr); }
+/* report form: what kind of problem */
+.topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.topics button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .85rem; padding: 7px 12px; border-radius: 999px; cursor: pointer; min-height: 36px; }
+.topics button[aria-pressed="true"] { background: var(--lapis); border-color: var(--lapis); color: var(--surface); }
 
 /* search and filters */
 .searchrow { display: flex; gap: 8px; }
@@ -243,7 +247,7 @@ html[lang="ar"] .gsg h4 { letter-spacing: 0; }
 
 /* Sort by (Churches, Events, Feasts & Fasts) */
 .sortby { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--muted); }
-.sortby select { height: 34px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .84rem; padding: 0 10px; }
+.sortby select, .helpfor select { height: 34px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .84rem; padding: 0 10px; }
 .filters .sortby { flex: 1 1 180px; }
 .filters .sortby select { flex: 1; height: 38px; }
 .sortrow { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
@@ -258,6 +262,8 @@ details.acc[open] > summary::after { content: "\2212"; }
 details.acc > summary small { display: block; font-weight: 400; color: var(--muted); font-size: .8rem; }
 details.acc > .accbody { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
 .res { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.res > .helpfor, .res > p, .res > .empty { grid-column: 1 / -1; }
+.helpfor { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .res .item { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
 .res .item h4 { margin: 0; font-size: .95rem; }
 .res .item p { margin: 0; font-size: .85rem; color: var(--muted); }

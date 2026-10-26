@@ -16,7 +16,7 @@ const SAFE_HOSTS = ["facebook.com", "instagram.com", "youtube.com", "twitter.com
   "calendar.google.com", "forms.gle", "docs.google.com", "ccbchurch.com", "givelify.com", "tithe.ly"];
 // Coptic Welcome links (help for newcomers) go only to sites an admin has looked at and added here.
 const RESOURCE_HOSTS = ["nj211.org", "ssa.gov", "aclu-nj.org", "hobokengirl.com", "needhelppayingbills.com", "studentaid.gov", "hesaa.org",
-  "propertytaxreliefapp.nj.gov", "apps.apple.com"];
+  "propertytaxreliefapp.nj.gov", "apps.apple.com", "play.google.com", "211.org", "usalearns.org", "lawhelp.org", "uscis.gov", "healthcare.gov"];
 // Old church domains that expired or now show spam (found by the weekly link check). Never link to them again.
 const BLOCKED_HOSTS = ["amsmcoptic.org", "stphilopater.ca", "stmarystmercuriusphilly.org", "smspvancouver.ca", "coloradocopticchurch.com", "pensacolacopticchurch.com", "saintanthonynj.org", "dp-sk.org"];
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
