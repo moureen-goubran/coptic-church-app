@@ -12,7 +12,7 @@ const migration = readdirSync(dir).filter(f => f.endsWith(".sql")).sort().map(f 
 const seed = readFileSync(new URL("supabase/seed.sql", root), "utf8");
 
 const STUBS = `
-  create role anon; create role authenticated;
+  create role anon; create role authenticated; create role service_role bypassrls;
   create schema auth;
   create table auth.users (id uuid primary key);
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
@@ -58,6 +58,11 @@ describe("database", () => {
     await expect(as("anon", null, "update public.places set name = 'x'")).rejects.toThrow();
     await expect(as("anon", null, "insert into public.corrections (message) values ('hello')")).rejects.toThrow();
     await expect(as("anon", null, "select * from public.corrections")).rejects.toThrow();
+  });
+
+  it("lets the report box's server function save reports and read church names", async () => {
+    await as("service_role", null, "insert into public.corrections (message) values ('hello')");
+    await as("service_role", null, "select name, city, state from public.places limit 1");
   });
 
   it("lets clergy edit only their own church", async () => {
