@@ -270,3 +270,4 @@ details.acc > .accbody { padding: 0 16px 16px; display: flex; flex-direction: co
 .res .item h4 { margin: 0; font-size: .95rem; }
 .res .item p { margin: 0; font-size: .85rem; color: var(--muted); }
 .res .item .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+.linkbtn.claim { color: var(--blue); }
