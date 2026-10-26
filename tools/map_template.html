@@ -88,7 +88,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid
   <div class="bar">
     <div class="seg" role="group" aria-label="Map view">
       <button type="button" id="v-ne" aria-pressed="true">East Coast</button>
-      <button type="button" id="v-us" aria-pressed="false">Whole US</button>
+      <button type="button" id="v-us" aria-pressed="false">Everything</button>
     </div>
     <div class="legend">
       <i><span class="sw" style="background:var(--v-confirmed)"></span>Confirmed</i>
@@ -124,9 +124,10 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid
 <script>
 const PLACES = /*PLACES*/[];
 const US = /*STATES*/{};
+const NA = /*NA*/{};
 const DONE = /*DONE*/[];
 const FIPS = {"01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE","11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD","25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY","72":"PR","78":"VI"};
-const STATE_NAMES = {AL:"Alabama",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",OH:"Ohio",OK:"Oklahoma",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",VI:"U.S. Virgin Islands",WA:"Washington",WV:"West Virginia",WI:"Wisconsin"};
+const STATE_NAMES = {AL:"Alabama",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",OH:"Ohio",OK:"Oklahoma",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",VI:"U.S. Virgin Islands",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",AB:"Alberta",BC:"British Columbia",MB:"Manitoba",NB:"New Brunswick",NL:"Newfoundland and Labrador",NS:"Nova Scotia",ON:"Ontario",QC:"Québec",SK:"Saskatchewan",MOR:"Morelos, Mexico"};
 const VER = {
   church_confirmed: {label: "Confirmed by the church", cls: "confirmed", c: "var(--v-confirmed)"},
   known_locally: {label: "Confirmed locally", cls: "confirmed", c: "var(--v-confirmed)"},
@@ -144,7 +145,7 @@ const stats = [
   [n(["church_confirmed","known_locally","official_directory"]), "confirmed or on a diocese list", "var(--v-confirmed)"],
   [n(["cross_checked"]), "two sources agree", "var(--v-cross)"],
   [n(["unverified"]), "not checked yet", "hollow"],
-  [DONE.length, "states finished: " + DONE.join(", "), ""]
+  [DONE.length, "states and provinces finished: " + DONE.join(", "), ""]
 ];
 document.getElementById("stats").innerHTML = stats.map(([v, l, c]) =>
   `<div class="stat"><b>${v}</b><span>${c === "hollow" ? '<i class="sw hollow"></i>' : c ? `<i class="sw" style="background:${c}"></i>` : ""}${l}</span></div>`).join("");
@@ -153,10 +154,14 @@ document.getElementById("count-sub").textContent = `${PLACES.filter(isMon).lengt
 // map
 const svg = d3.select("#map");
 const W = 975, H = 610;
-const proj = d3.geoAlbersUsa().scale(1300).translate([W / 2, H / 2]);
-const path = d3.geoPath(proj);
+const projUS = d3.geoAlbersUsa().scale(1300).translate([W / 2, H / 2]);
+// Canada and Mexico use the same Albers projection as the lower 48, so the countries line up
+const projNA = d3.geoAlbers().scale(1300).translate([W / 2, H / 2]);
+const proj = ll => projUS(ll) || projNA(ll);
+const path = d3.geoPath(projUS);
 const g = svg.append("g");
 const states = topojson.feature(US, US.objects.states).features;
+g.append("g").selectAll("path").data(NA.features).join("path").attr("class", "state done").attr("d", d3.geoPath(projNA));
 g.append("g").selectAll("path").data(states).join("path")
   .attr("class", d => "state" + (DONE.includes(FIPS[d.id]) ? " done" : "")).attr("d", path);
 PLACES.forEach(p => { const xy = proj([p.lng, p.lat]); p.x = xy ? xy[0] : null; p.y = xy ? xy[1] : null; });
@@ -171,7 +176,7 @@ const dots = g.append("g").selectAll("path").data(shown).join("path")
 dots.append("title").text(p => `${p.name} · ${p.city}, ${p.state}`);
 const sym = (k) => { const r = 4.2 / Math.sqrt(k); return [d3.symbol().type(d3.symbolCircle).size(Math.PI * r * r)(), d3.symbol().type(d3.symbolDiamond).size(2.2 * r * r * 1.6)()]; };
 function sizeDots(k) { const [c, d] = sym(k); dots.attr("d", p => isMon(p) ? d : c).attr("stroke-width", p => p.verification === "unverified" ? 1.6 : 1); }
-const zoom = d3.zoom().scaleExtent([1, 60]).translateExtent([[0, 0], [W, H]])
+const zoom = d3.zoom().scaleExtent([0.5, 60]).translateExtent([[-500, -500], [W + 300, H + 300]])
   .on("start", () => svg.style("cursor", "grabbing")).on("end", () => svg.style("cursor", "grab"))
   .on("zoom", e => { g.attr("transform", e.transform); sizeDots(e.transform.k); });
 svg.call(zoom);
@@ -187,7 +192,7 @@ const NE = shown.filter(p => DONE.includes(p.state) && p.state !== "NY" || (p.st
 function view(which) {
   document.getElementById("v-ne").setAttribute("aria-pressed", which === "ne");
   document.getElementById("v-us").setAttribute("aria-pressed", which === "us");
-  if (which === "us") (reduce ? svg : svg.transition().duration(600)).call(zoom.transform, d3.zoomIdentity);
+  if (which === "us") fitTo(shown);
   else fitTo(NE);
 }
 document.getElementById("v-ne").onclick = () => view("ne");

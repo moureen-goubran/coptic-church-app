@@ -29,7 +29,7 @@
 ],
 [
 "    return null;\n  }\n  // pointer handling",
-"    const pid = hitPlace(px, py); if (pid) return \"p:\" + pid;\n    return null;\n  }\n  function fitAll() {\n    const pts = [...churches.map(c => toW(c.lat, c.lon)), ...PLACES.filter(p => p.lo > -125 && p.lo < -66 && p.la > 24).map(p => toW(p.la, p.lo))];\n    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);\n    view.cx = (Math.min(...xs) + Math.max(...xs)) / 2; view.cy = (Math.min(...ys) + Math.max(...ys)) / 2;\n    view.z = Math.min((W - 40) / (Math.max(...xs) - Math.min(...xs)), (H - 40) / (Math.max(...ys) - Math.min(...ys))) * 100; draw();\n  }\n  // pointer handling"
+"    const pid = hitPlace(px, py); if (pid) return \"p:\" + pid;\n    return null;\n  }\n  function fitAll() {\n    const pts = [...churches.map(c => toW(c.lat, c.lon)), ...PLACES.filter(p => p.lo > -126 && p.lo < -52 && p.la > 17 && p.la < 56).map(p => toW(p.la, p.lo))];\n    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);\n    view.cx = (Math.min(...xs) + Math.max(...xs)) / 2; view.cy = (Math.min(...ys) + Math.max(...ys)) / 2;\n    view.z = Math.min((W - 40) / (Math.max(...xs) - Math.min(...xs)), (H - 40) / (Math.max(...ys) - Math.min(...ys))) * 100; draw();\n  }\n  // pointer handling"
 ],
 [
 "else { const id = hit(e.offsetX, e.offsetY); if (id) select(id, true, false); }",
@@ -61,11 +61,11 @@
 ],
 [
 "mapNote: \"Drag to move, pinch or scroll to zoom. Street data © OpenStreetMap contributors.\",",
-"mapNote: \"Drag to move, pinch or scroll to zoom. ⤢ switches between Jersey City and the whole US. Streets © OpenStreetMap contributors.\","
+"mapNote: \"Drag to move, pinch or scroll to zoom. ⤢ switches between Jersey City and all of North America. Streets © OpenStreetMap contributors.\","
 ],
 [
 "mapNote: \"اسحب للتحريك، وكبّر بإصبعين أو بعجلة الماوس. بيانات الشوارع © مساهمو OpenStreetMap.\",",
-"mapNote: \"اسحب للتحريك، وكبّر بإصبعين أو بعجلة الماوس. زر ⤢ يبدّل بين جيرسي سيتي والولايات المتحدة كلها. الشوارع © مساهمو OpenStreetMap.\","
+"mapNote: \"اسحب للتحريك، وكبّر بإصبعين أو بعجلة الماوس. زر ⤢ يبدّل بين جيرسي سيتي وأمريكا الشمالية كلها. الشوارع © مساهمو OpenStreetMap.\","
 ],
 [
 "  if (r.kind === \"ev\") {\n    const c = churchById(r.church);",
@@ -93,11 +93,11 @@
 ],
 [
 "shareAppText: \"Coptic church services and meetings in Jersey City and Bayonne:\"",
-"shareAppText: \"Find Coptic Orthodox churches across the US, with full schedules for Jersey City and Bayonne:\""
+"shareAppText: \"Find Coptic Orthodox churches across North America, with full schedules for Jersey City and Bayonne:\""
 ],
 [
 "shareAppText: \"مواعيد القداسات والاجتماعات في الكنائس القبطية في جيرسي سيتي وبايون:\"",
-"shareAppText: \"ابحث عن الكنائس القبطية الأرثوذكسية في الولايات المتحدة، مع المواعيد الكاملة لكنائس جيرسي سيتي وبايون:\""
+"shareAppText: \"ابحث عن الكنائس القبطية الأرثوذكسية في أمريكا الشمالية، مع المواعيد الكاملة لكنائس جيرسي سيتي وبايون:\""
 ],
 [
 "donate: \"http://www.paypal.com/",
@@ -105,6 +105,6 @@
 ],
 [
 "        <li><b>The Arabic hasn",
-"        <li><b>Churches outside Jersey City and Bayonne show basic info only.</b> There are 351 more places from diocese directories and two church directories, checked October 26, 2026. Most have an address, phone and website, but no service times yet. Each card says how well it has been checked, and 30 places still only list a town.</li>\n        <li><b>The Arabic hasn"
+"        <li><b>Churches outside Jersey City and Bayonne show basic info only.</b> There are __N__ more places in the US, Canada and Mexico, from diocese directories and two church directories, checked October 26, 2026. Most have an address, phone and website, but no service times yet. Each card says how well it has been checked, and __T__ places still only list a town.</li>\n        <li><b>The Arabic hasn"
 ]
 ]

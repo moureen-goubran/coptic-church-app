@@ -7,7 +7,8 @@ Last updated: October 26, 2026
 1. **New Jersey**: North, then Central, then South Jersey. ✅ First pass done (30 places).
 2. **Neighboring states**: New York, Pennsylvania, Delaware, Connecticut. ✅ First pass done (51 places).
 3. ✅ Rest of the US: first pass done (355 places after merging duplicates). Street addresses for the South and West added Oct 26 from the Nihov directory; 102 places have exact map pins.
-4. Review progress together, then decide the rest of the US, then Canada and beyond.
+4. ✅ Canada (69 places, Nihov directory cross-checked with Wikipedia) and Mexico (1 church, Tlayacapan) added Oct 26. Total 425.
+5. Review progress together, then decide the rest of the US, then Canada and beyond.
 
 ## Status
 
@@ -17,7 +18,7 @@ Last updated: October 26, 2026
 | California and Hawaii (Los Angeles diocese) | 54 | Official diocese directory, with addresses. |
 | East, Midwest (25 states) | see places.csv | Official diocese lists or two directories, most with addresses. |
 | South and West (17 states + Northern CA) | see places.csv | Names and towns cross-checked (Nihov vs Wikipedia). Street addresses still to add. Wikipedia-only rows carry a "Not in the Nihov directory" note. |
-| Montana, Hawaii outliers | few | Unverified. Nihov's Montana page failed to load. |
+| Montana, US Virgin Islands | 2 | Unverified. Nihov's Montana page fails to load and no second source was found for either (Oct 26). |
 
 ## Sources, best first
 

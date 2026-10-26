@@ -63,7 +63,7 @@ r('''    return null;
     return null;
   }
   function fitAll() {
-    const pts = [...churches.map(c => toW(c.lat, c.lon)), ...PLACES.filter(p => p.lo > -125 && p.lo < -66 && p.la > 24).map(p => toW(p.la, p.lo))];
+    const pts = [...churches.map(c => toW(c.lat, c.lon)), ...PLACES.filter(p => p.lo > -126 && p.lo < -52 && p.la > 17 && p.la < 56).map(p => toW(p.la, p.lo))];
     const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
     view.cx = (Math.min(...xs) + Math.max(...xs)) / 2; view.cy = (Math.min(...ys) + Math.max(...ys)) / 2;
     view.z = Math.min((W - 40) / (Math.max(...xs) - Math.min(...xs)), (H - 40) / (Math.max(...ys) - Math.min(...ys))) * 100; draw();
@@ -81,8 +81,8 @@ r('''  }).join("") || `<div class="empty">${t("noneFound")}</div>`;
   renderPlaces(CQ, !!$("#church-list").innerHTML);
   document.querySelectorAll(".ccard[data-id]").forEach(card''')
 r('<canvas id="map" tabindex="0" aria-label="Street map of Jersey City and Bayonne with church locations"></canvas>', '<canvas id="map" tabindex="0" aria-label="Map of Coptic Orthodox churches, monasteries and convents"></canvas>')
-r('mapNote: "Drag to move, pinch or scroll to zoom. Street data © OpenStreetMap contributors.",', 'mapNote: "Drag to move, pinch or scroll to zoom. ⤢ switches between Jersey City and the whole US. Streets © OpenStreetMap contributors.",')
-r('mapNote: "اسحب للتحريك، وكبّر بإصبعين أو بعجلة الماوس. بيانات الشوارع © مساهمو OpenStreetMap.",', 'mapNote: "اسحب للتحريك، وكبّر بإصبعين أو بعجلة الماوس. زر ⤢ يبدّل بين جيرسي سيتي والولايات المتحدة كلها. الشوارع © مساهمو OpenStreetMap.",')
+r('mapNote: "Drag to move, pinch or scroll to zoom. Street data © OpenStreetMap contributors.",', 'mapNote: "Drag to move, pinch or scroll to zoom. ⤢ switches between Jersey City and all of North America. Streets © OpenStreetMap contributors.",')
+r('mapNote: "اسحب للتحريك، وكبّر بإصبعين أو بعجلة الماوس. بيانات الشوارع © مساهمو OpenStreetMap.",', 'mapNote: "اسحب للتحريك، وكبّر بإصبعين أو بعجلة الماوس. زر ⤢ يبدّل بين جيرسي سيتي وأمريكا الشمالية كلها. الشوارع © مساهمو OpenStreetMap.",')
 # --- details sheet, report, search ---
 r('''  if (r.kind === "ev") {
     const c = churchById(r.church);''', '''  if (r.kind === "place") { h = placeSheet(r.id); } else if (r.kind === "ev") {
@@ -96,10 +96,10 @@ r('data-gsgo="${k}">', 'data-gsgo="${k === "places" ? "churches" : k}">')
 # --- wording and fixes ---
 r('Feast dates from copticchurch.net."', 'Feast dates from copticchurch.net. Other churches from diocese directories, the Nihov directory and Coptic Society, checked October 26, 2026."')
 r('مواعيد الأعياد من copticchurch.net."', 'مواعيد الأعياد من copticchurch.net. باقي الكنائس من أدلة الإيبارشيات ودليل Nihov وCoptic Society، بتاريخ ٢٦ أكتوبر ٢٠٢٦."')
-r('shareAppText: "Coptic church services and meetings in Jersey City and Bayonne:"', 'shareAppText: "Find Coptic Orthodox churches across the US, with full schedules for Jersey City and Bayonne:"')
-r('shareAppText: "مواعيد القداسات والاجتماعات في الكنائس القبطية في جيرسي سيتي وبايون:"', 'shareAppText: "ابحث عن الكنائس القبطية الأرثوذكسية في الولايات المتحدة، مع المواعيد الكاملة لكنائس جيرسي سيتي وبايون:"')
+r('shareAppText: "Coptic church services and meetings in Jersey City and Bayonne:"', 'shareAppText: "Find Coptic Orthodox churches across North America, with full schedules for Jersey City and Bayonne:"')
+r('shareAppText: "مواعيد القداسات والاجتماعات في الكنائس القبطية في جيرسي سيتي وبايون:"', 'shareAppText: "ابحث عن الكنائس القبطية الأرثوذكسية في أمريكا الشمالية، مع المواعيد الكاملة لكنائس جيرسي سيتي وبايون:"')
 r('donate: "http://www.paypal.com/', 'donate: "https://www.paypal.com/')
-r('        <li><b>The Arabic hasn', '''        <li><b>Churches outside Jersey City and Bayonne show basic info only.</b> There are 351 more places from diocese directories and two church directories, checked October 26, 2026. Most have an address, phone and website, but no service times yet. Each card says how well it has been checked, and 30 places still only list a town.</li>
+r('        <li><b>The Arabic hasn', '''        <li><b>Churches outside Jersey City and Bayonne show basic info only.</b> There are __N__ more places in the US, Canada and Mexico, from diocese directories and two church directories, checked October 26, 2026. Most have an address, phone and website, but no service times yet. Each card says how well it has been checked, and __T__ places still only list a town.</li>
         <li><b>The Arabic hasn''')
 json.dump(P, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'demo_patch.json'), 'w'), ensure_ascii=False, indent=0)
 print(len(P), 'replacements')

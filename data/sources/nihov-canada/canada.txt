@@ -1,0 +1,68 @@
+St. Mary & St. Paul|Calgary|AB|https://directory.nihov.org/church/809
+St. Mary & St. Paul Coptic Orthodox Church|Calgary|AB|https://directory.nihov.org/church/801
+St. Mary & St. Mark Coptic Orthodox Church|Edmonton|AB|https://directory.nihov.org/church/134
+St. Mary & St. George Coptic Orthodox Church|Red Deer|AB|https://directory.nihov.org/church/564
+St. Mina Coptic Orthodox Church|Rocky View County|AB|https://directory.nihov.org/church/133
+Pope Kyrillos VI Coptic Orthodox Church|Mill Bay|BC|https://directory.nihov.org/church/758
+St. George Coptic Orthodox Church|Surrey|BC|https://directory.nihov.org/church/135
+St. Mary Coptic Orthodox Church|Surrey|BC|https://directory.nihov.org/church/565
+St. Mark & St. Philopateer Coptic Orthodox Church|Vancouver|BC|https://directory.nihov.org/church/621
+St. Mina & St. Anthony Coptic Orthodox Church|Brandon|MB|https://directory.nihov.org/church/578
+St. Mark Coptic Orthodox Church|Winnipeg|MB|https://directory.nihov.org/church/136
+Holy Virgin Mary & St. George Coptic Orthodox Church|Saint John|NB|https://directory.nihov.org/church/581
+St. Maurice Coptic Orthodox Church|Mount Pearl|NL|https://directory.nihov.org/church/137
+St. Mena Coptic Orthodox Church|Halifax|NS|https://directory.nihov.org/church/138
+St. Mary & St. Abraam Coptic Orthodox Church|Ajax|ON|https://directory.nihov.org/church/139
+Archangel Michael & St. Tekla Coptic Orthodox Church|Brampton|ON|https://directory.nihov.org/church/141
+Archangel Raphael & Saint Marina Coptic Orthodox Church|Burlington|ON|https://directory.nihov.org/church/808
+Ti Agia Maria & St. Demiana Coptic Orthodox Church|Etobicoke|ON|https://directory.nihov.org/church/142
+St. Philopater Mercurius Coptic Orthodox Church|Guelph|ON|https://directory.nihov.org/church/297
+St. Mina Coptic Orthodox Church|Hamilton|ON|https://directory.nihov.org/church/143
+St. Mina, Pope Cyril & St. Karas Coptic Orthodox Church|Kanata|ON|https://directory.nihov.org/church/717
+St. Mena Coptic Orthodox Church|Kingston|ON|https://directory.nihov.org/church/498
+St. Mena Coptic Orthodox Church|Kingston|ON|https://directory.nihov.org/church/646
+St. Mary & St. Maurice Coptic Orthodox Church|Kitchener|ON|https://directory.nihov.org/church/144
+St. Paul The Anchorite Coptic Orthodox Church|London|ON|https://directory.nihov.org/church/145
+St. Mark Coptic Orthodox Cathedral|Markham|ON|https://directory.nihov.org/church/802
+St. Mary & St. Samuel The Confessor Coptic Orthodox Church|Markham|ON|https://directory.nihov.org/church/303
+St. Maurice & St. Verena Coptic Orthodox Church|Markham|ON|https://directory.nihov.org/church/220
+St. George & St. Abanoub Coptic Orthodox Church|Milton|ON|https://directory.nihov.org/church/298
+Canadian Coptic Orthodox Church of the Nativity|Mississauga|ON|https://directory.nihov.org/church/880
+Canadian Coptic Orthodox Church of the Resurrection|Mississauga|ON|https://directory.nihov.org/church/756
+St. Anthony & St. Philopateer Coptic Orthodox Church|Mississauga|ON|https://directory.nihov.org/church/148
+St. Maximos & St. Dometius Coptic Orthodox Church|Mississauga|ON|https://directory.nihov.org/church/757
+St. Mina & St. Kyrollos (Cyril) Coptic Orthodox Church|Mississauga|ON|https://directory.nihov.org/church/147
+The Coptic Orthodox Church of Prophet Daniel & The Three Saintly Youth|Mississauga|ON|https://directory.nihov.org/church/545
+Virgin Mary & St. Athanasius Coptic Orthodox Church|Mississauga|ON|https://directory.nihov.org/church/146
+The Valley of the Mother of God|Mono|ON|https://directory.nihov.org/church/299
+St. Joseph Coptic Orthodox Church|Navan|ON|https://directory.nihov.org/church/645
+St. Philopateer & St. Demiana Coptic Orthodox Church|Newmarket|ON|https://directory.nihov.org/church/805
+Archangel Michael & St. Mina Coptic Orthodox Church|North York|ON|https://directory.nihov.org/church/803
+St. Peter & St. Paul Coptic Orthodox Church|Oakville|ON|https://directory.nihov.org/church/544
+St. John the Baptist & St. Elizabeth Coptic Orthodox Church|Oro Station|ON|https://directory.nihov.org/church/140
+St. George & St. Anthony Coptic Orthodox Church|Ottawa|ON|https://directory.nihov.org/church/150
+St. Mark & St. Mary of Egypt Coptic Orthodox Church|Ottawa|ON|https://directory.nihov.org/church/579
+St. Mary Coptic Orthodox Church|Ottawa|ON|https://directory.nihov.org/church/151
+St. Anthony Monastery|Perth|ON|https://directory.nihov.org/church/563
+St. Mary & St. John the Beloved Coptic Orthodox Church|Pickering|ON|https://directory.nihov.org/church/387
+St. Mary & St. Joseph Coptic Orthodox Church|Richmond Hill|ON|https://directory.nihov.org/church/152
+St. George & St. Mercurius Coptic Orthodox Church|St. Catharines|ON|https://directory.nihov.org/church/153
+St. Mary & St. Mark Coptic Orthodox Church|Sudbury|ON|https://directory.nihov.org/church/806
+St. George & St. Rueiss Coptic Orthodox Church|Toronto|ON|https://directory.nihov.org/church/149
+St. Mark Coptic Orthodox Church|Toronto|ON|https://directory.nihov.org/church/154
+St. Moses & St. Katherine Coptic Orthodox Church|Toronto|ON|https://directory.nihov.org/church/503
+St. Philopateer Mercurius & St. Shenouda the Archimandrite Coptic Orthodox Church|Toronto|ON|https://directory.nihov.org/church/804
+Virgin Mary & The Apostles Peter & Paul Coptic Orthodox Church|Vaughan|ON|https://directory.nihov.org/church/155
+St. Bishoy Coptic Orthodox Church|Whitchurch-Stouffville|ON|https://directory.nihov.org/church/156
+St. Mary & St. Moses Coptic Orthodox Church|Windsor|ON|https://directory.nihov.org/church/157
+Archangel Michael & St. Mercurius Coptic Orthodox Church|Laval|QC|https://directory.nihov.org/church/580
+St. Mark Coptic Orthodox Church|Montreal|QC|https://directory.nihov.org/church/158
+St. George & St. Joseph Coptic Orthodox Church|Pierrefonds|QC|https://directory.nihov.org/church/159
+St. Peter & St. Paul Coptic Orthodox Church|Pointe-Claire|QC|https://directory.nihov.org/church/482
+Virgin Mary, St. Mina & Pope Cyril Coptic Orthodox Church|Quebec City|QC|https://directory.nihov.org/church/338
+St. Mina & Pope Cyril VI Coptic Orthodox Church|Sainte-Thérèse|QC|https://directory.nihov.org/church/305
+Virgin Mary Coptic Orthodox Church|Saint-Hubert|QC|https://directory.nihov.org/church/160
+St. John the Baptist Coptic Orthodox Church|Terrasse-Vaudreuil|QC|https://directory.nihov.org/church/718
+St. Moses the Strong Coptic Orthodox Church|Val-des-Bois|QC|https://directory.nihov.org/church/644
+St. Mark & St. George Coptic Orthodox Church|Regina|SK|https://directory.nihov.org/church/577
+Virgin Mary & St. Mina Coptic Orthodox Church|Saskatoon|SK|https://directory.nihov.org/church/540

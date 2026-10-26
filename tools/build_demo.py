@@ -29,6 +29,14 @@ for g in tj['objects']['states']['geometries']:
                 pt = (round(lon * 50), round(lat * 50))  # 0.02 degree grid
                 if not q or q[-1] != pt: q.append(pt)
             if len(q) > 3: rings.append(q)
+na = json.load(open(os.path.join(here, 'canada-mexico-50m.geojson')))
+for f in na['features']:
+    for poly in f['geometry']['coordinates']:
+        q = []
+        for lon, lat in poly[0]:
+            pt = (round(lon * 50), round(lat * 50))
+            if not q or q[-1] != pt: q.append(pt)
+        if len(q) > 3: rings.append(q)
 enc = []
 for q in rings:
     flat = [q[0][0], q[0][1]] + [v for i in range(1, len(q)) for v in (q[i][0] - q[i-1][0], q[i][1] - q[i-1][1])]
@@ -50,7 +58,7 @@ for r in csv.DictReader(open(os.path.join(root, 'data/places.csv'))):
     addr = ', '.join(x for x in [r['street'], r['city'], (r['state'] + ' ' + r['zip']).strip()] if x)
     out.append({'id': r['id'], 'n': r['name'], 't': r['type'], 'c': r['city'], 's': r['state'], 'a': addr, 'st': bool(r['street']),
                 'p': r['phone'], 'w': r['website'], 'v': r['verification'], 'd': r['source_checked'], 'dio': r['diocese'],
-                'la': round(lat, 5), 'lo': round(lng, 5), 'src': r['source_url'], 'nt': r['notes']})
+                'la': round(lat, 5), 'lo': round(lng, 5), 'src': r['source_url'], 'nt': r['notes'], 'co': '' if r['country'] == 'US' else r['country']})
 for p in out:
     for k in list(p):
         if p[k] in ('', False): del p[k]
@@ -66,5 +74,6 @@ inject = open(os.path.join(here, 'demo_patch.js')).read()
 for old, new in json.load(open(os.path.join(here, 'demo_patch.json'))):
     sub(old, new)
 sub('/* ---------- feast strip + calendar ---------- */', inject + '\n/* ---------- feast strip + calendar ---------- */')
+base = base.replace('__N__', str(len(out))).replace('__T__', str(sum(1 for p in out if not p.get('st'))))
 open(os.path.join(here, 'demo.html'), 'w').write(base)
 print(len(out), 'places;', len(rings), 'rings;', round(len(base) / 1024), 'KB')
