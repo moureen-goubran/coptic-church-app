@@ -1,0 +1,21 @@
+# Weekly safety check of every outside link (spam takeovers, dead links, redirects) and the live site's
+# security headers. Fails (and GitHub emails the owner) only if a link turned into spam or a header is gone.
+name: Link safety check
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/link-check.yml", "app/scripts/check-links.mjs"]
+permissions:
+  contents: read
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: node app/scripts/check-links.mjs
