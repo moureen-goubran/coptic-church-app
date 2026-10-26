@@ -38,3 +38,15 @@ export function Icon({ name }: { name: string }) {
 export function Logo() {
   return <svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="var(--gold)" stroke-width="2.4"><path d="M20 4v32M4 20h32" /><circle cx="20" cy="4" r="2.6" fill="var(--gold)" /><circle cx="20" cy="36" r="2.6" fill="var(--gold)" /><circle cx="4" cy="20" r="2.6" fill="var(--gold)" /><circle cx="36" cy="20" r="2.6" fill="var(--gold)" /><circle cx="20" cy="20" r="5" /></g></svg>;
 }
+
+// Small outline icons for church links (from the demo).
+export function SocialIcon({ kind }: { kind: string }) {
+  const svg = (children: preact.ComponentChildren) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16">{children}</svg>;
+  switch (kind) {
+    case "facebook": return svg(<><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5M15 14.5c2.8-.4 6 1.2 6 4.5" /></>);
+    case "instagram": return svg(<><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>);
+    case "youtube": return svg(<><circle cx="12" cy="12" r="9" /><path d="M10 8.5v7l6-3.5z" fill="currentColor" /></>);
+    case "live": return svg(<><circle cx="12" cy="12" r="2" fill="currentColor" /><path d="M8 8a5.5 5.5 0 0 0 0 8M16 8a5.5 5.5 0 0 1 0 8M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14" /></>);
+    default: return svg(<path d="M4 5h16v11H9l-5 4z" />);
+  }
+}

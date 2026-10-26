@@ -2,10 +2,11 @@
 // small stand-ins for the Supabase-only pieces (auth schema, roles, pg_cron).
 import { describe, it, expect, beforeAll } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const root = new URL("../../", import.meta.url);
-const migration = readFileSync(new URL("supabase/migrations/20261026000000_init.sql", root), "utf8")
+const dir = new URL("supabase/migrations/", root);
+const migration = readdirSync(dir).filter(f => f.endsWith(".sql")).sort().map(f => readFileSync(new URL(f, dir), "utf8")).join("\n")
   .replace("create extension if not exists pg_cron with schema pg_catalog;", "")
   .replace(/select cron\.schedule\([^;]*\$\$[^$]*\$\$\);/, "");
 const seed = readFileSync(new URL("supabase/seed.sql", root), "utf8");
@@ -65,6 +66,31 @@ describe("database", () => {
     const other = await as("authenticated", CLERGY, "update public.places set phone = '1' where id = 'nj-bayonne-virgin-mary-st-john' returning id");
     expect(other.rows.length).toBe(0);
     await expect(as("authenticated", CLERGY, "insert into public.services (place_id, day, start_time, kind, title_en) values ('nj-bayonne-virgin-mary-st-john', 0, '08:00', 'liturgy', 'x')")).rejects.toThrow();
+  });
+
+  it("shows church details, clergy and approved links to the public", async () => {
+    const id = "nj-jersey-city-st-mark-jersey-city";
+    expect((await as("anon", null, `select parking_en from public.place_details where place_id = '${id}'`)).rows[0].parking_en).toMatch(/parking/i);
+    expect((await as("anon", null, `select count(*)::int n from public.clergy where place_id = '${id}'`)).rows[0].n).toBe(4);
+    expect((await as("anon", null, `select count(*)::int n from public.place_links where place_id = '${id}' and kind = 'live'`)).rows[0].n).toBe(1);
+    await expect(as("anon", null, "insert into public.place_links (place_id, kind, url) values ('nj-bayonne-virgin-mary-st-john', 'live', 'https://example.com')")).rejects.toThrow();
+  });
+
+  it("keeps a link clergy add hidden until an admin approves it", async () => {
+    const id = "nj-jersey-city-st-mark-jersey-city";
+    const r = await as("authenticated", CLERGY, `insert into public.place_links (place_id, kind, url, approved) values ('${id}', 'instagram', 'https://instagram.com/x', true) returning id, approved`);
+    expect(r.rows[0].approved).toBe(false);
+    const linkId = r.rows[0].id;
+    expect((await as("anon", null, `select count(*)::int n from public.place_links where id = ${linkId}`)).rows[0].n).toBe(0);
+    await as("authenticated", CLERGY, `update public.place_links set approved = true where id = ${linkId}`);
+    expect((await as("anon", null, `select count(*)::int n from public.place_links where id = ${linkId}`)).rows[0].n).toBe(0);
+    await as("authenticated", ADMIN, `update public.place_links set approved = true where id = ${linkId}`);
+    expect((await as("anon", null, `select count(*)::int n from public.place_links where id = ${linkId}`)).rows[0].n).toBe(1);
+    // Changing an approved link's address sends it back for approval.
+    await as("authenticated", CLERGY, `update public.place_links set url = 'https://instagram.com/y' where id = ${linkId}`);
+    expect((await as("anon", null, `select count(*)::int n from public.place_links where id = ${linkId}`)).rows[0].n).toBe(0);
+    await expect(as("authenticated", CLERGY, "insert into public.place_links (place_id, kind, url) values ('nj-bayonne-virgin-mary-st-john', 'live', 'https://example.com')")).rejects.toThrow();
+    await expect(as("authenticated", CLERGY, `insert into public.place_links (place_id, kind, url) values ('${id}', 'live', 'http://example.com')`)).rejects.toThrow();
   });
 
   it("logs every change", async () => {

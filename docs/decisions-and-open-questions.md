@@ -38,7 +38,7 @@ Last updated: October 26, 2026
 - Bayonne class times come from a feed last modified September 1, 2025.
 - Sources conflict on St. Mark's clergy phone and on Virgin Mary & St. John's address and phone.
 - The St. Abanoub & St. Antonious Sunday liturgy time is an assumption.
-- One PayPal link in the demo uses `http://`. Switch it to `https://`.
+- Priests' personal phones and emails from the demo were left out (safety rule: only with the priest's written OK). Names are shown.
 - Synaxarium links go to st-takla.org (same as the demo). Check that a few days open correctly, especially the Nasie month.
 
 ## Renewals
