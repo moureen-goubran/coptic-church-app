@@ -20,7 +20,6 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
       - run: npm ci
+      - run: npm run seed-sql
       - run: npm test
       - run: npm run build
-      - name: seed.sql is up to date with the CSVs
-        run: npm run seed-sql && git diff --exit-code ../supabase/seed.sql

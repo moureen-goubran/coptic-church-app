@@ -12,7 +12,7 @@ Last updated: October 26, 2026
 | `data/places.csv` | **The master list** of churches, monasteries, convents, retreat centers and communities (US). One row per place. |
 | `data/sources/` | Raw copies of each public source, plus the script that builds `places.csv` from them. Don't edit `places.csv` by hand until we move to a real database (see the data plan). |
 | `app/` | **The real app** (website and installable phone app). See "The app" below. |
-| `supabase/` | The database: tables and safety rules (`migrations/`), the church list as SQL (`seed.sql`, generated), and the corrections box (`functions/`). |
+| `supabase/` | The database: tables and safety rules (`migrations/`), the church list as SQL (`seed.sql`, generated, not committed), and the corrections box (`functions/`). |
 | `data/services.csv`, `data/translations.csv` | Weekly service times and Arabic names, linked to `places.csv` by `id`. |
 | `docs/build-plan.md` | What version 1 includes and the tools it uses. |
 | `docs/setup-guide.md` | One-time account setup (Supabase, GitHub, Cloudflare). |
@@ -40,5 +40,5 @@ Last updated: October 26, 2026
 
 - `app/`: Preact + TypeScript, built with Vite. `npm install`, then `npm run dev` to run it, `npm test` for tests, `npm run build` to build.
 - The app ships with a built-in copy of the list (made from `data/*.csv` at build time) and switches to the live Supabase database when it answers. So it works offline and never breaks if the database is down.
-- After changing `data/*.csv`, run `npm run seed-sql` in `app/` to refresh `supabase/seed.sql` (CI checks this).
+- `supabase/seed.sql` is generated from `data/*.csv` automatically (by tests and by the database deploy), so editing the CSVs is enough.
 - To restyle: change the color and font variables at the top of `app/src/styles/theme.css`. All wording is in `app/src/i18n.ts`.

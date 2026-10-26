@@ -26,6 +26,13 @@ jobs:
       - if: steps.ready.outputs.go == 'true'
         uses: actions/checkout@v4
       - if: steps.ready.outputs.go == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build seed.sql from data/*.csv
+        if: steps.ready.outputs.go == 'true'
+        run: node app/scripts/make-seed-sql.mjs
+      - if: steps.ready.outputs.go == 'true'
         uses: supabase/setup-cli@v1
         with:
           version: latest
