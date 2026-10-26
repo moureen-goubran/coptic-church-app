@@ -8,4 +8,12 @@ export interface Service {
   place_id: string; day: number; start: string; end: string | null; kind: string;
   title_en: string; title_ar: string | null; room_en: string | null; room_ar: string | null; last_verified: string | null;
 }
-export interface Dataset { generated: string; places: Place[]; services: Service[]; source: "live" | "built-in" }
+export interface Details {
+  place_id: string; email: string | null; parking_en: string | null; parking_ar: string | null;
+  clergy_note_en: string | null; clergy_note_ar: string | null; logo: string | null; logo_dark: boolean; last_verified: string | null;
+}
+export interface Clergy { place_id: string; sort: number; name_en: string; name_ar: string | null; phone: string | null; email: string | null }
+export interface Link { place_id: string; kind: string; url: string; label_en: string | null; label_ar: string | null }
+export interface Dataset {
+  generated: string; places: Place[]; services: Service[]; details: Details[]; clergy: Clergy[]; links: Link[]; source: "live" | "built-in";
+}

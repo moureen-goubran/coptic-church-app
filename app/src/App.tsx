@@ -76,6 +76,14 @@ export function App() {
     for (const s of data?.services ?? []) { if (!m.has(s.place_id)) m.set(s.place_id, []); m.get(s.place_id)!.push(s); }
     return m;
   }, [data]);
+  const byPlace = <T extends { place_id: string }>(rows: T[] | undefined) => {
+    const m = new Map<string, T[]>();
+    for (const r of rows ?? []) { if (!m.has(r.place_id)) m.set(r.place_id, []); m.get(r.place_id)!.push(r); }
+    return m;
+  };
+  const detailsBy = useMemo(() => new Map((data?.details ?? []).map(d => [d.place_id, d])), [data]);
+  const clergyBy = useMemo(() => byPlace(data?.clergy), [data]);
+  const linksBy = useMemo(() => byPlace(data?.links), [data]);
   const dist = (p: Place) => (userLoc && p.lat !== null && p.lng !== null ? milesBetween(userLoc, [p.lat, p.lng]) : null);
 
   const results = useMemo(() => {
@@ -177,6 +185,7 @@ export function App() {
                 <span class="pside">
                   {mi && <span class="chip gold num">{mi}</span>}
                   {svc && <span class="chip ty-liturgy">{t.services}</span>}
+                  {linksBy.get(p.id)?.some(l => l.kind === "live") && <span class="chip plain">{t.liveStream}</span>}
                 </span>
               </button>
             );
@@ -208,7 +217,7 @@ export function App() {
         </section>
       </main>}
 
-      {selected && <PlaceSheet place={selected} services={servicesBy.get(selected.id) ?? []} t={t} lang={lang} distance={fmtMi(selected)} onClose={closePlace} />}
+      {selected && <PlaceSheet place={selected} services={servicesBy.get(selected.id) ?? []} details={detailsBy.get(selected.id) ?? null} clergy={clergyBy.get(selected.id) ?? []} links={linksBy.get(selected.id) ?? []} t={t} lang={lang} distance={fmtMi(selected)} onClose={closePlace} />}
     </div>
   );
 }

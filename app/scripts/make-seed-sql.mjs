@@ -4,7 +4,7 @@
 import { writeFileSync } from "node:fs";
 import { loadData } from "./load-data.mjs";
 
-const { places, services, errors } = loadData();
+const { places, services, details, clergy, links, errors } = loadData();
 if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
 
 const lit = v => (v === null || v === undefined ? "null" : typeof v === "number" || typeof v === "boolean" ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
@@ -21,6 +21,19 @@ sql += services.map(s => `(${[s.place_id, s.day, s.start, s.end, s.kind, s.title
 sql += `;\n-- Replace imported schedules, except for places edited in the app.\n`;
 sql += `delete from public.services s using public.places p where p.id = s.place_id and not p.edited_in_app and s.place_id in (select place_id from csv_services);\n`;
 sql += `insert into public.services (${SCOLS.join(", ")}) select ${SCOLS.map(c => "c." + c).join(", ")} from csv_services c join public.places p on p.id = c.place_id where not p.edited_in_app;\n`;
+// Details, clergy and links: same rule, replaced from the CSVs unless the place was edited in the app.
+const replace = (table, cols, rows, extra = {}) => {
+  if (!rows.length) return "";
+  const all = [...cols, ...Object.keys(extra)];
+  let q = `create temp table csv_${table} on commit drop as select ${all.join(", ")} from public.${table} with no data;\n`;
+  q += `insert into csv_${table} (${all.join(", ")}) values\n` + rows.map(r => `(${[...cols.map(c => lit(r[c])), ...Object.values(extra)].join(", ")})`).join(",\n") + ";\n";
+  q += `delete from public.${table} t using public.places p where p.id = t.place_id and not p.edited_in_app and t.place_id in (select place_id from csv_${table});\n`;
+  q += `insert into public.${table} (${all.join(", ")}) select ${all.map(c => "c." + c).join(", ")} from csv_${table} c join public.places p on p.id = c.place_id where not p.edited_in_app;\n`;
+  return q;
+};
+sql += replace("place_details", ["place_id", "email", "parking_en", "parking_ar", "clergy_note_en", "clergy_note_ar", "logo", "logo_dark", "last_verified"], details);
+sql += replace("clergy", ["place_id", "sort", "name_en", "name_ar", "phone", "email", "last_verified"], clergy);
+sql += replace("place_links", ["place_id", "kind", "url", "label_en", "label_ar", "last_verified"], links, { approved: "true" });
 sql += `commit;\n`;
 writeFileSync(new URL("../../supabase/seed.sql", import.meta.url), sql);
-console.log(`seed.sql: ${places.length} places, ${services.length} service times`);
+console.log(`seed.sql: ${places.length} places, ${services.length} service times, ${details.length} details, ${clergy.length} clergy, ${links.length} links`);

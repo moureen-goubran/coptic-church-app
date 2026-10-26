@@ -30,6 +30,16 @@ One row per weekly service, linked to `places.csv` by `place_id`. `day` is 0 (Su
 
 Places without `lat`/`lng` get their city's center from `data/sources/city-coords-approx.csv` and are marked approximate in the app ("the pin shows the city"). Directions still use the full address. Filling exact `lat`/`lng` removes the note.
 
-## Coming later
+## `data/place_details.csv`: extra church info
 
-- `clergy`: names and roles only. No personal contact details unless the priest asks for them.
+`place_id`, `email` (church office only), `parking_en`/`parking_ar`, `clergy_note_en`/`clergy_note_ar` (how to reach the priests, for example through the office), `logo` (a file we host, `/logos/<place_id>.webp` in `app/public/logos/`), `logo_dark` (`yes` if the logo needs its own dark background), `source_checked`.
+
+## `data/clergy.csv`: priests
+
+`place_id`, `sort` (order shown), `name_en`, `name_ar`, `phone`, `email`, `source_checked`. Leave `phone` and `email` blank: priests' personal contacts appear only if the priest asks in writing (safety-and-accounts.md). Church office contacts go in `places.csv`/`place_details.csv`.
+
+## `data/links.csv`: live stream, social media, giving and other outside links
+
+`place_id`, `kind`, `url`, `label_en`, `label_ar`, `source_checked`. `kind` is one of `live`, `facebook`, `instagram`, `youtube`, `x`, `tiktok`, `donate`, `calendar` (an `https://` calendar feed; the app offers Google and Apple subscribe buttons), `form`, `clergy_page`, `other`. Links must be `https://` and go to the church's own website or a platform on the safe list (`SAFE_HOSTS` in `app/scripts/load-data.mjs`). Group chats (WhatsApp, GroupMe) are not allowed without a priest's written OK.
+
+Links in this file count as admin-approved. Links clergy add in the app later stay hidden until an admin approves them.
