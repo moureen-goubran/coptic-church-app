@@ -58,7 +58,7 @@ for r in csv.DictReader(open(os.path.join(root, 'data/places.csv'))):
     addr = ', '.join(x for x in [r['street'], r['city'], (r['state'] + ' ' + r['zip']).strip()] if x)
     out.append({'id': r['id'], 'n': r['name'], 't': r['type'], 'c': r['city'], 's': r['state'], 'a': addr, 'st': bool(r['street']),
                 'p': r['phone'], 'w': r['website'], 'v': r['verification'], 'd': r['source_checked'], 'dio': r['diocese'],
-                'la': round(lat, 5), 'lo': round(lng, 5), 'src': r['source_url'], 'nt': r['notes'], 'co': '' if r['country'] == 'US' else r['country']})
+                'la': round(lat, 5), 'lo': round(lng, 5), 'src': r['source_url'], 'nt': r['notes'], 'co': '' if r['country'] == 'US' else {'CA': 'Canada', 'MX': 'Mexico'}.get(r['country'], r['country'])})
 for p in out:
     for k in list(p):
         if p[k] in ('', False): del p[k]
