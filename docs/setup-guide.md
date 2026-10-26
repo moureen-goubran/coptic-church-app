@@ -4,7 +4,7 @@ Last updated: October 26, 2026
 
 Everything here is on free plans. You never paste a password or key into a chat. Keys go only into the websites named below.
 
-Keep a note (in your password manager) of the values marked **save**.
+Open a private note (Apple Notes or your password manager). Wherever a step says **save**, copy that value into the note. There is no Save button on the websites; just copy, paste into your note, and close the window.
 
 ## 1. Supabase (the database)
 
