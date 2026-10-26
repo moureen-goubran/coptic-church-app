@@ -44,17 +44,16 @@ On the **Variables** tab, click **New repository variable** for each:
 ## 3. Cloudflare (hosting and the bot check)
 
 1. Go to **dash.cloudflare.com** and sign up (free).
-2. Open **Workers & Pages → Create → Pages → Connect to Git**. Pick **coptic-church-app**.
-   - Production branch: `main`
-   - Framework preset: **None**
+2. Open **Workers & Pages → Create → Import a repository** and pick **coptic-church-app**.
+   - Project name: `coptic-church-app`
    - Build command: `npm ci && npm run build`
-   - Build output directory: `dist`
-   - Root directory: `app`
-   - Environment variables: `NODE_VERSION` = `22`, `VITE_SUPABASE_URL` = Project URL, `VITE_SUPABASE_ANON_KEY` = anon key
-   - Click **Save and Deploy**. You get a free link ending in `.pages.dev`. Tell Claude when it's done.
-3. Open **Turnstile → Add widget**. Name: `corrections box`. Hostnames: `church.datumarc.com` and your `.pages.dev` address. Mode: **Managed**. **Save** the **Site key** and the **Secret key**.
+   - Deploy command: `npx wrangler@4.152.0 deploy`
+   - Under **Advanced settings**, set **Path** (root directory) to `app`
+   - Under **Build variables**, add `NODE_VERSION` = `22`, `VITE_SUPABASE_URL` = Project URL, `VITE_SUPABASE_ANON_KEY` = anon key
+   - Click **Deploy**. You get a free link ending in `.workers.dev`. Tell Claude when it's done.
+3. Open **Turnstile → Add widget**. Name: `corrections box`. Hostnames: `church.datumarc.com` and your `.workers.dev` address. Mode: **Managed**. **Save** the **Site key** and the **Secret key**.
    - Put the Secret key in GitHub (table above, `TURNSTILE_SECRET`).
-   - In Cloudflare Pages → your project → **Settings → Variables**, add `VITE_TURNSTILE_SITE_KEY` = Site key, then **Deployments → Retry deployment**.
+   - In your Cloudflare project → **Settings → Build → Variables**, add `VITE_TURNSTILE_SITE_KEY` = Site key, then redeploy (**Deployments → ⋯ → Retry build**).
 
 ## 4. Your own website address (later, only with your OK)
 
