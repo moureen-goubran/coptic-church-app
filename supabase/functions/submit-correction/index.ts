@@ -15,14 +15,15 @@ const corsFor = (req: Request) => {
     "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "content-type, apikey, authorization" };
 };
 
-const TOPICS = ["info", "safety", "other", "suggestion"];
+const TOPICS = ["info", "safety", "other", "suggestion", "claim"];
 const SUBJECTS: Record<string, string> = {
   safety: "URGENT: MY-COPTIC-CHURCH CONCERN",
   suggestion: "SUGGESTION: MY-COPTIC-CHURCH",
   info: "REPORT: MY-COPTIC-CHURCH WRONG OR MISSING INFO",
   other: "REPORT: MY-COPTIC-CHURCH",
+  claim: "CLAIM: MY-COPTIC-CHURCH IS THIS YOUR CHURCH",
 };
-const LABELS: Record<string, string> = { safety: "Safety concern", suggestion: "Suggestion", info: "Wrong or missing info", other: "Something else" };
+const LABELS: Record<string, string> = { safety: "Safety concern", suggestion: "Suggestion", info: "Wrong or missing info", other: "Something else", claim: "Is this your church? (confirm by calling the church's public number)" };
 
 // Plain-text email to the owner. The message already passed the screen (no contact info or links).
 async function notify(db: ReturnType<typeof createClient>, topic: string, placeId: string | null, message: string) {

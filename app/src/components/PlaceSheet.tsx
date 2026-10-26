@@ -17,7 +17,7 @@ interface Props {
 
 export function PlaceSheet({ place: p, services, events, details: d, clergy, links, saved, toggleSave, t, lang, distance, onClose, onSeeEvents }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const [showFix, setShowFix] = useState(false);
+  const [form, setForm] = useState<"report" | "claim" | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -120,8 +120,11 @@ export function PlaceSheet({ place: p, services, events, details: d, clergy, lin
           {p.last_verified && <> · {t.lastVerified} <span class="num">{fmtDate(p.last_verified, lang)}</span></>}
         </p>
 
-        {showFix ? <CorrectionForm placeId={p.id} t={t} lang={lang} /> :
-          <div><button class="linkbtn" type="button" onClick={() => setShowFix(true)}><Icon name="flag" />{t.report}</button></div>}
+        <div class="chips">
+          <button class="linkbtn" type="button" aria-expanded={form === "report"} onClick={() => setForm(form === "report" ? null : "report")}><Icon name="flag" />{t.report}</button>
+          <button class="linkbtn" type="button" aria-expanded={form === "claim"} onClick={() => setForm(form === "claim" ? null : "claim")}>{t.claim}</button>
+        </div>
+        {form && <CorrectionForm key={form} placeId={p.id} t={t} lang={lang} claim={form === "claim"} />}
       </div>
     </div>
   );

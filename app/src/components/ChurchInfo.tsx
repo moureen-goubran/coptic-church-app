@@ -1,10 +1,12 @@
 // Church details shared by the church card (Churches tab) and the church page (sheet).
+import type { ComponentChildren } from "preact";
 import { useState } from "preact/hooks";
 import type { Clergy, Details, Link, Place, Service } from "../lib/types";
 import type { Lang, Strings } from "../i18n";
 import { fmtDate, fmtTime, nextService } from "../lib/time";
 import { placeName, cityName, addressLine, telHref, mapsLinks, Icon, SocialIcon } from "./bits";
 import { stateName } from "../lib/search";
+import { CorrectionForm } from "./CorrectionForm";
 
 export const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 const SOCIAL = ["facebook", "instagram", "youtube", "x", "tiktok", "other"];
@@ -15,6 +17,7 @@ export function churchBits(d: Details | null, links: Link[], lang: Lang) {
   return {
     pick,
     live: of("live")[0], cal: of("calendar")[0], donate: of("donate"), forms: of("form"), clergyPages: of("clergy_page"),
+    groups: of("group"), apps: of("app"), tours: of("tour"),
     social: links.filter(l => SOCIAL.includes(l.kind)),
     parking: pick(d?.parking_en, d?.parking_ar), clergyNote: pick(d?.clergy_note_en, d?.clergy_note_ar),
   };
@@ -22,52 +25,48 @@ export function churchBits(d: Details | null, links: Link[], lang: Lang) {
 
 type More = { place: Place; details: Details | null; clergy: Clergy[]; links: Link[]; t: Strings; lang: Lang };
 
+// A collapsible section. Every church shows every section, like the demo; an empty one says "Not added yet".
+function Section({ title, children }: { title: string; children: ComponentChildren }) {
+  return <details class="more"><summary>{title}</summary>{children}</details>;
+}
+
 export function CalendarSubscribe({ details, links, t, lang }: Omit<More, "place" | "clergy">) {
   const { cal } = churchBits(details, links, lang);
-  if (!cal) return null;
-  const webcal = cal.url.replace(/^https:/, "webcal:");
+  const webcal = cal?.url.replace(/^https:/, "webcal:");
   return (
-    <details class="more">
-      <summary>{t.subscribe}</summary>
+    <Section title={t.subscribe}>{cal ? <>
       <div class="chips">
-        <a class="btn small" href={`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`} {...ext}>{t.subGoogle}</a>
+        <a class="btn small" href={`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal!)}`} {...ext}>{t.subGoogle}</a>
         <a class="btn small" href={webcal}>{t.subApple}</a>
       </div>
       <p class="note">{t.subHint}</p>
-    </details>
+    </> : <p class="missing">{t.notFound}</p>}</Section>
   );
 }
 
-// Follow, Give, Church Forms, Clergy, First visit: each a collapsible section, shown only when there's something in it.
+// Follow, Groups, App, Clergy, Give, Forms, First visit, Tour video, in the demo's order.
 export function ChurchSections({ place: p, details, clergy, links, t, lang }: More) {
-  const { pick, social, donate, forms, clergyPages, clergyNote } = churchBits(details, links, lang);
+  const { pick, social, donate, forms, groups, apps, tours, clergyPages, clergyNote } = churchBits(details, links, lang);
+  const none = <p class="missing">{t.notFound}</p>;
+  const buttons = (list: Link[], fallback: string) => <div class="chips">{list.map(l => <a class="btn small" href={l.url} {...ext}>{pick(l.label_en, l.label_ar) || fallback}</a>)}</div>;
   return <>
-    {social.length > 0 && <details class="more">
-      <summary>{t.follow}</summary>
-      <div class="social">{social.map(l => <a href={l.url} {...ext}><SocialIcon kind={l.kind} />{pick(l.label_en, l.label_ar) || t.social[l.kind]}</a>)}</div>
-    </details>}
-    {donate.length > 0 && <details class="more">
-      <summary>{t.give}</summary>
-      <div class="chips">{donate.map(l => <a class="btn small" href={l.url} {...ext}>{pick(l.label_en, l.label_ar) || t.donateOnline}</a>)}</div>
-    </details>}
-    {forms.length > 0 && <details class="more">
-      <summary>{t.forms}</summary>
-      <div class="chips">{forms.map(l => <a class="btn small" href={l.url} {...ext}>{pick(l.label_en, l.label_ar)}</a>)}</div>
-    </details>}
-    {(clergy.length > 0 || clergyPages.length > 0) && <details class="more">
-      <summary>{t.clergyN(clergy.length)}</summary>
-      <ul class="clergy">{clergy.map(c => (
+    <Section title={t.follow}>{social.length > 0
+      ? <div class="social">{social.map(l => <a href={l.url} {...ext}><SocialIcon kind={l.kind} />{pick(l.label_en, l.label_ar) || t.social[l.kind]}</a>)}</div> : none}</Section>
+    <Section title={t.groups}>{groups.length > 0 ? <>{buttons(groups, t.joinGroup)}<p class="note">{t.groupsNote}</p></> : none}</Section>
+    <Section title={t.churchApp}>{apps.length > 0 ? buttons(apps, t.getApp) : none}</Section>
+    <Section title={clergy.length ? t.clergyN(clergy.length) : t.clergy}>{clergy.length > 0 || clergyPages.length > 0 || clergyNote ? <>
+      {clergy.length > 0 && <ul class="clergy">{clergy.map(c => (
         <li><span>{pick(c.name_en, c.name_ar)}</span>
           {c.phone && <a class="num" href={telHref(c.phone)}>{c.phone}</a>}
           {c.email && <a class="num" href={`mailto:${c.email}`}>{c.email}</a>}</li>
-      ))}</ul>
+      ))}</ul>}
       {clergyNote && <p class="note">{clergyNote}</p>}
-      {clergyPages.length > 0 && <div class="chips">{clergyPages.map(l => <a class="btn small" href={l.url} {...ext}>{pick(l.label_en, l.label_ar)}</a>)}</div>}
-    </details>}
-    {p.type === "church" && <details class="more">
-      <summary>{t.firstVisit}</summary>
-      <ul class="visit">{t.firstVisitTips.map(x => <li>{x}</li>)}</ul>
-    </details>}
+      {clergyPages.length > 0 && buttons(clergyPages, t.clergy)}
+    </> : none}</Section>
+    <Section title={t.give}>{donate.length > 0 ? buttons(donate, t.donateOnline) : none}</Section>
+    {forms.length > 0 && <Section title={t.forms}>{buttons(forms, t.forms)}</Section>}
+    {p.type === "church" && <Section title={t.firstVisit}><ul class="visit">{t.firstVisitTips.map(x => <li>{x}</li>)}</ul></Section>}
+    <Section title={t.tour}>{tours.length > 0 ? buttons(tours, t.watchTour) : none}</Section>
   </>;
 }
 
@@ -94,6 +93,7 @@ const TYPE_COLOR: Record<string, string> = { church: "var(--lapis)", monastery: 
 
 export function ChurchCard({ place: p, details: d, clergy, links, services, distance, active, t, lang, onOpen, onFocus }: CardProps) {
   const [copied, setCopied] = useState(false);
+  const [form, setForm] = useState<"report" | "claim" | null>(null);
   const { live, parking } = churchBits(d, links, lang);
   const nx = nextService(services);
   const addr = addressLine(p);
@@ -101,7 +101,7 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
   const copy = async () => { try { await navigator.clipboard.writeText(p.phone!); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* no clipboard */ } };
   return (
     <article class={"card ccard" + (active ? " active" : "")} style={{ "--cc": TYPE_COLOR[p.type] ?? "var(--muted)" }}
-      onClick={e => !(e.target as HTMLElement).closest("a,button,summary,details") && onFocus()}>
+      onClick={e => !(e.target as HTMLElement).closest("a,button,summary,details,form") && onFocus()}>
       {d?.logo && <div class={"cbanner" + (d.logo_dark ? " dark" : "")}><img src={d.logo} alt="" loading="lazy" /></div>}
       <div>
         <div class="city">{region}{p.type !== "church" && <> · {t.types[p.type]}</>}{distance && <> · <span class="num">{distance}</span></>}</div>
@@ -122,6 +122,8 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
           : p.website && <a class="btn" href={p.website} {...ext}><Icon name="globe" />{t.website}</a>}
         {live && <a class="btn" href={live.url} {...ext}><SocialIcon kind="live" />{t.liveShort}</a>}
       </div>
+      <div class="reportrow"><button class="linkbtn" type="button" aria-expanded={form === "report"} onClick={() => setForm(form === "report" ? null : "report")}><Icon name="flag" />{t.report}</button></div>
+      {form === "report" && <CorrectionForm placeId={p.id} t={t} lang={lang} />}
       <details class="more">
         <summary>{t.moreInfo}</summary>
         <div class="morebody">
@@ -142,8 +144,9 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
           <div class="cfoot">
             <span class="chip plain">{t.verification[p.verification] ?? p.verification}</span>
             {p.last_verified && <span>{t.lastVerified} <span class="num">{fmtDate(p.last_verified, lang)}</span></span>}
-            <button class="linkbtn" type="button" onClick={onOpen}><Icon name="flag" />{t.report}</button>
           </div>
+          <button class="linkbtn" type="button" aria-expanded={form === "claim"} onClick={() => setForm(form === "claim" ? null : "claim")}>{t.claim}</button>
+          {form === "claim" && <CorrectionForm placeId={p.id} t={t} lang={lang} claim />}
         </div>
       </details>
     </article>

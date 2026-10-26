@@ -178,6 +178,8 @@ html[lang="ar"] .nextcard .lbl { letter-spacing: 0; }
 .ccard .morebody { display: flex; flex-direction: column; gap: 10px; }
 .ccard .note { font-size: .8rem; color: var(--muted); margin: 0; }
 .cfoot .linkbtn { font-size: .78rem; }
+.reportrow { display: flex; justify-content: flex-end; margin-bottom: -6px; }
+.reportrow .linkbtn, .morebody > .linkbtn { font-size: .78rem; }
 details.evmenu { position: relative; display: inline-block; }
 details.evmenu summary { list-style: none; }
 details.evmenu summary::-webkit-details-marker { display: none; }

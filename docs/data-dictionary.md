@@ -44,7 +44,7 @@ Places without `lat`/`lng` get their city's center from `data/sources/city-coord
 
 ## `data/links.csv`: live stream, social media, giving and other outside links
 
-`place_id`, `kind`, `url`, `label_en`, `label_ar`, `source_checked`. `kind` is one of `live`, `facebook`, `instagram`, `youtube`, `x`, `tiktok`, `donate`, `calendar` (an `https://` calendar feed; the app offers Google and Apple subscribe buttons), `form`, `clergy_page`, `other`. Links must be `https://` and go to the church's own website or a platform on the safe list (`SAFE_HOSTS` in `app/scripts/load-data.mjs`). Group chats (WhatsApp, GroupMe) are not allowed without a priest's written OK.
+`place_id`, `kind`, `url`, `label_en`, `label_ar`, `source_checked`. `kind` is one of `live`, `facebook`, `instagram`, `youtube`, `x`, `tiktok`, `donate`, `calendar` (an `https://` calendar feed; the app offers Google and Apple subscribe buttons), `form`, `clergy_page`, `group` (a WhatsApp or GroupMe group), `app` (the church's app on the App Store or Google Play), `tour` (a church tour video), `other`. Links must be `https://` and go to the church's own website or a platform on the safe list (`SAFE_HOSTS` in `app/scripts/load-data.mjs`). Group chats (WhatsApp, GroupMe) must use kind `group` and are not allowed without a priest's written OK. Only official church groups, never a chat run by one person.
 
 Links in this file count as admin-approved. Links clergy add in the app later stay hidden until an admin approves them.
 
