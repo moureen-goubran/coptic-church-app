@@ -89,8 +89,8 @@ interface CardProps extends More {
   services: Service[]; distance: string | null; active: boolean;
   onOpen: () => void; onFocus: () => void;
 }
-// Card top border: neutral for churches (maroon is kept for Call), gold marks monasteries and convents.
-const TYPE_COLOR: Record<string, string> = { church: "var(--line)", monastery: "var(--gold)", convent: "var(--gold)" };
+// Card top border: one gold line on every card (look "J"); maroon is kept for Call.
+const TYPE_COLOR: Record<string, string> = { church: "var(--accent-line)", monastery: "var(--accent-line)", convent: "var(--accent-line)" };
 
 export function ChurchCard({ place: p, details: d, clergy, links, services, distance, active, t, lang, onOpen, onFocus }: CardProps) {
   const [copied, setCopied] = useState(false);
@@ -101,7 +101,7 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
   const region = [cityName(p, lang), lang === "ar" ? p.state : stateName(p.state, p.country)].filter(Boolean).join(lang === "ar" ? "، " : ", ");
   const copy = async () => { try { await navigator.clipboard.writeText(p.phone!); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* no clipboard */ } };
   return (
-    <article class={"card ccard" + (active ? " active" : "")} style={{ "--cc": TYPE_COLOR[p.type] ?? "var(--muted)" }}
+    <article class={"card ccard" + (active ? " active" : "")} style={{ "--cc": TYPE_COLOR[p.type] ?? "var(--accent-line)" }}
       onClick={e => !(e.target as HTMLElement).closest("a,button,summary,details,form") && onFocus()}>
       {d?.logo && <div class={"cbanner" + (d.logo_dark ? " dark" : "")}><img src={d.logo} alt="" loading="lazy" /></div>}
       <div>
