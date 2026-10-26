@@ -14,6 +14,7 @@ Keep a note (in your password manager) of the values marked **save**.
    - Database password: click **Generate a password**, then **save** it.
    - Region: **East US (North Virginia)**
    - Plan: **Free**
+   - Security: keep **Enable Data API** checked, **uncheck** "Automatically expose new tables", and **check** "Enable automatic RLS".
 3. Click **Create new project** and wait about 2 minutes.
 4. Click **Connect** at the top of the page, then the **Connection string** tab. Under **Session pooler**, copy the line that starts with `postgresql://`. Replace `[YOUR-PASSWORD]` with the password from step 2. **Save** it as **DB URL**.
 5. In the left menu, open **Project Settings → API keys** (or **Data API**). **Save** the **Project URL** and the **anon / public** key. These two are public and safe in the app.
