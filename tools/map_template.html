@@ -1,0 +1,248 @@
+<title>Coptic Church Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: one column. Header and counts, the map with a view switch, then the selected place and a list for one state. */
+:root {
+  --bg: #f6efe3; --surface: #fffbf4; --fg: #2b1f1a; --muted: #6b5a4c; --line: #e6d9c3;
+  --accent: #7a1f2b; --gold: #8a6414;
+  --land: #efe5d3; --land-done: #e6d3b5; --border: #fffbf4;
+  --v-confirmed: #1d6b3a; --v-official: #2f6b8a; --v-cross: #b07d12; --v-unverified: #a39584;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1411; --surface: #241b17; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
+    --accent: #e8a0a8; --gold: #e2b45a;
+    --land: #2c221d; --land-done: #3d2f22; --border: #1a1411;
+    --v-confirmed: #6fcf8f; --v-official: #79b8de; --v-cross: #e2b45a; --v-unverified: #7d6f62;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1a1411; --surface: #241b17; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
+  --accent: #e8a0a8; --gold: #e2b45a;
+  --land: #2c221d; --land-done: #3d2f22; --border: #1a1411;
+  --v-confirmed: #6fcf8f; --v-official: #79b8de; --v-cross: #e2b45a; --v-unverified: #7d6f62;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 40px; }
+.wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; margin: 0; line-height: 1.15; text-wrap: balance; }
+.sub { color: var(--muted); font-size: .88rem; margin: 2px 0 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.stat b { font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+.sw.hollow { background: transparent !important; border: 2px solid var(--v-unverified); width: 8px; height: 8px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; color: var(--fg); font: inherit; font-size: .86rem; padding: 7px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--muted); align-items: center; }
+.legend i { display: inline-flex; align-items: center; gap: 5px; font-style: normal; }
+.dia { width: 9px; height: 9px; transform: rotate(45deg); background: var(--muted); display: inline-block; }
+.mapbox { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+svg#map { display: block; width: 100%; height: auto; aspect-ratio: 975 / 610; max-width: 100%; touch-action: none; cursor: grab; }
+.state { fill: var(--land); stroke: var(--border); stroke-width: .8; vector-effect: non-scaling-stroke; }
+.state.done { fill: var(--land-done); }
+.dot { stroke: var(--surface); vector-effect: non-scaling-stroke; cursor: pointer; }
+.dot.unverified { fill: transparent; stroke: var(--v-unverified); }
+.dot.sel { stroke: var(--fg); stroke-width: 2.5; }
+.zoom { position: absolute; top: 10px; right: calc(10px + env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 6px; }
+.zoom button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 1.1rem; cursor: pointer; }
+.note { font-size: .78rem; color: var(--muted); margin: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.card h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; margin: 0; line-height: 1.2; }
+.kv { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 2px 10px; font-size: .9rem; }
+.kv .k { color: var(--muted); }
+.kv a { color: var(--accent); overflow-wrap: anywhere; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); width: fit-content; }
+.flag { font-size: .86rem; background: color-mix(in srgb, var(--gold) 14%, transparent); border-radius: 8px; padding: 6px 10px; }
+.listhead { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.listhead h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; margin: 0; }
+select { font: inherit; font-size: .9rem; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); }
+.group h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 10px 0 4px; font-weight: 600; }
+.rows { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.row { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; border: 0; border-top: 1px solid var(--line); background: none; color: var(--fg); font: inherit; text-align: start; cursor: pointer; width: 100%; }
+.row:first-child { border-top: 0; }
+.row:hover { background: var(--bg); }
+.row b { font-weight: 600; font-size: .92rem; display: block; }
+.row small { color: var(--muted); font-size: .8rem; }
+.row .vt { font-size: .74rem; color: var(--muted); white-space: nowrap; }
+button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 520px) { .row .vt { display: none; } h1 { font-size: 1.6rem; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Coptic Church Map</h1>
+    <p class="sub">Progress on the master list · last checked {{UPDATED}} · <span id="count-sub"></span></p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Map view">
+      <button type="button" id="v-ne" aria-pressed="true">East Coast</button>
+      <button type="button" id="v-us" aria-pressed="false">Whole US</button>
+    </div>
+    <div class="legend">
+      <i><span class="sw" style="background:var(--v-confirmed)"></span>Confirmed</i>
+      <i><span class="sw" style="background:var(--v-official)"></span>Diocese list</i>
+      <i><span class="sw" style="background:var(--v-cross)"></span>Two sources agree</i>
+      <i><span class="sw hollow"></span>Not checked yet</i>
+      <i><span class="dia"></span>Monastery or convent</i>
+    </div>
+  </div>
+
+  <div class="mapbox">
+    <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Map of the United States with a dot for each Coptic church, monastery and convent"></svg>
+    <div class="zoom">
+      <button type="button" id="zin" aria-label="Zoom in">+</button>
+      <button type="button" id="zout" aria-label="Zoom out">−</button>
+    </div>
+  </div>
+  <p class="note">Darker states are finished (first pass). Dots sit at the town center for now and get exact positions once every address is confirmed. Tap a dot for details.</p>
+
+  <div class="card" id="detail"></div>
+
+  <section>
+    <div class="listhead">
+      <h2 id="list-title"></h2>
+      <select id="state-pick" aria-label="Choose a state"></select>
+    </div>
+    <div id="list"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script>
+const PLACES = /*PLACES*/[];
+const US = /*STATES*/{};
+const DONE = /*DONE*/[];
+const FIPS = {"01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE","11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD","25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY","72":"PR","78":"VI"};
+const STATE_NAMES = {AL:"Alabama",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",OH:"Ohio",OK:"Oklahoma",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",VI:"U.S. Virgin Islands",WA:"Washington",WV:"West Virginia",WI:"Wisconsin"};
+const VER = {
+  church_confirmed: {label: "Confirmed by the church", cls: "confirmed", c: "var(--v-confirmed)"},
+  known_locally: {label: "Confirmed locally", cls: "confirmed", c: "var(--v-confirmed)"},
+  official_directory: {label: "On the diocese list", cls: "official", c: "var(--v-official)"},
+  cross_checked: {label: "Two sources agree", cls: "cross", c: "var(--v-cross)"},
+  unverified: {label: "Not checked yet", cls: "unverified", c: "var(--v-unverified)"}
+};
+const TYPE = {church:"Church", mission:"Mission", community:"Church community", monastery:"Monastery", convent:"Convent", retreat_center:"Retreat center", diocese_office:"Diocese office", seminary:"Seminary", school:"School"};
+const isMon = p => p.type === "monastery" || p.type === "convent";
+
+// counts
+const n = k => PLACES.filter(p => k.includes(p.verification)).length;
+const stats = [
+  [PLACES.length, "places on the list", ""],
+  [n(["church_confirmed","known_locally","official_directory"]), "confirmed or on a diocese list", "var(--v-confirmed)"],
+  [n(["cross_checked"]), "two sources agree", "var(--v-cross)"],
+  [n(["unverified"]), "not checked yet", "hollow"],
+  [DONE.length, "states finished: " + DONE.join(", "), ""]
+];
+document.getElementById("stats").innerHTML = stats.map(([v, l, c]) =>
+  `<div class="stat"><b>${v}</b><span>${c === "hollow" ? '<i class="sw hollow"></i>' : c ? `<i class="sw" style="background:${c}"></i>` : ""}${l}</span></div>`).join("");
+document.getElementById("count-sub").textContent = `${PLACES.filter(isMon).length} monasteries and convents`;
+
+// map
+const svg = d3.select("#map");
+const W = 975, H = 610;
+const proj = d3.geoAlbersUsa().scale(1300).translate([W / 2, H / 2]);
+const path = d3.geoPath(proj);
+const g = svg.append("g");
+const states = topojson.feature(US, US.objects.states).features;
+g.append("g").selectAll("path").data(states).join("path")
+  .attr("class", d => "state" + (DONE.includes(FIPS[d.id]) ? " done" : "")).attr("d", path);
+PLACES.forEach(p => { const xy = proj([p.lng, p.lat]); p.x = xy ? xy[0] : null; p.y = xy ? xy[1] : null; });
+const shown = PLACES.filter(p => p.x !== null);
+const dots = g.append("g").selectAll("path").data(shown).join("path")
+  .attr("class", p => "dot " + VER[p.verification].cls)
+  .attr("fill", p => VER[p.verification].c)
+  .attr("transform", p => `translate(${p.x},${p.y})`)
+  .attr("tabindex", 0).attr("role", "button").attr("aria-label", p => p.name + ", " + p.city)
+  .on("click", (e, p) => select(p.id))
+  .on("keydown", (e, p) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(p.id); } });
+dots.append("title").text(p => `${p.name} · ${p.city}, ${p.state}`);
+const sym = (k) => { const r = 4.2 / Math.sqrt(k); return [d3.symbol().type(d3.symbolCircle).size(Math.PI * r * r)(), d3.symbol().type(d3.symbolDiamond).size(2.2 * r * r * 1.6)()]; };
+function sizeDots(k) { const [c, d] = sym(k); dots.attr("d", p => isMon(p) ? d : c).attr("stroke-width", p => p.verification === "unverified" ? 1.6 : 1); }
+const zoom = d3.zoom().scaleExtent([1, 60]).translateExtent([[0, 0], [W, H]])
+  .on("start", () => svg.style("cursor", "grabbing")).on("end", () => svg.style("cursor", "grab"))
+  .on("zoom", e => { g.attr("transform", e.transform); sizeDots(e.transform.k); });
+svg.call(zoom);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function fitTo(list, pad = 40) {
+  const xs = list.map(p => p.x), ys = list.map(p => p.y);
+  const [x0, x1, y0, y1] = [d3.min(xs), d3.max(xs), d3.min(ys), d3.max(ys)];
+  const k = Math.min(60, 0.9 / Math.max((x1 - x0 + pad) / W, (y1 - y0 + pad) / H));
+  const t = d3.zoomIdentity.translate(W / 2, H / 2).scale(k).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+  (reduce ? svg : svg.transition().duration(600)).call(zoom.transform, t);
+}
+const NE = shown.filter(p => DONE.includes(p.state) && p.state !== "NY" || (p.state === "NY" && p.lat < 42));
+function view(which) {
+  document.getElementById("v-ne").setAttribute("aria-pressed", which === "ne");
+  document.getElementById("v-us").setAttribute("aria-pressed", which === "us");
+  if (which === "us") (reduce ? svg : svg.transition().duration(600)).call(zoom.transform, d3.zoomIdentity);
+  else fitTo(NE);
+}
+document.getElementById("v-ne").onclick = () => view("ne");
+document.getElementById("v-us").onclick = () => view("us");
+document.getElementById("zin").onclick = () => svg.transition().duration(reduce ? 0 : 250).call(zoom.scaleBy, 1.8);
+document.getElementById("zout").onclick = () => svg.transition().duration(reduce ? 0 : 250).call(zoom.scaleBy, 1 / 1.8);
+
+// detail
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const safeUrl = u => { if (!u) return ""; const v = /^https?:\/\//i.test(u) ? u : "https://" + u; try { const x = new URL(v); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch { return ""; } };
+function select(id) {
+  const p = PLACES.find(q => q.id === id); if (!p) return;
+  dots.classed("sel", q => q.id === id).filter(q => q.id === id).raise();
+  const v = VER[p.verification], web = safeUrl(p.website);
+  const addr = [p.street, [p.city, p.state, p.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+  document.getElementById("detail").innerHTML = `
+    <span class="pill"><i class="sw ${v.cls === "unverified" ? "hollow" : ""}" style="background:${v.c}"></i>${v.label}</span>
+    <h2>${esc(p.name)}</h2>
+    <div class="kv">
+      <span class="k">Type</span><span>${TYPE[p.type] || esc(p.type)}</span>
+      <span class="k">Address</span><span>${esc(addr) || "Not added yet"}</span>
+      <span class="k">Phone</span><span>${esc(p.phone) || "Not added yet"}</span>
+      <span class="k">Website</span><span>${web ? `<a href="${esc(web)}" target="_blank" rel="noopener noreferrer">${esc(web.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""))}</a>` : "Not added yet"}</span>
+      <span class="k">Diocese</span><span>${esc(p.diocese) || "Not confirmed"}</span>
+      <span class="k">Checked</span><span>${esc(p.source_checked)}</span>
+    </div>
+    ${p.notes ? `<div class="flag">${esc(p.notes)}</div>` : ""}`;
+}
+
+// list
+const pick = document.getElementById("state-pick");
+const order = [...DONE, ...Object.keys(STATE_NAMES).filter(s => !DONE.includes(s) && PLACES.some(p => p.state === s))];
+pick.innerHTML = order.map(s => `<option value="${s}">${STATE_NAMES[s] || s} (${PLACES.filter(p => p.state === s).length})${DONE.includes(s) ? " · done" : ""}</option>`).join("");
+const REGION_ORDER = ["North","Central","South","New York City","Long Island","Hudson Valley","Upstate","East","West","Northern Virginia","Central Virginia","Hampton Roads","Western Virginia",""];
+function list(state) {
+  const items = PLACES.filter(p => p.state === state);
+  document.getElementById("list-title").textContent = `${STATE_NAMES[state] || state}: ${items.length} places`;
+  const groups = d3.group(items, p => p.region || "");
+  const keys = [...groups.keys()].sort((a, b) => REGION_ORDER.indexOf(a) - REGION_ORDER.indexOf(b));
+  document.getElementById("list").innerHTML = keys.map(k => `<div class="group">${k ? `<h3>${esc(k)}</h3>` : ""}<div class="rows">${
+    groups.get(k).sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(p => {
+      const v = VER[p.verification];
+      return `<button type="button" class="row" data-id="${esc(p.id)}"><i class="sw ${v.cls === "unverified" ? "hollow" : ""}" style="background:${v.c}"></i><span><b>${esc(p.name)}</b><small>${esc(p.city)}${isMon(p) || p.type !== "church" ? " · " + (TYPE[p.type] || p.type) : ""}</small></span><span class="vt">${v.label}</span></button>`;
+    }).join("")}</div></div>`).join("");
+}
+document.getElementById("list").addEventListener("click", e => {
+  const b = e.target.closest(".row"); if (!b) return;
+  const p = PLACES.find(q => q.id === b.dataset.id); select(p.id);
+  if (p.x !== null) fitTo([p], 60);
+  document.getElementById("detail").scrollIntoView({behavior: reduce ? "auto" : "smooth", block: "nearest"});
+});
+pick.onchange = () => list(pick.value);
+
+sizeDots(1);
+list("NJ");
+select(PLACES.find(p => p.state === "NJ" && p.city === "Bayonne").id);
+view("ne");
+</script>
