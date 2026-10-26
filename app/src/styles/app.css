@@ -104,10 +104,18 @@ html[dir="rtl"] .flip svg { transform: scaleX(-1); }
 .fastcard.now { border-color: var(--maroon); box-shadow: 0 0 0 2px var(--maroon-soft); }
 .fastcard h3, .commcard h3 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 1.08rem; }
 .feastlist { display: flex; flex-direction: column; gap: 6px; }
-.feastrow { display: grid; grid-template-columns: 9em minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-size: .88rem; color: var(--fg); }
-.feastrow.past { opacity: .55; }
+.feastrow { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-size: .88rem; color: var(--fg); }
+.feastrow summary { display: grid; grid-template-columns: 9em minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; cursor: pointer; list-style: none; }
+.feastrow summary::-webkit-details-marker { display: none; }
+.feastrow[open] { border-color: var(--accent-line); }
+.feastrow.past:not([open]) { opacity: .55; }
+.feastrow .fabout { padding: 0 12px 10px; display: flex; flex-direction: column; gap: 4px; }
+.about { margin: 0; line-height: 1.5; }
+.fastcard details.more { border-top: 1px solid var(--line); padding-top: 8px; }
+.fastcard details.more summary { cursor: pointer; font-weight: 500; font-size: .9rem; }
+.fastcard details.more[open] summary { margin-bottom: 6px; }
 .feastrow .fd { font-variant-numeric: tabular-nums; color: var(--gold); font-weight: 600; font-size: .84rem; }
-@media (max-width: 520px) { .feastrow { grid-template-columns: minmax(0, 1fr) auto; } .feastrow .fd { grid-column: 1 / -1; } }
+@media (max-width: 520px) { .feastrow summary { grid-template-columns: minmax(0, 1fr) auto; } .feastrow .fd { grid-column: 1 / -1; } }
 .synax { position: relative; background: #7a1f2b; border: 0; border-bottom: 3px solid #c9a24a; color: #fff; }
 .sx { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .sxbtn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }

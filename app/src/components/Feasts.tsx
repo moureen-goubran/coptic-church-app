@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import type { Lang, Strings } from "../i18n";
 import {
-  type Fast, type Feast, addDays, commDates, commOn, COMMS, copticParts, daysBetween, fastOn, feastsAround,
+  type About, type Fast, type Feast, ABOUT, addDays, commDates, fastAbout, commOn, COMMS, copticParts, daysBetween, fastOn, feastsAround,
   iso, isWedFriFast, parseIso, synaxUrl, upcomingFasts,
 } from "../lib/coptic";
 import { downloadIcs } from "../lib/cal";
@@ -165,6 +165,15 @@ export function Synaxarium({ t, lang, inHero }: P & { inHero?: boolean }) {
   );
 }
 
+// Short background with a link to the trusted page it comes from, folded away until opened.
+const host = (u: string) => new URL(u).hostname.replace(/^www\./, "");
+function AboutText({ a, t, lang }: P & { a: About }) {
+  return <>
+    <p class="about">{a[lang]}</p>
+    <a class="small" href={a.src} target="_blank" rel="noopener noreferrer">{t.aboutMore(host(a.src))}</a>
+  </>;
+}
+
 function FastCard({ f, t, lang }: P & { f: Fast }) {
   const t0 = todayIso(), now = t0 >= f.start && t0 <= f.end;
   return (
@@ -174,6 +183,7 @@ function FastCard({ f, t, lang }: P & { f: Fast }) {
       <div class="kv"><span class="k">{t.endsL}</span><span>{longDate(f.end, lang)}</span></div>
       <div class="kv"><span class="k">{t.lengthL}</span><span>{t.nDays(daysBetween(f.start, f.end) + 1)}</span></div>
       <div class="kv"><span class="k">{t.endsWithL}</span><span>{f.feast[lang]} · {fmt(f.feast.date, lang, { month: "long", day: "numeric" })}</span></div>
+      <details class="more"><summary>{t.aboutFast}</summary><AboutText a={fastAbout(f.key)} t={t} lang={lang} /></details>
       <div><AddCal t={t} title={f.name[lang]} start={f.start} end={f.end} /></div>
     </div>
   );
@@ -198,9 +208,9 @@ export function FeastsView({ t, lang }: P) {
   const hit = (...words: string[]) => (h => (!toks.length || toks.every(x => h.includes(x))) && (!tterms.length || tterms.some(tk => tk.every(x => h.includes(x)))))(norm(words.join(" ")));
   const searching = toks.length > 0 || terms.length > 0;
   const keep = () => { const v = q.trim(); if (v && !terms.includes(v)) setTerms([...terms, v]); setQ(""); };
-  const fastsSorted = (sort === "name" ? [...fasts].sort((a, b) => coll(a.name[lang], b.name[lang])) : fasts).filter(f => hit(f.name.en, f.name.ar));
+  const fastsSorted = (sort === "name" ? [...fasts].sort((a, b) => coll(a.name[lang], b.name[lang])) : fasts).filter(f => hit(f.name.en, f.name.ar, fastAbout(f.key).en, fastAbout(f.key).ar));
   const comms = COMMS.filter(c => hit(c.title.en, c.title.ar, t.commName[c.key]));
-  const feastsShown = feasts.filter(f => hit(f.name.en, f.name.ar, t.feastKinds[f.kind]));
+  const feastsShown = feasts.filter(f => hit(f.name.en, f.name.ar, t.feastKinds[f.kind], ABOUT[f.key].en, ABOUT[f.key].ar));
   return (
     <main class="stack">
       <label class="search">
@@ -245,15 +255,19 @@ export function FeastsView({ t, lang }: P) {
 
       {feastsShown.length > 0 && <>
       <div class="sec-h"><h2>{t.feastsTitle}</h2></div>
+      <p class="muted small lead">{t.feastsTap}</p>
       <div class="feastlist">
         {feastsShown.map(f => {
           const dd = daysBetween(t0, f.date);
           return (
-            <div class={"feastrow" + (dd < 0 ? " past" : "")} key={f.date + f.name.en}>
-              <span class="fd">{fmt(f.date, lang, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</span>
-              <span>{f.name[lang]}</span>
-              <span class={"chip" + (dd === 0 ? "" : " plain")}>{dd === 0 ? t.today : t.feastKinds[f.kind]}</span>
-            </div>
+            <details class={"feastrow" + (dd < 0 ? " past" : "")} key={f.date + f.name.en}>
+              <summary>
+                <span class="fd">{fmt(f.date, lang, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</span>
+                <span>{f.name[lang]}</span>
+                <span class={"chip" + (dd === 0 ? "" : " plain")}>{dd === 0 ? t.today : t.feastKinds[f.kind]}</span>
+              </summary>
+              <div class="fabout"><AboutText a={ABOUT[f.key]} t={t} lang={lang} /></div>
+            </details>
           );
         })}
       </div>
