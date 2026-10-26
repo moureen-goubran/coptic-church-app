@@ -40,7 +40,8 @@ async function check({ url, where }) {
     else if (r.status === 403 || r.status === 429) problems.push(`blocks robots (${r.status}), check by hand`);
     else if (r.status >= 400) problems.push(`broken (${r.status})`);
     const spam = r.body.match(SPAM);
-    if (spam) problems.push(`SPAM OR PARKED PAGE ("${spam[0]}")`);
+    // The words around the match, so a person can tell real spam from an innocent use of the word.
+    if (spam) problems.push(`SPAM OR PARKED PAGE: "…${r.body.slice(Math.max(0, spam.index - 60), spam.index + 60).replace(/\s+/g, " ").replace(/[|<>]/g, " ")}…"`);
     if (base(host(r.final)) !== base(host(url))) problems.push(`now goes to ${host(r.final)}`);
     if (url.startsWith("http://") && !r.final.startsWith("https://")) problems.push("no https");
     else if (url.startsWith("http://")) problems.push("works with https: update the link");
