@@ -51,3 +51,17 @@ describe("coptic calendar", () => {
     expect(synaxUrl("2026-10-26")).toBe("https://st-takla.org/books/en/church/synaxarium/02-babah/16-baba.html");
   });
 });
+
+describe("feast background", () => {
+  it("every feast and fast has English, Arabic and a trusted https source", async () => {
+    const { ABOUT, fastAbout, fastsFor } = await import("../src/lib/coptic");
+    const items = [...feastsFor(2026).map(f => ABOUT[f.key]), ...fastsFor(2026).map(f => fastAbout(f.key))];
+    expect(items).toHaveLength(26);
+    items.push(...Object.values(ABOUT));
+    for (const a of items) {
+      expect(a.en.length).toBeGreaterThan(40);
+      expect(a.ar).toMatch(/[؀-ۿ]/);
+      expect(new URL(a.src).hostname).toMatch(/^(www\.)?(st-takla\.org|lacopts\.org|(abbey\.)?suscopts\.org|copticchurch\.net)$/);
+    }
+  });
+});
