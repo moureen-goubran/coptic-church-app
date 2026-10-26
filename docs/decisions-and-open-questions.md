@@ -42,4 +42,4 @@ Last updated: October 26, 2026
 
 ## Renewals
 
-- **Supabase access token "github"** (Edge Functions + Edge Function Secrets, project my-coptic-church) expires **October 26, 2027**. Renew it before then: make a new token the same way (docs/setup-guide.md step 1.7), then replace the `SUPABASE_ACCESS_TOKEN` secret in GitHub.
+- **Supabase access token "github"** (Edge Functions + Edge Function Secrets, project my-coptic-church) expires **October 25, 2027**. Renew it before then: make a new token the same way (docs/setup-guide.md step 1.7), then replace the `SUPABASE_ACCESS_TOKEN` secret in GitHub.
