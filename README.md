@@ -26,3 +26,7 @@ Last updated: October 26, 2026
 - **Dataset:** 323 US places. **Done (first pass): NJ, NY, PA, DE, CT**, with addresses for nearly all of them. Los Angeles has 54 from the official directory. The other 202 are unverified.
 - **Progress map:** https://claude.ai/artifact/Qds66q6xhp3f19D9bhXVr4 (updated as each state is finished)
 - **Real app:** not started. The plan is an installable web app (PWA) at a subdomain of datumarc.com, with code in the `coptic-church-app` GitHub repo.
+
+## Demo page
+
+`tools/build_demo.py` rebuilds the demo (`tools/demo.html`) from `tools/demo_base.html` (the hand-made Jersey City and Bayonne demo) plus `data/places.csv`. The changes it makes are listed in `tools/make_demo_patch.py` and `tools/demo_patch.js`. Rebuild order after a data change: `build_places.py`, then `tools/build_map.py`, then `tools/build_demo.py`. Then republish map.html and demo.html. Demo link: https://claude.ai/artifact/DYTGWfBtSLJ3pdcihCmfKc
