@@ -13,6 +13,7 @@ import { CorrectionForm } from "./components/CorrectionForm";
 import { Icon, Logo, placeName, regionLine } from "./components/bits";
 import { FeastStrip, FeastsView } from "./components/Feasts";
 import { TodayView } from "./components/Today";
+import { GlobalSearch } from "./components/GlobalSearch";
 import { EventsView, NO_FILTERS, type EvFilters } from "./components/Events";
 
 type Tab = "today" | "churches" | "events" | "feasts" | "about";
@@ -35,7 +36,16 @@ export function App() {
   const [q, setQ] = useState("");
   const [stateF, setStateF] = useState("");
   const [typeF, setTypeF] = useState("");
-  const [userLoc, setUserLoc] = useState<[number, number] | null>(null);
+  // Your spot (from the phone or picked on the map). Kept on this phone only, never sent.
+  const [userLoc, setUserLocState] = useState<[number, number] | null>(() => store.get<[number, number] | null>("loc", null));
+  const [locHow, setLocHow] = useState<"gps" | "pick" | null>(() => store.get("locHow", null));
+  const setUserLoc = (l: [number, number] | null, how: "gps" | "pick" | null = null) => {
+    setUserLocState(l); setLocHow(l ? how : null); store.set("loc", l); store.set("locHow", l ? how : null);
+  };
+  const [picking, setPicking] = useState(false);
+  const [mapView, setMapView] = useState<[[number, number], [number, number]] | null>(null);
+  const [gsOpen, setGsOpen] = useState(false);
+  const [evQ, setEvQ] = useState("");
   const [locMsg, setLocMsg] = useState<string | null>(null);
   const [pop, setPop] = useState<"loc" | "settings" | null>(null);
   const [shown, setShown] = useState(PAGE);
@@ -76,7 +86,9 @@ export function App() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
-  useEffect(() => setShown(PAGE), [q, stateF, typeF, userLoc]);
+  useEffect(() => setShown(PAGE), [q, stateF, typeF, userLoc, mapView]);
+  // Typing a search or picking a filter takes over from the map area.
+  useEffect(() => setMapView(null), [q, stateF, typeF]);
 
   // Filter options grouped by country: [country, [state codes]].
   const regions = useMemo(() => {
@@ -102,16 +114,19 @@ export function App() {
   const eventsBy = useMemo(() => byPlace(data?.events), [data]);
   const dist = (p: Place) => (userLoc && p.lat !== null && p.lng !== null ? milesBetween(userLoc, [p.lat, p.lng]) : null);
 
+  // The list follows the map: after you drag or zoom it, only the places in view are listed, until you search or filter.
+  const inView = (p: Place) => !mapView || (p.lat !== null && p.lng !== null && p.lng >= mapView[0][0] && p.lng <= mapView[1][0] && p.lat >= mapView[0][1] && p.lat <= mapView[1][1]);
   const results = useMemo(() => {
-    const list = (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q)));
+    const list = (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q)) && inView(p));
     if (userLoc) return list.map(p => [p, dist(p) ?? Infinity] as const).sort((a, b) => a[1] - b[1]).map(x => x[0]);
     return list.sort((a, b) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
-  }, [data, q, stateF, typeF, userLoc]);
+  }, [data, q, stateF, typeF, userLoc, mapView]);
+  const mapPlaces = useMemo(() => (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q))), [data, q, stateF, typeF]);
 
   const [focus, setFocus] = useState<string | null>(null);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(store.get<string[]>("openGroups", [])));
   useEffect(() => store.set("openGroups", [...openGroups]), [openGroups]);
-  const filtered = !!(q || stateF || typeF || userLoc);
+  const filtered = !!(q || stateF || typeF || userLoc || mapView);
   // State groups, in the same order as the list: country, then state name.
   const groups = useMemo(() => {
     const m = new Map<string, Place[]>();
@@ -136,10 +151,14 @@ export function App() {
     if (!("geolocation" in navigator)) { setLocMsg(t.locNo); return; }
     setLocMsg(t.locating);
     navigator.geolocation.getCurrentPosition(
-      pos => { setUserLoc([pos.coords.latitude, pos.coords.longitude]); setLocMsg(null); setPop(null); if (route.tab !== "today") go("#/churches"); },
+      pos => { setUserLoc([pos.coords.latitude, pos.coords.longitude], "gps"); setLocMsg(null); setPicking(false); setPop(null); if (route.tab !== "today") go("#/churches"); },
       () => setLocMsg(t.locNo),
       { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 },
     );
+  };
+  const startPick = () => {
+    setPop(null); setPicking(true); setLocMsg(null); go("#/churches");
+    setTimeout(() => document.querySelector(".mapbox")?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
   };
   const fmtMi = (p: Place) => { const d = dist(p); return d === null ? null : (p.location_approx ? "~" : "") + t.mi(d); };
 
@@ -152,8 +171,9 @@ export function App() {
             <button class={"ctlbtn" + (userLoc ? " on" : "")} type="button" aria-label={t.locTitle} aria-expanded={pop === "loc"} onClick={() => setPop(pop === "loc" ? null : "loc")}><Icon name="pin" /></button>
             {pop === "loc" && <div class="pop-panel">
               <h3>{t.locTitle}</h3>
-              <p role="status">{locMsg ?? (userLoc ? t.locOn : t.locNone)}</p>
+              <p role="status">{locMsg ?? (userLoc ? (locHow === "pick" ? t.locPicked : t.locOn) : t.locNone)}</p>
               <button class="menu-item" type="button" onClick={findMe}>{t.locUse}</button>
+              <button class="menu-item" type="button" onClick={startPick}>{t.locPick}</button>
               {userLoc && <button class="menu-item" type="button" onClick={() => { setUserLoc(null); setPop(null); }}>{t.locClear}</button>}
             </div>}
           </div>
@@ -167,8 +187,13 @@ export function App() {
             </div>}
           </div>
           <button class="ctlbtn" type="button" lang={lang === "ar" ? "en" : "ar"} onClick={() => setLang(lang === "ar" ? "en" : "ar")}>{t.langSwitch}</button>
+          <button class={"ctlbtn" + (gsOpen ? " on" : "")} type="button" aria-label={t.gsBtn} aria-expanded={gsOpen} onClick={() => setGsOpen(!gsOpen)}><Icon name="search" /></button>
         </div>
       </header>
+
+      {gsOpen && <GlobalSearch t={t} lang={lang} places={data?.places ?? []} services={data?.services ?? []} events={data?.events ?? []} clergy={data?.clergy ?? []}
+        onClose={() => setGsOpen(false)} onOpenPlace={id => { setGsOpen(false); openPlace(id); }}
+        onGo={(tab, text) => { setGsOpen(false); if (tab === "churches") setQ(text); if (tab === "events") setEvQ(text); go(tabHash[tab]); scrollTo({ top: 0 }); }} />}
 
       {!online && <div class="callout">{t.offline}</div>}
 
@@ -186,7 +211,8 @@ export function App() {
         nearest={nearest} distanceOf={fmtMi} onOpen={openPlace} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
-        <MapView places={results} selectedId={route.place ?? focus} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
+        <MapView places={mapPlaces} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
+          onPick={l => { setUserLoc(l, "pick"); setPicking(false); setLocMsg(null); }} selectedId={route.place ?? focus} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
         <div class="searchrow">
           <label class="search">
             <Icon name="search" />
@@ -210,6 +236,8 @@ export function App() {
           </select>
           <span class="muted small count" role="status">{data ? t.results(results.length) : "…"}</span>
         </div>
+        {mapView && !q && !stateF && !typeF && <div class="showing"><span>{t.inMapArea(results.length)}</span>
+          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setMapView(null)}>{t.fullMap}</button></div>}
 
         {data && results.length === 0 && <div class="empty">{t.noneFound}</div>}
         {filtered ? <>
@@ -236,7 +264,7 @@ export function App() {
       </main>}
 
       {route.tab === "events" && <EventsView t={t} lang={lang} places={placesById} services={data?.services ?? []} events={data?.events ?? []}
-        saved={saved} toggleSave={toggleSave} filters={evFilters} setFilters={setEvFilters} distanceOf={fmtMi} onOpen={openPlace} />}
+        saved={saved} toggleSave={toggleSave} filters={evFilters} setFilters={setEvFilters} distanceOf={fmtMi} onOpen={openPlace} q={evQ} setQ={setEvQ} />}
 
       {route.tab === "feasts" && <FeastsView t={t} lang={lang} />}
 

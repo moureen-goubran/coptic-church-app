@@ -9,6 +9,8 @@ interface Props {
   selectedId: string | null;
   userLoc: [number, number] | null;
   onSelect: (id: string) => void;
+  onView: (b: [[number, number], [number, number]] | null) => void; // what the person moved the map to (null = everything)
+  picking: boolean; onPick: (loc: [number, number]) => void; onPickCancel: () => void;
   t: Strings;
   theme: string;
 }
@@ -63,13 +65,15 @@ function fitAll(map: MLMap | null, places: Place[]) {
   map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 30, maxZoom: 12, duration: 600 });
 }
 
-export function MapView({ places, selectedId, userLoc, onSelect, t, theme }: Props) {
+export function MapView({ places, selectedId, userLoc, onSelect, onView, picking, onPick, onPickCancel, t, theme }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
+  const cb = useRef({ onView, onPick, picking });
+  cb.current = { onView, onPick, picking };
 
   useEffect(() => {
     let cancelled = false;
@@ -110,9 +114,16 @@ export function MapView({ places, selectedId, userLoc, onSelect, t, theme }: Pro
             const f = e.features?.[0]; if (!f) return;
             const src = map.getSource("places") as GeoJSONSource;
             const zoom = await src.getClusterExpansionZoom(f.properties.cluster_id);
-            map.easeTo({ center: (f.geometry as any).coordinates, zoom });
+            map.easeTo({ center: (f.geometry as any).coordinates, zoom }, { userMove: true });
           });
-          map.on("click", "pins", e => { const id = e.features?.[0]?.properties.id; if (id) onSelectRef.current(id); });
+          // Only moves the person made (drag, zoom, cluster tap) narrow the list, not the app's own fly-tos.
+          map.on("moveend", (e: any) => {
+            if (!e.originalEvent && !e.userMove) return;
+            const b = map.getBounds();
+            cb.current.onView([[b.getWest(), b.getSouth()], [b.getEast(), b.getNorth()]]);
+          });
+          map.on("click", e => { if (cb.current.picking) cb.current.onPick([e.lngLat.lat, e.lngLat.lng]); });
+          map.on("click", "pins", e => { if (cb.current.picking) return; const id = e.features?.[0]?.properties.id; if (id) onSelectRef.current(id); });
           for (const l of ["clusters", "pins"]) {
             map.on("mouseenter", l, () => (map.getCanvas().style.cursor = "pointer"));
             map.on("mouseleave", l, () => (map.getCanvas().style.cursor = ""));
@@ -123,6 +134,8 @@ export function MapView({ places, selectedId, userLoc, onSelect, t, theme }: Pro
     })();
     return () => { cancelled = true; mapRef.current?.remove(); mapRef.current = null; };
   }, []);
+
+  useEffect(() => { const c = mapRef.current?.getCanvas(); if (c) c.style.cursor = picking ? "crosshair" : ""; }, [ready, picking]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -165,9 +178,10 @@ export function MapView({ places, selectedId, userLoc, onSelect, t, theme }: Pro
     <div class="mapbox">
       <div class="map" ref={box} role="region" aria-label={t.tabChurches} />
       {failed && <div class="mapfail">{t.mapFail}</div>}
+      {picking && <div class="pickbar" role="status"><span>{t.pickHint}</span><button type="button" onClick={onPickCancel}>{t.cancel}</button></div>}
       <div class="mapbar">
         <span class="mapnote">{t.mapNote}</span>
-        <button class="btn small" type="button" onClick={() => fitAll(mapRef.current, places)}>{t.fullMap}</button>
+        <button class="btn small" type="button" onClick={() => { fitAll(mapRef.current, places); onView(null); }}>{t.fullMap}</button>
       </div>
     </div>
   );
