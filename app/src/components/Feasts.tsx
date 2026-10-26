@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import type { Lang, Strings } from "../i18n";
 import {
-  type Fast, type Feast, addDays, commDates, commOn, COMMS, copticParts, daysBetween, fastOn, feastsAround,
+  type About, type Fast, type Feast, ABOUT, addDays, commDates, fastAbout, commOn, COMMS, copticParts, daysBetween, fastOn, feastsAround,
   iso, isWedFriFast, parseIso, synaxUrl, upcomingFasts,
 } from "../lib/coptic";
 import { downloadIcs } from "../lib/cal";
@@ -165,6 +165,15 @@ export function Synaxarium({ t, lang, inHero }: P & { inHero?: boolean }) {
   );
 }
 
+// Short background with a link to the trusted page it comes from, folded away until opened.
+const host = (u: string) => new URL(u).hostname.replace(/^www\./, "");
+function AboutText({ a, t, lang }: P & { a: About }) {
+  return <>
+    <p class="about">{a[lang]}</p>
+    <a class="small" href={a.src} target="_blank" rel="noopener noreferrer">{t.aboutMore(host(a.src))}</a>
+  </>;
+}
+
 function FastCard({ f, t, lang }: P & { f: Fast }) {
   const t0 = todayIso(), now = t0 >= f.start && t0 <= f.end;
   return (
@@ -174,6 +183,7 @@ function FastCard({ f, t, lang }: P & { f: Fast }) {
       <div class="kv"><span class="k">{t.endsL}</span><span>{longDate(f.end, lang)}</span></div>
       <div class="kv"><span class="k">{t.lengthL}</span><span>{t.nDays(daysBetween(f.start, f.end) + 1)}</span></div>
       <div class="kv"><span class="k">{t.endsWithL}</span><span>{f.feast[lang]} · {fmt(f.feast.date, lang, { month: "long", day: "numeric" })}</span></div>
+      <details class="more"><summary>{t.aboutFast}</summary><AboutText a={fastAbout(f.key)} t={t} lang={lang} /></details>
       <div><AddCal t={t} title={f.name[lang]} start={f.start} end={f.end} /></div>
     </div>
   );
@@ -181,7 +191,7 @@ function FastCard({ f, t, lang }: P & { f: Fast }) {
 
 /* ---------- the Feasts & Fasts tab ---------- */
 export function FeastsView({ t, lang }: P) {
-  const t0 = todayIso();
+  const now = new Date(), t0 = iso(now), p = copticParts(now);
   const fasts = useMemo(() => upcomingFasts(t0), [t0]);
   const [sort, setSortState] = useState<string>(() => store.get("feastSort", "date"));
   const setSort = (v: string) => { setSortState(v); store.set("feastSort", v); };
@@ -198,11 +208,22 @@ export function FeastsView({ t, lang }: P) {
   const hit = (...words: string[]) => (h => (!toks.length || toks.every(x => h.includes(x))) && (!tterms.length || tterms.some(tk => tk.every(x => h.includes(x)))))(norm(words.join(" ")));
   const searching = toks.length > 0 || terms.length > 0;
   const keep = () => { const v = q.trim(); if (v && !terms.includes(v)) setTerms([...terms, v]); setQ(""); };
-  const fastsSorted = (sort === "name" ? [...fasts].sort((a, b) => coll(a.name[lang], b.name[lang])) : fasts).filter(f => hit(f.name.en, f.name.ar));
+  const fastsSorted = (sort === "name" ? [...fasts].sort((a, b) => coll(a.name[lang], b.name[lang])) : fasts).filter(f => hit(f.name.en, f.name.ar, fastAbout(f.key).en, fastAbout(f.key).ar));
   const comms = COMMS.filter(c => hit(c.title.en, c.title.ar, t.commName[c.key]));
-  const feastsShown = feasts.filter(f => hit(f.name.en, f.name.ar, t.feastKinds[f.kind]));
+  const feastsShown = feasts.filter(f => hit(f.name.en, f.name.ar, t.feastKinds[f.kind], ABOUT[f.key].en, ABOUT[f.key].ar));
   return (
     <main class="stack">
+      <section class="hero">
+        <div class="hero-d">{now.toLocaleDateString(loc(lang), { weekday: "long", month: "long", day: "numeric" })}</div>
+        <div class="hero-c">{t.copticDate(p.day, t.copticMonths[p.month - 1], p.year)}</div>
+        <StatusChips t={t} lang={lang} />
+        <Synaxarium t={t} lang={lang} inHero />
+        <small>{t.fastsNote}</small>
+        <details class="more"><summary>{t.aboutCal}</summary>
+          <AboutText a={ABOUT.calendar} t={t} lang={lang} />
+          <AboutText a={ABOUT.synaxarium} t={t} lang={lang} />
+        </details>
+      </section>
       <label class="search">
         <Icon name="search" />
         <input type="search" placeholder={t.qFeasts} aria-label={t.qFeasts} enterKeyHint="search" value={q} onInput={e => setQ((e.target as HTMLInputElement).value)}
@@ -215,15 +236,15 @@ export function FeastsView({ t, lang }: P) {
         <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setTerms([])}>{t.clearAll}</button>
       </div>}
       {searching && !fastsSorted.length && !comms.length && !feastsShown.length && <div class="empty">{t.noEvents}</div>}
-      <div class="sortrow"><StatusChips t={t} lang={lang} />
+      <div class="sortrow"><span />
         <SortBy t={t} value={sort} onChange={setSort} options={[["date", t.sortSoonest], ["name", t.sortName], ["importance", t.sortImportance]]} /></div>
 
       {fastsSorted.length > 0 && <>
       <div class="sec-h"><h2>{t.fastsTitle}</h2></div>
-      <p class="muted small lead">{t.fastsNote}</p>
       <div class="fastlist">{fastsSorted.map(f => <FastCard f={f} t={t} lang={lang} key={f.key} />)}</div>
       </>}
-      {(!searching || hit(t.wedFriTitle, t.wedFriBody)) && <div class="card"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p></div>}
+      {(!searching || hit(t.wedFriTitle, t.wedFriBody, ABOUT.wedFri.en, ABOUT.wedFri.ar)) && <div class="card fastcard"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p>
+        <details class="more"><summary>{t.aboutWedFri}</summary><AboutText a={ABOUT.wedFri} t={t} lang={lang} /></details></div>}
 
       {comms.length > 0 && <>
       <div class="sec-h"><h2>{t.commTitle}</h2><a class="linkbtn" href={synaxUrl(t0)} target="_blank" rel="noopener noreferrer">{t.synaxToday}</a></div>
@@ -236,6 +257,7 @@ export function FeastsView({ t, lang }: P) {
               <div class="fhead"><h3>{name}</h3><span class={"chip" + (ds[0] === t0 ? "" : " gold")}>{ds[0] === t0 ? t.today : rel(t, daysBetween(t0, ds[0]))}</span></div>
               <div class="muted small">{t.commOn(c.day)}</div>
               <div class="kv"><span class="k">{t.nextDates}</span><span>{ds.map((d, k) => <>{k > 0 && <br />}{fmt(d, lang, { weekday: "short", month: "short", day: "numeric" })} <span class="muted">({copticShort(d, t)})</span></>)}</span></div>
+              <details class="more"><summary>{t.aboutComm}</summary><AboutText a={ABOUT[c.key === "mary" ? "commMary" : "commMichael"]} t={t} lang={lang} /></details>
               <div><AddCal t={t} title={c.title[lang]} start={ds[0]} end={ds[0]} /></div>
             </div>
           );
@@ -245,15 +267,19 @@ export function FeastsView({ t, lang }: P) {
 
       {feastsShown.length > 0 && <>
       <div class="sec-h"><h2>{t.feastsTitle}</h2></div>
+      <p class="muted small lead">{t.feastsTap}</p>
       <div class="feastlist">
         {feastsShown.map(f => {
           const dd = daysBetween(t0, f.date);
           return (
-            <div class={"feastrow" + (dd < 0 ? " past" : "")} key={f.date + f.name.en}>
-              <span class="fd">{fmt(f.date, lang, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</span>
-              <span>{f.name[lang]}</span>
-              <span class={"chip" + (dd === 0 ? "" : " plain")}>{dd === 0 ? t.today : t.feastKinds[f.kind]}</span>
-            </div>
+            <details class={"feastrow" + (dd < 0 ? " past" : "")} key={f.date + f.name.en}>
+              <summary>
+                <span class="fd">{fmt(f.date, lang, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</span>
+                <span>{f.name[lang]}</span>
+                <span class={"chip" + (dd === 0 ? "" : " plain")}>{dd === 0 ? t.today : t.feastKinds[f.kind]}</span>
+              </summary>
+              <div class="fabout"><AboutText a={ABOUT[f.key]} t={t} lang={lang} /></div>
+            </details>
           );
         })}
       </div>

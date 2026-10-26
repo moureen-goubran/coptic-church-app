@@ -169,6 +169,9 @@ const en = {
   commNext: (n: string, d: string) => `Next commemoration: ${n} · ${d}`,
   nextDates: "Next dates",
   feastsTitle: "Feasts This Year",
+  feastsTap: "Tap a feast to learn what it celebrates.", aboutFast: "Why we keep this fast",
+  aboutWedFri: "Why these two days", aboutComm: "Why we honor this day", aboutCal: "What are the Coptic calendar and the Synaxarium?",
+  aboutMore: (site: string) => `Read more on ${site}`,
   addCal: "Add to calendar",
   feastSource: "Dates are worked out from the Coptic calendar and match copticchurch.net. Fixed feasts move one day after a Coptic leap year.",
   // Events
@@ -371,6 +374,9 @@ const ar: Strings = {
   commNext: (n: string, d: string) => `التذكار القادم: ${n} · ${d}`,
   nextDates: "المواعيد القادمة",
   feastsTitle: "أعياد هذه السنة",
+  feastsTap: "اضغط على أي عيد لتعرف ماذا نحتفل فيه.", aboutFast: "لماذا نصوم هذا الصوم",
+  aboutWedFri: "لماذا هذان اليومان", aboutComm: "لماذا نكرّم هذا اليوم", aboutCal: "ما هو التقويم القبطي والسنكسار؟",
+  aboutMore: (site: string) => `اقرأ المزيد على ${site} (بالإنجليزية)`,
   addCal: "أضف إلى التقويم",
   feastSource: "المواعيد محسوبة من التقويم القبطي ومطابقة لموقع copticchurch.net. الأعياد الثابتة تتأخر يومًا بعد السنة القبطية الكبيسة.",
   // Events

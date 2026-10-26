@@ -3,9 +3,9 @@ import type { Lang, Strings } from "../i18n";
 import type { ChurchEvent, Place, Service } from "../lib/types";
 import { fmtTime } from "../lib/time";
 import { type Item, byWhen, fromService, nextDateFor, specialDates, upcomingItems } from "../lib/events";
-import { copticParts, iso } from "../lib/coptic";
+import { iso } from "../lib/coptic";
 import { Icon, mapsLinks, placeName, shortName, telHref } from "./bits";
-import { StatusChips, Synaxarium, seasonLine } from "./Feasts";
+import { seasonLine } from "./Feasts";
 import { SuggestEvent, dayLabel, itemTitle } from "./Events";
 
 interface Props {
@@ -16,10 +16,9 @@ interface Props {
   onOpen: (id: string) => void; onLocate: () => void;
 }
 
-const loc = (lang: Lang) => (lang === "ar" ? "ar-EG" : "en-US");
 
 export function TodayView({ t, lang, places, services, events, saved, toggleSave, nearest, distanceOf, onOpen, onLocate }: Props) {
-  const now = new Date(), t0 = iso(now), p = copticParts(now);
+  const now = new Date(), t0 = iso(now);
   const when = (it: Item) => dayLabel(t, lang, it.date!, it.end_date);
   const time = (it: Item) => (it.start ? fmtTime(it.start, lang) : t.allDay);
 
@@ -92,14 +91,6 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
 
       <div class="sec-h"><h2>{t.myEvents}</h2></div>
       {mine.length ? <div class="mini">{mine.map(row)}</div> : <div class="tip">{t.saveTip}</div>}
-
-      <section class="hero">
-        <div class="hero-d">{now.toLocaleDateString(loc(lang), { weekday: "long", month: "long", day: "numeric" })}</div>
-        <div class="hero-c">{t.copticDate(p.day, t.copticMonths[p.month - 1], p.year)}</div>
-        <StatusChips t={t} lang={lang} />
-        <Synaxarium t={t} lang={lang} inHero />
-        <small>{t.fastsNote}</small>
-      </section>
 
       <div class="center"><button class="btn" type="button" onClick={shareApp}><Icon name="share" />{copied ? t.copied : t.shareApp}</button></div>
     </main>
