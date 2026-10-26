@@ -14,15 +14,17 @@ const corsFor = (req: Request) => {
     "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "content-type, apikey, authorization" };
 };
 
-const TOPICS = ["info", "safety", "other", "suggestion", "claim"];
+const TOPICS = ["info", "safety", "other", "suggestion", "claim", "event"];
 const SUBJECTS: Record<string, string> = {
   safety: "URGENT: MY-COPTIC-CHURCH CONCERN",
   suggestion: "SUGGESTION: MY-COPTIC-CHURCH",
   info: "REPORT: MY-COPTIC-CHURCH WRONG OR MISSING INFO",
   other: "REPORT: MY-COPTIC-CHURCH",
   claim: "CLAIM: MY-COPTIC-CHURCH IS THIS YOUR CHURCH",
+  event: "EVENT SUGGESTION: MY-COPTIC-CHURCH",
 };
-const LABELS: Record<string, string> = { safety: "Safety concern", suggestion: "Suggestion", info: "Wrong or missing info", other: "Something else", claim: "Is this your church? (confirm by calling the church's public number)" };
+const LABELS: Record<string, string> = { safety: "Safety concern", suggestion: "Suggestion", info: "Wrong or missing info", other: "Something else", claim: "Is this your church? (confirm by calling the church's public number)",
+  event: "Event suggestion (check it with the church before adding it to data/events.csv)" };
 
 // The server key: a legacy service_role JWT goes in both headers; a new secret key (sb_secret_...) is not a JWT
 // and must only go in apikey, or the database treats the call as an anonymous visitor (error 42501).

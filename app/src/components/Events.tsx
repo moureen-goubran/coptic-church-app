@@ -9,6 +9,7 @@ import { norm } from "../lib/search";
 import { store } from "../lib/store";
 import { Icon, SortBy, addressLine, churchColor, placeName, shortName } from "./bits";
 import { seasonLine } from "./Feasts";
+import { CorrectionForm } from "./CorrectionForm";
 
 // terms: searches kept as filter bubbles (Enter in the search box); an item shows if it matches any of them.
 export type EvFilters = { churches: string[]; kinds: string[]; days: number[]; date: string; terms: string[] };
@@ -28,6 +29,19 @@ export function dayLabel(t: Strings, lang: Lang, day: string, end?: string | nul
   const one = (d: string) => (d === t0 ? t.today : d === addDays(t0, 1) ? t.tomorrow : fmt(d, lang, { weekday: "short", month: "short", day: "numeric" }));
   return end && end !== day ? `${fmt(day, lang, { month: "short", day: "numeric" })} – ${fmt(end, lang, { month: "short", day: "numeric" })}` : one(day);
 }
+// "Suggest an Event" (home and the bottom of Events): a closed card that opens the form. The bot check only loads once
+// it's opened. Suggestions are emailed to the owner and never shown in the app until checked and added by hand.
+export function SuggestEvent({ t, lang, churches }: { t: Strings; lang: Lang; churches: Place[] }) {
+  const [open, setOpen] = useState(false);
+  const list = useMemo(() => [...churches].sort((a, b) => placeName(a, lang).localeCompare(placeName(b, lang), lang === "ar" ? "ar" : "en")), [churches, lang]);
+  return (
+    <details class="suggest" open={open} onToggle={e => setOpen((e.currentTarget as HTMLDetailsElement).open)}>
+      <summary><Icon name="plus" /><span><b>{t.suggestEvent}</b><span class="muted small">{t.suggestEventSub}</span></span></summary>
+      {open && <div class="suggest-body"><CorrectionForm placeId={null} t={t} lang={lang} churches={list} /></div>}
+    </details>
+  );
+}
+
 // Words a search can match: titles and rooms in both languages, the church, its city, the type and the day.
 export const itemHay = (it: Item, p: Place | undefined, t: Strings) => norm([it.title_en, it.title_ar, it.room_en, it.room_ar, p?.name, p?.name_ar, p?.city,
   t.kinds[it.kind] ?? "", it.weekly !== null ? t.days[it.weekly] : ""].filter(Boolean).join(" "));
@@ -293,6 +307,8 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
 
 
       <div class="evlist">{main}</div>
+
+      <SuggestEvent t={t} lang={lang} churches={[...places.values()]} />
     </main>
   );
 }

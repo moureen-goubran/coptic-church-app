@@ -303,3 +303,16 @@ details.acc > .accbody { padding: 0 16px 16px; display: flex; flex-direction: co
 /* Type-to-find box at the top of a filter list; hint under a search box. */
 .ddfind { font: inherit; font-size: var(--fs-sm); width: 100%; box-sizing: border-box; padding: 8px 10px; margin: 0 0 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); position: sticky; top: 0; z-index: 1; }
 .hint { margin: -6px 0 0; font-size: var(--fs-xs); }
+
+/* Home leads with events; "Suggest an Event" card (home and the bottom of Events) */
+.homelead { font-family: var(--font-display); font-size: var(--fs-xl); line-height: 1.2; font-weight: 500; margin: 0; color: var(--fg); }
+.suggest { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--accent-line); border-radius: 14px; box-shadow: var(--shadow); }
+.suggest > summary { list-style: none; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 12px 16px; cursor: pointer; }
+.suggest > summary::-webkit-details-marker { display: none; }
+.suggest > summary > svg { flex: none; color: var(--maroon); }
+.suggest > summary > span { display: flex; flex-direction: column; gap: 2px; }
+.suggest > summary b { font-size: var(--fs-md); }
+.suggest-body { padding: 0 16px 16px; }
+form.f input:not([type="checkbox"]):not([type="radio"]) { width: 100%; box-sizing: border-box; min-height: 44px; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+form.f .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+form.f .two > span { display: flex; flex-direction: column; gap: 8px; }
