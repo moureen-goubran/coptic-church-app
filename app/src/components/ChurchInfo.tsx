@@ -89,7 +89,8 @@ interface CardProps extends More {
   services: Service[]; distance: string | null; active: boolean;
   onOpen: () => void; onFocus: () => void;
 }
-const TYPE_COLOR: Record<string, string> = { church: "var(--maroon)", monastery: "var(--gold)", convent: "var(--gold)" };
+// Card top border: neutral for churches (maroon is kept for Call), gold marks monasteries and convents.
+const TYPE_COLOR: Record<string, string> = { church: "var(--line)", monastery: "var(--gold)", convent: "var(--gold)" };
 
 export function ChurchCard({ place: p, details: d, clergy, links, services, distance, active, t, lang, onOpen, onFocus }: CardProps) {
   const [copied, setCopied] = useState(false);
@@ -109,18 +110,19 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
       </div>
       {services.length > 0 && nx && <button class="next" type="button" onClick={onOpen}>
         <small>{t.nextHere}</small>
-        <b>{nx.inDays === 0 ? t.today : nx.inDays === 1 ? t.tomorrow : t.days[nx.s.day]} · <span class="num">{fmtTime(nx.s.start, lang)}</span></b> · {lang === "ar" && nx.s.title_ar || nx.s.title_en}
+        <b>{nx.inDays === 0 ? t.today : nx.inDays === 1 ? t.tomorrow : t.days[nx.s.day]} · <span class="num">{fmtTime(nx.s.start, lang)}</span></b>{lang === "ar" && nx.s.title_ar || nx.s.title_en}
       </button>}
-      <div class="facts">
-        <div class="fact"><span class="k">{t.address}</span>{p.street ? <span class="num">{addr}</span> : <span class="missing">{t.noStreet}</span>}</div>
+      {(p.street || parking) && <div class="facts">
+        {p.street && <div class="fact"><span class="k">{t.address}</span><span class="num">{addr}</span></div>}
         {parking && <div class="fact"><span class="k">{t.parking}</span><span>{parking}</span></div>}
-      </div>
+      </div>}
       <div class="actions">
         {p.phone && <a class="btn primary" href={telHref(p.phone)}><Icon name="phone" />{t.call}</a>}
         <DirectionsMenu place={p} t={t} />
-        {services.length > 0 ? <button class="btn" type="button" onClick={onOpen}><Icon name="clock" />{t.seeSchedule}</button>
+        {/* The next-service box already opens the schedule, so the button only shows when there is no box. */}
+        {services.length > 0 ? !nx && <button class="btn" type="button" onClick={onOpen}><Icon name="clock" />{t.seeSchedule}</button>
           : p.website && <a class="btn" href={p.website} {...ext}><Icon name="globe" />{t.website}</a>}
-        {live && <a class="btn" href={live.url} {...ext}><SocialIcon kind="live" />{t.liveShort}</a>}
+        {live && <a class="btn icon" href={live.url} {...ext} aria-label={t.liveShort} title={t.liveShort}><SocialIcon kind="live" /></a>}
       </div>
       <div class="reportrow"><button class="linkbtn" type="button" aria-expanded={form === "report"} onClick={() => setForm(form === "report" ? null : "report")}><Icon name="flag" />{t.report}</button></div>
       {form === "report" && <CorrectionForm placeId={p.id} t={t} lang={lang} />}
