@@ -16,7 +16,7 @@ Keep a note (in your password manager) of the values marked **save**.
    - Plan: **Free**
    - Security: keep **Enable Data API** checked, **uncheck** "Automatically expose new tables", and **check** "Enable automatic RLS".
 3. Click **Create new project** and wait about 2 minutes.
-4. Click **Connect** at the top of the page, then the **Connection string** tab. Under **Session pooler**, copy the line that starts with `postgresql://`. Replace `[YOUR-PASSWORD]` with the password from step 2. **Save** it as **DB URL**.
+4. Click **Connect** at the top of the page. Under **Session pooler**, copy the long line that starts with `postgresql://`. It has a blank in it that says `[YOUR-PASSWORD]`. Delete that blank (brackets too) and type your database password from step 2 in its place. **Save** the finished line. This is the **connection string** (GitHub calls it `SUPABASE_DB_URL`).
 5. In the left menu, open **Project Settings → API keys** (or **Data API**). **Save** the **Project URL** and the **anon / public** key. These two are public and safe in the app.
 6. The **project ref** is the part of the Project URL before `.supabase.co` (for example `abcdxyz`). **Save** it.
 7. Click your account picture (top right) → **Account preferences → Access Tokens → Generate new token**. Name it `github`. **Save** it.
@@ -29,7 +29,7 @@ On the **Secrets** tab, click **New repository secret** for each:
 
 | Name | Value |
 |---|---|
-| `SUPABASE_DB_URL` | DB URL from step 1.4 |
+| `SUPABASE_DB_URL` | connection string from step 1.4 |
 | `SUPABASE_ACCESS_TOKEN` | token from step 1.7 |
 | `SUPABASE_PROJECT_REF` | project ref from step 1.6 |
 | `TURNSTILE_SECRET` | secret key from step 3.3 (add after step 3) |
