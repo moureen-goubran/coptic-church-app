@@ -3,7 +3,6 @@
 // Then emails it to the owner (Resend). Safety concerns get an URGENT subject.
 // Secrets: TURNSTILE_SECRET, ALLOWED_ORIGIN (one site address, or several separated by commas),
 // RESEND_API_KEY and NOTIFY_EMAIL (no email is sent until both are set).
-import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { screenMessage } from "../_shared/screen.ts";
 
 const ORIGINS = (Deno.env.get("ALLOWED_ORIGIN") ?? "https://coptic.myorthodoxchurch.com,https://coptic-church-app.moureenjgoubran.workers.dev")
@@ -25,13 +24,20 @@ const SUBJECTS: Record<string, string> = {
 };
 const LABELS: Record<string, string> = { safety: "Safety concern", suggestion: "Suggestion", info: "Wrong or missing info", other: "Something else", claim: "Is this your church? (confirm by calling the church's public number)" };
 
+// The server key: a legacy service_role JWT goes in both headers; a new secret key (sb_secret_...) is not a JWT
+// and must only go in apikey, or the database treats the call as an anonymous visitor (error 42501).
+const SERVER_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const dbHeaders = { apikey: SERVER_KEY, ...(SERVER_KEY.startsWith("eyJ") ? { authorization: `Bearer ${SERVER_KEY}` } : {}), "content-type": "application/json" };
+const rest = (path: string, init: RequestInit = {}) =>
+  fetch(`${Deno.env.get("SUPABASE_URL")}/rest/v1/${path}`, { ...init, headers: { ...dbHeaders, ...init.headers }, signal: AbortSignal.timeout(10000) });
+
 // Plain-text email to the owner. The message already passed the screen (no contact info or links).
-async function notify(db: ReturnType<typeof createClient>, topic: string, placeId: string | null, message: string) {
+async function notify(topic: string, placeId: string | null, message: string) {
   const key = Deno.env.get("RESEND_API_KEY"), to = Deno.env.get("NOTIFY_EMAIL");
   if (!key || !to) return;
   let church = "None (app-wide)";
   if (placeId) {
-    const { data } = await db.from("places").select("name, city, state").eq("id", placeId).maybeSingle();
+    const [data] = await rest(`places?select=name,city,state&id=eq.${placeId}`).then(r => r.ok ? r.json() : []).catch(() => []);
     church = data ? `${data.name}, ${data.city} ${data.state}` : placeId;
   }
   const text = [`Type: ${LABELS[topic]}`, `Church: ${church}`, `Sent: ${new Date().toUTCString()}`, "", message, "",
@@ -64,11 +70,10 @@ Deno.serve(async req => {
 
   const topic = TOPICS.includes(body.topic ?? "") ? body.topic! : "info";
 
-  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   // The topic is kept as a tag at the start of the message, so the table shows it without a schema change.
   const saved = topic === "info" ? screened.text : `[${topic}] ${screened.text}`;
-  const { error } = await db.from("corrections").insert({ place_id: placeId, message: saved.slice(0, 1000) });
-  if (error) return reply(500, { error: "save", codes: [error.code] });
-  await notify(db, topic, placeId, screened.text).catch(() => {}); // the message is saved even if the email fails
+  const save = await rest("corrections", { method: "POST", headers: { prefer: "return=minimal" }, body: JSON.stringify({ place_id: placeId, message: saved.slice(0, 1000) }) });
+  if (!save.ok) return reply(500, { error: "save", codes: [await save.json().then(e => e.code, () => String(save.status))] });
+  await notify(topic, placeId, screened.text).catch(() => {}); // the message is saved even if the email fails
   return reply(200, { ok: true });
 });
