@@ -273,6 +273,7 @@ export function App() {
           <p>{t.aboutBody}</p>
           <h3>{t.aboutInfoH}</h3>
           <p>{t.aboutInfo}</p>
+          <p>{t.aboutDisclaimer}</p>
           <h3 id="privacy">{t.privacyH}</h3>
           <ul>{t.privacy.map(x => <li>{x}</li>)}</ul>
         </section>
