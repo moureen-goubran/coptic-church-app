@@ -1,0 +1,19 @@
+name: tmp verify
+on:
+  push:
+    branches: [claude/project-thread-xuqasw]
+    paths: [".github/workflows/tmp-verify.yml"]
+permissions:
+  contents: read
+jobs:
+  v:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for u in https://www.stmoses.com/ https://stphilopateer.com/ https://stmarystmercuriusphilly.org/ http://stmarystmercuriusphilly.org/ http://www.st-antonious.org/CopticChurch-Idaho/ https://www.stpaulatlanta.org/ http://www.stpaulatlanta.org/ https://saintmaryandsaintgeorge.org/ http://saintmaryandsaintgeorge.org/ http://www.copticmexico.org/ https://www.stmarystjohn.org/ https://spsdchurch.ca/ https://virginmarybayonne.com/ https://www.sachurch.org/ https://stgeorgebklyn.org/ https://stmarystmaurice.ca/ http://www.smsj.ca/ https://www.saintmaryhouston.org/ https://archangelmichaelandsaintanthonycopticorthodoxchurch.com https://stmarkbonneylake.com/ https://www.ssa.gov/multilanguage/interpreter.html https://www.needhelppayingbills.com/html/hudson_county_nj_free_clothing_closets.html https://suscopts.org/stmaryatlanta https://suscopts.org/stmarkphoenix/ https://suscopts.org/stpeterwpb/ https://retreatcenter.suscopts.org/ https://www.aclu-nj.org/en/node/1194 https://forms.gle/TeU4M8j8DhmYFo6A9; do
+            echo "=== $u"
+            curl -sSL -m 25 -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15" -H "Accept: text/html" -H "Accept-Language: en-US" -o page.html -w "status=%{http_code} final=%{url_effective} ssl_verify=%{ssl_verify_result}\n" "$u" 2>&1 | tail -2
+            grep -io '<title>[^<]*' page.html | head -1
+            grep -ioE 'casino|gambl|porn|xxx[^-]|for sale|parked|slot' page.html | sort | uniq -c | head -5
+            rm -f page.html
+          done
