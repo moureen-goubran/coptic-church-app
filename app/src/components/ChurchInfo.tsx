@@ -89,7 +89,7 @@ interface CardProps extends More {
   services: Service[]; distance: string | null; active: boolean;
   onOpen: () => void; onFocus: () => void;
 }
-const TYPE_COLOR: Record<string, string> = { church: "var(--lapis)", monastery: "var(--gold)", convent: "var(--gold)" };
+const TYPE_COLOR: Record<string, string> = { church: "var(--maroon)", monastery: "var(--gold)", convent: "var(--gold)" };
 
 export function ChurchCard({ place: p, details: d, clergy, links, services, distance, active, t, lang, onOpen, onFocus }: CardProps) {
   const [copied, setCopied] = useState(false);

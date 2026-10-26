@@ -41,9 +41,9 @@ function paintToTheme(map: MLMap) {
 // Colors for our own layers (pins and clusters), re-applied when the theme changes.
 function paintPins(map: MLMap) {
   if (!map.getLayer("pins")) return;
-  map.setPaintProperty("clusters", "circle-color", css("--lapis"));
+  map.setPaintProperty("clusters", "circle-color", css("--maroon"));
   map.setPaintProperty("cluster-count", "text-color", css("--surface"));
-  map.setPaintProperty("pins", "circle-color", ["match", ["get", "kind"], "church", css("--lapis"), "monastery", css("--gold"), css("--muted")]);
+  map.setPaintProperty("pins", "circle-color", ["match", ["get", "kind"], "church", css("--maroon"), "monastery", css("--gold"), css("--muted")]);
   map.setPaintProperty("pin-labels", "text-color", css("--fg"));
   map.setPaintProperty("pin-labels", "text-halo-color", css("--surface"));
 }
@@ -100,14 +100,14 @@ export function MapView({ places, matchIds, fitKey, selectedId, userLoc, onSelec
           paintToTheme(map);
           map.addSource("places", { type: "geojson", data: toGeoJSON([]), cluster: true, clusterRadius: 38, clusterMaxZoom: 9 });
           map.addLayer({ id: "clusters", type: "circle", source: "places", filter: ["has", "point_count"],
-            paint: { "circle-color": css("--lapis"), "circle-opacity": 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 2,
+            paint: { "circle-color": css("--maroon"), "circle-opacity": 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 2,
               "circle-radius": ["step", ["get", "point_count"], 13, 10, 17, 40, 22] } });
           map.addLayer({ id: "cluster-count", type: "symbol", source: "places", filter: ["has", "point_count"],
             layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 12, "text-font": ["Noto Sans Bold"] },
             paint: { "text-color": css("--surface") } });
           map.addLayer({ id: "pins", type: "circle", source: "places", filter: ["!", ["has", "point_count"]],
             paint: { "circle-radius": ["case", ["==", ["get", "id"], ""], 10, 7],
-              "circle-color": ["match", ["get", "kind"], "church", css("--lapis"), "monastery", css("--gold"), css("--muted")],
+              "circle-color": ["match", ["get", "kind"], "church", css("--maroon"), "monastery", css("--gold"), css("--muted")],
               "circle-opacity": ["case", ["get", "dim"], 0.35, 1], "circle-stroke-opacity": ["case", ["get", "dim"], 0.35, 1],
               "circle-stroke-color": "#fff", "circle-stroke-width": 2 } });
           map.addLayer({ id: "pin-labels", type: "symbol", source: "places", filter: ["!", ["has", "point_count"]], minzoom: 11,
