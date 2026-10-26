@@ -63,3 +63,14 @@ export function SocialIcon({ kind }: { kind: string }) {
     default: return svg(<path d="M4 5h16v11H9l-5 4z" />);
   }
 }
+
+// "Sort by" dropdown, the same on Churches, Events and Feasts & Fasts.
+export function SortBy({ t, value, options, onChange }: { t: { sortBy: string }; value: string; options: [string, string][]; onChange: (v: string) => void }) {
+  return (
+    <label class="sortby"><span>{t.sortBy}</span>
+      <select value={value} onChange={e => onChange((e.target as HTMLSelectElement).value)}>
+        {options.map(([v, l]) => <option value={v} key={v}>{l}</option>)}
+      </select>
+    </label>
+  );
+}

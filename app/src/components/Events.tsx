@@ -7,7 +7,7 @@ import { downloadIcs, googleCalUrl, type CalEntry } from "../lib/cal";
 import { fmtTime } from "../lib/time";
 import { norm } from "../lib/search";
 import { store } from "../lib/store";
-import { Icon, addressLine, churchColor, placeName, shortName } from "./bits";
+import { Icon, SortBy, addressLine, churchColor, placeName, shortName } from "./bits";
 import { seasonLine } from "./Feasts";
 
 export type EvFilters = { churches: string[]; kinds: string[]; days: number[]; date: string };
@@ -104,6 +104,8 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
   const [grp, setGrpState] = useState<Grp>(() => store.get<Grp>("evGroup", "day"));
   const setGrp = (g: Grp) => { setGrpState(g); store.set("evGroup", g); };
   const [dd, setDd] = useState<DD | null>(null);
+  const [sort, setSortState] = useState<string>(() => store.get("evSort", "time"));
+  const setSort = (v: string) => { setSortState(v); store.set("evSort", v); };
   const [openG, setOpenG] = useState<Record<string, boolean>>({});
   useEffect(() => {
     const close = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest(".dd")) setDd(null); };
@@ -130,10 +132,14 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
   const ok = (it: Item) => (!F.churches.length || F.churches.includes(it.place_id)) && (!F.kinds.length || F.kinds.includes(it.kind))
     && (!toks.length || (h => toks.every(x => h.includes(x)))(hay(it)));
 
+  // Sort by: soonest (each list's own time order), church name, or title.
+  const coll = (a: string, b: string) => a.localeCompare(b, lang === "ar" ? "ar" : "en");
+  const sorted = (list: Item[]) => sort === "church" ? [...list].sort((a, b) => coll(shortName(P(a.place_id)!, lang), shortName(P(b.place_id)!, lang)))
+    : sort === "name" ? [...list].sort((a, b) => coll(itemTitle(a, lang), itemTitle(b, lang))) : list;
   const weekly = services.map(s => fromService(s, nextDateFor(s.day, s.start, now))).filter(ok);
   const wk = weekly.filter(it => !F.days.length || F.days.includes(it.weekly!));
-  const special = specialDates(events, now).filter(ok);
-  const undated = alsoOffered(events).filter(ok);
+  const special = sorted(specialDates(events, now).filter(ok));
+  const undated = sorted(alsoOffered(events).filter(ok));
   const season = seasonLine(t, lang, t0);
   const row = (it: Item, o: { showDate?: boolean; extra?: string } = {}) =>
     <EvRow key={it.key} it={it} place={P(it.place_id)} t={t} lang={lang} saved={saved} toggleSave={toggleSave} onOpen={onOpen} {...o} />;
@@ -172,7 +178,7 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
     : grp === "type"
       ? kinds.map(k => ({ key: "t" + k, label: t.kinds[k] ?? k, color: `var(--ty-${k})`, list: wk.filter(i => i.kind === k).sort(sortWk), extra: true }))
       : dayOrder.map(d => ({ key: "d" + d, label: t.days[d], color: `var(--day${d})`, list: wk.filter(i => i.weekly === d).sort((a, b) => a.start!.localeCompare(b.start!)), extra: false }))
-  ).filter(g => g.list.length);
+  ).filter(g => g.list.length).map(g => ({ ...g, list: sorted(g.list) }));
   const isOpen = (key: string, i: number) => (toks.length ? true : key in openG ? openG[key] : grp === "day" ? key === "d" + todayDow : i === 0);
   const allKeys = [...groups.map(g => g.key), ...(undated.length && !F.days.length ? ["u"] : [])];
   const anyOpen = allKeys.some((k, i) => (k === "u" ? openG.u ?? false : isOpen(k, i)));
@@ -185,7 +191,7 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
 
   let main: preact.ComponentChildren;
   if (F.date) {
-    const list = onDate(services, events, F.date).filter(ok);
+    const list = sorted(onDate(services, events, F.date).filter(ok));
     main = <div class="dayblock">
       <h3>{fmt(F.date, lang, { weekday: "long", month: "long", day: "numeric" })}{F.date === t0 && <span class="chip">{t.today}</span>}</h3>
       {list.length ? list.map(it => row(it)) : <div class="empty">{t.noEvents}</div>}
@@ -244,6 +250,7 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
         <span class="seg" role="group" aria-label={t.groupBy}><span>{t.groupBy}</span>
           {(["day", "church", "type"] as const).map(g => <button type="button" key={g} aria-pressed={grp === g} onClick={() => { setGrp(g); setOpenG({}); }}>{t[({ day: "gDay", church: "gChurch", type: "gType" } as const)[g]]}</button>)}
         </span>
+        <SortBy t={t} value={sort} onChange={setSort} options={[["time", t.sortSoonest], ["church", t.sortChurch], ["name", t.sortName]]} />
         {!toks.length && allKeys.length > 1 && <button class="linkbtn" type="button" onClick={() => setOpenG(Object.fromEntries(allKeys.map(k => [k, !anyOpen])))}>{anyOpen ? t.collapseAll : t.expandAll}</button>}
       </div>}
       {season && <div class="seasonal solo">{season}</div>}

@@ -5,6 +5,8 @@ import {
   iso, isWedFriFast, parseIso, synaxUrl, upcomingFasts,
 } from "../lib/coptic";
 import { downloadIcs } from "../lib/cal";
+import { store } from "../lib/store";
+import { SortBy } from "./bits";
 
 type P = { t: Strings; lang: Lang };
 const loc = (lang: Lang) => (lang === "ar" ? "ar-EG" : "en-US");
@@ -180,14 +182,23 @@ function FastCard({ f, t, lang }: P & { f: Fast }) {
 export function FeastsView({ t, lang }: P) {
   const t0 = todayIso();
   const fasts = useMemo(() => upcomingFasts(t0), [t0]);
-  const feasts = useMemo(() => feastsAround(t0, 60, 330), [t0]);
+  const [sort, setSortState] = useState<string>(() => store.get("feastSort", "date"));
+  const setSort = (v: string) => { setSortState(v); store.set("feastSort", v); };
+  const coll = (a: string, b: string) => a.localeCompare(b, lang === "ar" ? "ar" : "en");
+  const RANK: Record<string, number> = { major: 0, holy: 1, fast: 2, minor: 3, other: 4 };
+  const feasts = useMemo(() => {
+    const list = feastsAround(t0, 60, 330);
+    return sort === "name" ? list.sort((a, b) => coll(a.name[lang], b.name[lang])) : sort === "importance" ? list.sort((a, b) => RANK[a.kind] - RANK[b.kind] || a.date.localeCompare(b.date)) : list;
+  }, [t0, sort, lang]);
+  const fastsSorted = sort === "name" ? [...fasts].sort((a, b) => coll(a.name[lang], b.name[lang])) : fasts;
   return (
     <main class="stack">
-      <StatusChips t={t} lang={lang} />
+      <div class="sortrow"><StatusChips t={t} lang={lang} />
+        <SortBy t={t} value={sort} onChange={setSort} options={[["date", t.sortSoonest], ["name", t.sortName], ["importance", t.sortImportance]]} /></div>
 
       <div class="sec-h"><h2>{t.fastsTitle}</h2></div>
       <p class="muted small lead">{t.fastsNote}</p>
-      <div class="fastlist">{fasts.map(f => <FastCard f={f} t={t} lang={lang} key={f.key} />)}</div>
+      <div class="fastlist">{fastsSorted.map(f => <FastCard f={f} t={t} lang={lang} key={f.key} />)}</div>
       <div class="card"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p></div>
 
       <div class="sec-h"><h2>{t.commTitle}</h2><a class="linkbtn" href={synaxUrl(t0)} target="_blank" rel="noopener noreferrer">{t.synaxToday}</a></div>
