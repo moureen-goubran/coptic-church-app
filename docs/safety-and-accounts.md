@@ -26,6 +26,7 @@ Children (some under 13) will use this app, so it's built to be safe by default.
 - **No direct messaging** between users.
 - **External links** (WhatsApp groups, social media) appear only if the church approves them. A link to a group chat lets a stranger join, so each one needs a priest's OK.
 - **Church websites are re-checked every week** (`.github/workflows/link-check.yml`). Old church domains expire and get bought by gambling or adult sites, or get hacked. The check opens every link and fails, which makes GitHub email the owner, if a page shows spam or the live site loses a security header. Remove a bad link from `data/places.csv` and add its domain to `BLOCKED_HOSTS` in `app/scripts/load-data.mjs`. The first check, on 2026-10-26, found two hijacked sites and five expired domains, and all seven links were removed.
+- **Private data is leak-tested every week** (`app/scripts/check-security.mjs`, same workflow). It acts like a stranger with the app's public key and tries to read report messages, admin notes, the admin and editor lists and the edit history, and to add or change churches, services and links. Every attempt must be refused. It also reports any warning from Supabase's own security advisor and any known high-risk hole in the app's packages. If anything fails, GitHub emails the owner.
 
 ## Industry best practice, and where we go further
 

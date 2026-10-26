@@ -54,8 +54,9 @@ Deno.serve(async req => {
   const check = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
     method: "POST",
     body: new URLSearchParams({ secret: Deno.env.get("TURNSTILE_SECRET") ?? "", response: body.token ?? "" }),
-  }).then(r => r.json()).catch(() => ({ success: false }));
-  if (!check.success) return reply(403, { error: "bot_check" });
+  }).then(r => r.json()).catch(() => ({ success: false, "error-codes": ["siteverify-unreachable"] }));
+  // Cloudflare's reason codes (e.g. invalid-input-secret) are safe to show and say what to fix.
+  if (!check.success) return reply(403, { error: "bot_check", codes: check["error-codes"] ?? [] });
 
   const screened = screenMessage(String(body.message ?? ""));
   if (!screened.ok) return reply(422, { error: screened.reason });
@@ -67,7 +68,7 @@ Deno.serve(async req => {
   // The topic is kept as a tag at the start of the message, so the table shows it without a schema change.
   const saved = topic === "info" ? screened.text : `[${topic}] ${screened.text}`;
   const { error } = await db.from("corrections").insert({ place_id: placeId, message: saved.slice(0, 1000) });
-  if (error) return reply(500, { error: "save" });
+  if (error) return reply(500, { error: "save", codes: [error.code] });
   await notify(db, topic, placeId, screened.text).catch(() => {}); // the message is saved even if the email fails
   return reply(200, { ok: true });
 });

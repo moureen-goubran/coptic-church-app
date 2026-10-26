@@ -1,4 +1,4 @@
-# Weekly safety check of every outside link (spam takeovers, dead links, redirects) and the live site's
+# Weekly leak check (private data stays locked, Supabase's security advisor, known holes in packages) and safety check of every outside link (spam takeovers, dead links, redirects) and the live site's
 # security headers, plus a malware check when the free SAFE_BROWSING_KEY secret is set. Fails (and GitHub emails
 # the owner) if a link turned into spam or malware, or a security header is gone.
 name: Link safety check
@@ -7,7 +7,7 @@ on:
     - cron: "0 13 * * 1"
   workflow_dispatch:
   push:
-    paths: [".github/workflows/link-check.yml", "app/scripts/check-links.mjs"]
+    paths: [".github/workflows/link-check.yml", "app/scripts/check-links.mjs", "app/scripts/check-security.mjs"]
 permissions:
   contents: read
 jobs:
@@ -19,6 +19,13 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - run: node app/scripts/check-links.mjs
+      - name: Leak check
+        run: node app/scripts/check-security.mjs
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      - name: Link check
+        if: always()
+        run: node app/scripts/check-links.mjs
         env:
           SAFE_BROWSING_KEY: ${{ secrets.SAFE_BROWSING_KEY }}
