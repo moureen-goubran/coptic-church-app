@@ -24,9 +24,9 @@ jobs:
             echo "Supabase secrets not set yet; skipping."; echo "go=false" >> "$GITHUB_OUTPUT"
           else echo "go=true" >> "$GITHUB_OUTPUT"; fi
       - if: steps.ready.outputs.go == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - if: steps.ready.outputs.go == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Build seed.sql from data/*.csv
