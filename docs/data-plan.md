@@ -6,7 +6,8 @@ Last updated: October 26, 2026
 
 1. **New Jersey**: North, then Central, then South Jersey. ✅ First pass done (30 places).
 2. **Neighboring states**: New York, Pennsylvania, Delaware, Connecticut. ✅ First pass done (51 places).
-3. Review progress together, then decide the rest of the US, then Canada and beyond.
+3. ✅ Rest of the US: first pass done (367 places total). Next: street addresses for the South and West in one batch.
+4. Review progress together, then decide the rest of the US, then Canada and beyond.
 
 ## Status
 
@@ -14,7 +15,9 @@ Last updated: October 26, 2026
 |---|---|---|
 | New Jersey | 30 (27 churches, plus the archdiocese office, the seminary and a school) | Street address, phone and website for every church. 21 cross-checked in two directories, 2 confirmed on the church's own site, 4 known locally (demo churches). |
 | California and Hawaii (Los Angeles diocese) | 54 | Official diocese directory, with addresses. |
-| Everything else | 221 | Unverified: Wikipedia, city level only. |
+| East, Midwest (25 states) | see places.csv | Official diocese lists or two directories, most with addresses. |
+| South and West (17 states + Northern CA) | see places.csv | Names and towns cross-checked (Nihov vs Wikipedia). Street addresses still to add. Wikipedia-only rows carry a "Not in the Nihov directory" note. |
+| Montana, Hawaii outliers | few | Unverified. Nihov's Montana page failed to load. |
 
 ## Sources, best first
 
