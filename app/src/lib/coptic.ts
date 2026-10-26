@@ -67,12 +67,12 @@ const N = {
 const keyOf = (name: Bi) => (Object.keys(N) as (keyof typeof N)[]).find(k => N[k] === name)!;
 
 // Short background for every feast and fast, written for kids and newcomers in our own words.
-// Each one links the trusted Coptic Orthodox page it is based on (St-Takla.org, CopticChurch.net, the Los Angeles and Southern US dioceses).
+// Each one links the trusted Coptic Orthodox page it is based on (St-Takla.org, CopticChurch.net, the Southern US diocese).
 // The weekly link check (scripts/check-links.mjs) opens every link in this file.
 export type AboutKey = keyof typeof N | "apostlesFast" | "wedFri" | "commMary" | "commMichael" | "synaxarium" | "calendar";
 export type About = Bi & { src: string };
 const TAKLA = "https://st-takla.org/faith/en/terms/feasts.html", SX = "https://st-takla.org/books/en/church/synaxarium/";
-const HOLY_WEEK = "https://www.lacopts.org/story/how-to-benefit-spiritually-in-the-holy-pascha-week/";
+const WORSHIP = "https://www.copticchurch.net/introduction-to-the-coptic-church/book/church2-1";
 export const ABOUT: Record<AboutKey, About> = {
   nativity: { src: SX + "04-keyahk/29-kiahk-christmas.html",
     en: "We celebrate the birth of our Lord Jesus Christ in Bethlehem. God became a man to save us, and the angels sang “Glory to God in the highest.”",
@@ -92,7 +92,7 @@ export const ABOUT: Record<AboutKey, About> = {
   temple: { src: SX + "06-amsheer/08-amshir.html",
     en: "Forty days after His birth, St. Mary and St. Joseph brought baby Jesus to the Temple. Old Simeon held Him in his arms and thanked God for letting him see the Savior.",
     ar: "بعد أربعين يومًا من ميلاده قدّمت العذراء ويوسف الطفل يسوع في الهيكل. فحمله سمعان الشيخ على ذراعيه وشكر الله لأنه رأى المخلّص." },
-  lent: { src: "https://www.lacopts.org/story/the-meaning-of-the-great-lent/",
+  lent: { src: "https://st-takla.org/Feastes-&-Special-Events/Great-Lent-Baskha/Coptic-El-Soom-Al-Kabir-03-Article-on-Fasting.html",
     en: "The Church's longest fast, 55 days. It includes the 40 days Jesus fasted in the wilderness and ends with Holy Week (Pascha). It is a time to pray more, fast, give to others and get ready for Easter.",
     ar: "أطول صوم في الكنيسة، 55 يومًا. يشمل الأربعين يومًا التي صامها يسوع في البرية وينتهي بأسبوع الآلام (البصخة). وقت نصلي فيه أكثر ونصوم ونعطي غيرنا ونستعد لعيد القيامة." },
   palm: { src: TAKLA,
@@ -101,13 +101,13 @@ export const ABOUT: Record<AboutKey, About> = {
   annunciation: { src: SX + "07-baramhat/29-paramhat.html",
     en: "The Angel Gabriel told St. Mary that she would be the mother of the Son of God, and she said yes. The Church sees this day as the start of our salvation.",
     ar: "بشّر الملاك جبرائيل العذراء مريم بأنها ستلد ابن الله، فقبلت. وترى الكنيسة هذا اليوم بداية خلاصنا." },
-  covenant: { src: HOLY_WEEK,
+  covenant: { src: WORSHIP,
     en: "At the Last Supper, Jesus washed His disciples' feet and gave them His Body and Blood, the first Holy Communion. Churches pray the foot-washing service and the Divine Liturgy.",
     ar: "في العشاء الأخير غسل يسوع أرجل تلاميذه وأعطاهم جسده ودمه، أول تناول. وتصلي الكنائس لقان غسل الأرجل والقداس الإلهي." },
-  goodFriday: { src: HOLY_WEEK,
+  goodFriday: { src: WORSHIP,
     en: "Jesus was crucified and died on the Cross for us, and was buried. It is the most solemn day of the year, and churches pray from morning until evening.",
     ar: "صُلب يسوع ومات على الصليب من أجلنا ثم دُفن. هو أكثر أيام السنة خشوعًا، وتصلي الكنائس من الصباح حتى المساء." },
-  easter: { src: "https://www.lacopts.org/story/the-journey-of-the-holy-fifty-days/",
+  easter: { src: TAKLA,
     en: "On the third day Jesus rose from the dead and defeated death. It is the greatest feast of all. We say “Christ is risen! Truly He is risen!” and keep celebrating for 50 days, until Pentecost.",
     ar: "في اليوم الثالث قام يسوع من بين الأموات وغلب الموت. هو أعظم الأعياد كلها. نقول: «المسيح قام! بالحقيقة قام!» ونبقى نفرح خمسين يومًا حتى عيد العنصرة." },
   thomas: { src: TAKLA,
@@ -143,7 +143,7 @@ export const ABOUT: Record<AboutKey, About> = {
   wedFri: { src: "https://www.suscopts.org/mightyarrows/vol1_no3/fasting.html",
     en: "Since the time of the apostles, the Church fasts on Wednesdays, the day Judas agreed to betray Jesus, and on Fridays, the day Jesus was crucified. There is no fasting in the 50 days after Easter.",
     ar: "منذ أيام الرسل تصوم الكنيسة يوم الأربعاء الذي اتفق فيه يهوذا على تسليم يسوع، ويوم الجمعة الذي صُلب فيه. ولا صوم في الخمسين يومًا بعد القيامة." },
-  commMary: { src: "https://www.copticchurch.net/introduction-to-the-coptic-church/book/church2-1",
+  commMary: { src: WORSHIP,
     en: "On the 21st of every Coptic month the Church honors St. Mary, the Mother of God, remembering her departure on 21 Toba. Many churches pray a Liturgy or praises for her that day.",
     ar: "في يوم 21 من كل شهر قبطي تكرّم الكنيسة السيدة العذراء والدة الإله، تذكارًا لنياحتها في 21 طوبة. وتقيم كنائس كثيرة قداسًا أو تمجيدًا لها في هذا اليوم." },
   commMichael: { src: "https://www.copticchurch.net/synaxarium/3_12.html",
