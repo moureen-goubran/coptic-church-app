@@ -24,6 +24,7 @@ export function CorrectionForm({ placeId, t, lang, intro, label, claim }: { plac
   const [state, setState] = useState<"idle" | "sending" | "sent" | "fail">("idle");
   const [problem, setProblem] = useState<string | null>(null);
   const [token, setToken] = useState("");
+  const [failCode, setFailCode] = useState("");
   // Reports (not the suggestion box) say what kind of problem it is; safety concerns are emailed as urgent.
   const [topic, setTopic] = useState<"info" | "safety" | "other">("info");
   const isReport = !intro && !claim;
@@ -54,8 +55,10 @@ export function CorrectionForm({ placeId, t, lang, intro, label, claim }: { plac
         body: JSON.stringify({ place_id: placeId, message: r.text, topic: claim ? "claim" : isReport ? topic : "suggestion", token }),
       });
       if (res.status === 422) { const { error } = await res.json(); setProblem(t.screen[error] ?? t.sendFail); setState("idle"); return; }
+      // A short code after the failure message (e.g. "bot_check") tells the owner which step refused it.
+      if (!res.ok) setFailCode(await res.json().then(b => [b.error, ...(b.codes ?? [])].filter(Boolean).join(" "), () => String(res.status)));
       setState(res.ok ? "sent" : "fail");
-    } catch { setState("fail"); }
+    } catch { setFailCode("network"); setState("fail"); }
     window.turnstile?.reset();
   };
 
@@ -70,7 +73,7 @@ export function CorrectionForm({ placeId, t, lang, intro, label, claim }: { plac
       <textarea id={id} maxLength={1000} rows={4} value={msg} onInput={e => setMsg((e.target as HTMLTextAreaElement).value)} autocomplete="off" />
       <div ref={widget} />
       {problem && <p class="status warn" role="alert">{problem}</p>}
-      {state === "fail" && <p class="status warn" role="alert">{t.sendFail}</p>}
+      {state === "fail" && <p class="status warn" role="alert">{t.sendFail}{failCode && <small class="muted"> ({failCode})</small>}</p>}
       <div><button class="btn primary" type="submit" disabled={state === "sending" || !token}>{state === "sending" ? t.sending : t.send}</button></div>
     </form>
   );
