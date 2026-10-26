@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { Clergy, Details, Link, Place, Service } from "../lib/types";
 import type { Lang, Strings } from "../i18n";
-import { fmtDate, fmtTime, nextService } from "../lib/time";
+import { fmtDate, fmtTime, nextService, serviceKey } from "../lib/time";
 import { regionLine } from "./bits";
 import { CorrectionForm } from "./CorrectionForm";
 import { placeName, addressLine, telHref, mapsLinks, Icon, SocialIcon } from "./bits";
 
 interface Props {
   place: Place; services: Service[]; details: Details | null; clergy: Clergy[]; links: Link[];
+  saved: Set<string>; toggleSave: (k: string) => void;
   t: Strings; lang: Lang; distance: string | null; onClose: () => void;
 }
 const SOCIAL = ["facebook", "instagram", "youtube", "x", "tiktok", "other"];
 const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 
-export function PlaceSheet({ place: p, services, details: d, clergy, links, t, lang, distance, onClose }: Props) {
+export function PlaceSheet({ place: p, services, details: d, clergy, links, saved, toggleSave, t, lang, distance, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [showFix, setShowFix] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -87,6 +88,7 @@ export function PlaceSheet({ place: p, services, details: d, clergy, links, t, l
                       <span class="num time">{fmtTime(s.start, lang)}{s.end ? `–${fmtTime(s.end, lang)}` : ""}</span>
                       <span>{lang === "ar" && s.title_ar || s.title_en}{(s.room_en || s.room_ar) && <small class="muted"> · {lang === "ar" && s.room_ar || s.room_en}</small>}</span>
                       <span class={`chip ty-${s.kind}`}>{t.kinds[s.kind]}</span>
+                      <button type="button" class="star" aria-pressed={saved.has(serviceKey(s))} aria-label={saved.has(serviceKey(s)) ? t.saved : t.save} title={saved.has(serviceKey(s)) ? t.saved : t.save} onClick={() => toggleSave(serviceKey(s))}>{saved.has(serviceKey(s)) ? "★" : "☆"}</button>
                     </li>
                   ))}
                 </ul>

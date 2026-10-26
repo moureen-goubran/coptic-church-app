@@ -16,7 +16,8 @@ A free, installable web app at `church.datumarc.com` that lets anyone find a Cop
 6. **About and privacy pages** that say what `safety-and-accounts.md` promises.
 7. **Corrections box:** no name, email or phone; Turnstile bot check; blocks contact info and links; goes to a private admin inbox only.
 8. **Church details** (added October 26, 2026): logo, parking, office email, live stream, social media, giving, church forms, calendar subscribe, clergy names and first-visit tips. Outside links are admin-approved and limited to a safe list.
-9. **Feasts & Fasts** (added October 26, 2026): next-feast strip with a calendar, fast start dates, Wednesday/Friday rule, today's Coptic date with the Synaxarium, and the monthly commemorations of the Virgin Mary (21st) and Archangel Michael (12th). Dates are computed for any year in `app/src/lib/coptic.ts`, so there's no yearly list to update.
+9. **Today tab** (added October 26, 2026, now the home screen): today's and the Coptic date, fasting status, the Synaxarium, the next service (closest church when location is on), My Events (services saved on this phone with the star) and Coming Up.
+10. **Feasts & Fasts** (added October 26, 2026): next-feast strip with a calendar, fast start dates, Wednesday/Friday rule, today's Coptic date with the Synaxarium, and the monthly commemorations of the Virgin Mary (21st) and Archangel Michael (12th). Dates are computed for any year in `app/src/lib/coptic.ts`, so there's no yearly list to update.
 
 ## Not in version 1 (later)
 

@@ -25,3 +25,20 @@ export function nextService(list: Service[], now = new Date()): { s: Service; in
   }
   return best && { s: best.s, inDays: best.inDays };
 }
+
+export const serviceKey = (s: Service) => `${s.place_id}|${s.day}|${s.start}|${s.title_en}`;
+
+// Every weekly service happening in the next `days` days, soonest first.
+export function upcoming(list: Service[], now = new Date(), days = 14): { s: Service; date: Date; inDays: number }[] {
+  const mins = now.getHours() * 60 + now.getMinutes(), out = [];
+  for (let off = 0; off < days; off++) {
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + off);
+    for (const s of list) {
+      if (s.day !== date.getDay()) continue;
+      const [h, m] = s.start.split(":").map(Number);
+      if (off === 0 && h * 60 + m <= mins) continue;
+      out.push({ s, date, inDays: off, key: off * 1440 + h * 60 + m });
+    }
+  }
+  return out.sort((a, b) => a.key - b.key).map(({ s, date, inDays }) => ({ s, date, inDays }));
+}

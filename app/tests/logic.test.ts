@@ -67,3 +67,13 @@ describe("data files", () => {
     expect(services.length).toBeGreaterThan(0);
   });
 });
+
+describe("upcoming services", () => {
+  it("lists the next two weeks of weekly services in order, skipping ones already started today", async () => {
+    const { upcoming } = await import("../src/lib/time");
+    const s = (day: number, start: string): Service => ({ place_id: "x", day, start, end: null, kind: "liturgy", title_en: `${day} ${start}`, title_ar: null, room_en: null, room_ar: null, last_verified: null });
+    const now = new Date(2026, 9, 26, 9, 0); // Monday 9:00
+    const list = upcoming([s(1, "08:00"), s(1, "19:00"), s(0, "08:00")], now);
+    expect(list.map(o => [o.s.title_en, o.inDays])).toEqual([["1 19:00", 0], ["0 08:00", 6], ["1 08:00", 7], ["1 19:00", 7], ["0 08:00", 13]]);
+  });
+});

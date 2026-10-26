@@ -11,15 +11,17 @@ import { PlaceSheet } from "./components/PlaceSheet";
 import { CorrectionForm } from "./components/CorrectionForm";
 import { Icon, Logo, placeName, regionLine } from "./components/bits";
 import { FeastStrip, FeastsView } from "./components/Feasts";
+import { TodayView } from "./components/Today";
 
-type Tab = "churches" | "feasts" | "about";
+type Tab = "today" | "churches" | "feasts" | "about";
 const SIZES = [0.875, 0.9375, 1.0625, 1.1875, 1.3125];
 const PAGE = 40;
 
 function readHash(): { tab: Tab; place: string | null } {
   const m = location.hash.match(/^#\/(place)\/([a-z0-9-]+)$/);
-  if (m) return { tab: "churches", place: m[2] };
-  return { tab: location.hash === "#/about" ? "about" : location.hash === "#/feasts" ? "feasts" : "churches", place: null };
+  if (m) return { tab: (sessionStorage.getItem("mcc.tab") as Tab | null) ?? "churches", place: m[2] };
+  const tabs: Record<string, Tab> = { "#/churches": "churches", "#/feasts": "feasts", "#/about": "about" };
+  return { tab: tabs[location.hash] ?? "today", place: null };
 }
 
 export function App() {
@@ -36,6 +38,11 @@ export function App() {
   const [pop, setPop] = useState<"loc" | "settings" | null>(null);
   const [shown, setShown] = useState(PAGE);
   const [online, setOnline] = useState(navigator.onLine);
+  const [saved, setSaved] = useState<Set<string>>(() => new Set(store.get<string[]>("saved", [])));
+  const toggleSave = (k: string) => setSaved(prev => {
+    const next = new Set(prev); if (next.has(k)) next.delete(k); else next.add(k);
+    store.set("saved", [...next]); return next;
+  });
   const t = STRINGS[lang];
 
   useEffect(() => {
@@ -93,15 +100,19 @@ export function App() {
   }, [data, q, stateF, typeF, userLoc]);
 
   const go = (hash: string) => { if (location.hash !== hash) location.hash = hash; };
+  useEffect(() => { try { sessionStorage.setItem("mcc.tab", route.tab); } catch { /* private mode */ } }, [route.tab]);
+  const placesById = useMemo(() => new Map((data?.places ?? []).map(p => [p.id, p])), [data]);
+  const nearest = useMemo(() => (userLoc ? (data?.places ?? []).filter(p => servicesBy.has(p.id) && dist(p) !== null).sort((a, b) => dist(a)! - dist(b)!) : null), [data, userLoc]);
+  const tabHash: Record<Tab, string> = { today: "#/", churches: "#/churches", feasts: "#/feasts", about: "#/about" };
   const openPlace = (id: string) => go(`#/place/${id}`);
-  const closePlace = () => (history.length > 1 && route.place ? history.back() : go("#/"));
+  const closePlace = () => (history.length > 1 && route.place ? history.back() : go(tabHash[route.tab]));
   const selected = route.place ? data?.places.find(p => p.id === route.place) ?? null : null;
 
   const findMe = () => {
     if (!("geolocation" in navigator)) { setLocMsg(t.locNo); return; }
     setLocMsg(t.locating);
     navigator.geolocation.getCurrentPosition(
-      pos => { setUserLoc([pos.coords.latitude, pos.coords.longitude]); setLocMsg(null); setPop(null); go("#/"); },
+      pos => { setUserLoc([pos.coords.latitude, pos.coords.longitude]); setLocMsg(null); setPop(null); if (route.tab !== "today") go("#/churches"); },
       () => setLocMsg(t.locNo),
       { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 },
     );
@@ -140,10 +151,14 @@ export function App() {
       <FeastStrip t={t} lang={lang} />
 
       <nav class="tabs" role="tablist">
-        <button role="tab" type="button" aria-selected={route.tab === "churches"} onClick={() => go("#/")}><Icon name="church" />{t.tabChurches}</button>
+        <button role="tab" type="button" aria-selected={route.tab === "today"} onClick={() => go("#/")}><Icon name="home" />{t.tabToday}</button>
+        <button role="tab" type="button" aria-selected={route.tab === "churches"} onClick={() => go("#/churches")}><Icon name="church" />{t.tabChurches}</button>
         <button role="tab" type="button" aria-selected={route.tab === "feasts"} onClick={() => go("#/feasts")}><Icon name="calendar" />{t.tabFeasts}</button>
         <button role="tab" type="button" aria-selected={route.tab === "about"} onClick={() => go("#/about")}><Icon name="info" />{t.tabAbout}</button>
       </nav>
+
+      {route.tab === "today" && <TodayView t={t} lang={lang} places={placesById} services={data?.services ?? []} saved={saved} toggleSave={toggleSave}
+        nearest={nearest} distanceOf={fmtMi} onOpen={openPlace} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
         <MapView places={results} selectedId={route.place} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
@@ -217,7 +232,7 @@ export function App() {
         </section>
       </main>}
 
-      {selected && <PlaceSheet place={selected} services={servicesBy.get(selected.id) ?? []} details={detailsBy.get(selected.id) ?? null} clergy={clergyBy.get(selected.id) ?? []} links={linksBy.get(selected.id) ?? []} t={t} lang={lang} distance={fmtMi(selected)} onClose={closePlace} />}
+      {selected && <PlaceSheet place={selected} services={servicesBy.get(selected.id) ?? []} details={detailsBy.get(selected.id) ?? null} clergy={clergyBy.get(selected.id) ?? []} links={linksBy.get(selected.id) ?? []} saved={saved} toggleSave={toggleSave} t={t} lang={lang} distance={fmtMi(selected)} onClose={closePlace} />}
     </div>
   );
 }
