@@ -5,14 +5,13 @@ import { fmtDate, fmtTime, nextService, serviceKey } from "../lib/time";
 import { regionLine } from "./bits";
 import { CorrectionForm } from "./CorrectionForm";
 import { placeName, addressLine, telHref, mapsLinks, Icon, SocialIcon } from "./bits";
+import { CalendarSubscribe, ChurchSections, churchBits, ext } from "./ChurchInfo";
 
 interface Props {
   place: Place; services: Service[]; details: Details | null; clergy: Clergy[]; links: Link[];
   saved: Set<string>; toggleSave: (k: string) => void;
   t: Strings; lang: Lang; distance: string | null; onClose: () => void;
 }
-const SOCIAL = ["facebook", "instagram", "youtube", "x", "tiktok", "other"];
-const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 
 export function PlaceSheet({ place: p, services, details: d, clergy, links, saved, toggleSave, t, lang, distance, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
@@ -31,13 +30,7 @@ export function PlaceSheet({ place: p, services, details: d, clergy, links, save
   const byDay = [0, 1, 2, 3, 4, 5, 6].map(d => services.filter(s => s.day === d).sort((a, b) => a.start.localeCompare(b.start))).map((list, d) => ({ d, list })).filter(x => x.list.length);
   const nx = nextService(services);
   const maps = mapsLinks(p);
-  const ar = lang === "ar";
-  const pick = (en: string | null | undefined, a: string | null | undefined) => (ar && a) || en || a || "";
-  const of = (k: string) => links.filter(l => l.kind === k);
-  const live = of("live")[0], cal = of("calendar")[0], donate = of("donate"), forms = of("form"), clergyPages = of("clergy_page");
-  const social = links.filter(l => SOCIAL.includes(l.kind));
-  const parking = pick(d?.parking_en, d?.parking_ar), clergyNote = pick(d?.clergy_note_en, d?.clergy_note_ar);
-  const webcal = cal && cal.url.replace(/^https:/, "webcal:");
+  const { live, parking } = churchBits(d, links, lang);
   const share = async () => {
     const url = `${location.origin}/#/place/${p.id}`;
     try {
@@ -96,42 +89,10 @@ export function PlaceSheet({ place: p, services, details: d, clergy, links, save
             ))}
             <p class="note">{t.callFirst}</p>
           </>}
-          {cal && <details class="more">
-            <summary>{t.subscribe}</summary>
-            <div class="chips">
-              <a class="btn small" href={`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal!)}`} {...ext}>{t.subGoogle}</a>
-              <a class="btn small" href={webcal!}>{t.subApple}</a>
-            </div>
-            <p class="note">{t.subHint}</p>
-          </details>}
+          <CalendarSubscribe details={d} links={links} t={t} lang={lang} />
         </section>
 
-        {social.length > 0 && <details class="more">
-          <summary>{t.follow}</summary>
-          <div class="social">{social.map(l => <a href={l.url} {...ext}><SocialIcon kind={l.kind} />{pick(l.label_en, l.label_ar) || t.social[l.kind]}</a>)}</div>
-        </details>}
-        {donate.length > 0 && <details class="more">
-          <summary>{t.give}</summary>
-          <div class="chips">{donate.map(l => <a class="btn small" href={l.url} {...ext}>{pick(l.label_en, l.label_ar) || t.donateOnline}</a>)}</div>
-        </details>}
-        {forms.length > 0 && <details class="more">
-          <summary>{t.forms}</summary>
-          <div class="chips">{forms.map(l => <a class="btn small" href={l.url} {...ext}>{pick(l.label_en, l.label_ar)}</a>)}</div>
-        </details>}
-        {(clergy.length > 0 || clergyPages.length > 0) && <details class="more">
-          <summary>{t.clergyN(clergy.length)}</summary>
-          <ul class="clergy">{clergy.map(c => (
-            <li><span>{pick(c.name_en, c.name_ar)}</span>
-              {c.phone && <a class="num" href={telHref(c.phone)}>{c.phone}</a>}
-              {c.email && <a class="num" href={`mailto:${c.email}`}>{c.email}</a>}</li>
-          ))}</ul>
-          {clergyNote && <p class="note">{clergyNote}</p>}
-          {clergyPages.length > 0 && <div class="chips">{clergyPages.map(l => <a class="btn small" href={l.url} {...ext}>{pick(l.label_en, l.label_ar)}</a>)}</div>}
-        </details>}
-        {p.type === "church" && <details class="more">
-          <summary>{t.firstVisit}</summary>
-          <ul class="visit">{t.firstVisitTips.map(x => <li>{x}</li>)}</ul>
-        </details>}
+        <ChurchSections place={p} details={d} clergy={clergy} links={links} t={t} lang={lang} />
 
         {p.location_approx && <p class="note">{t.approxPin}</p>}
         <p class="note">
