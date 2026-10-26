@@ -108,6 +108,19 @@ for r in rows:
     if s in seen: seen[s]+=1; s=f'{s}-{seen[s]}'
     else: seen[s]=1
     r['id']=s
+# Link safety (QA check 2026-10-26, app PR #12): blocked domains are hijacked or expired and must never come back;
+# "https" rows were confirmed to work over https. New links must pass the link safety check before they go in.
+BLOCKED_HOSTS={'amsmcoptic.org','stphilopater.ca','smspvancouver.ca','coloradocopticchurch.com','pensacolacopticchurch.com','saintanthonynj.org','dp-sk.org'}
+FIX={r['url']:r for r in csv.DictReader(open('sources/link-fixes-2026-10-26.csv'))}
+def host(u): return re.sub(r'^www\.','',re.sub(r'^https?://','',u).split('/')[0].lower())
+for r in rows:
+    u=r['website']
+    if not u: continue
+    f=FIX.get(u)
+    if host(u) in BLOCKED_HOSTS:
+        why=f['reason'] if f else 'domain is on the blocked list'
+        r['website']=''; r['notes']=(r['notes']+'; ' if r['notes'] else '')+f'Website removed 2026-10-26: {why} (was {u})'
+    elif f and f['action']=='https': r['website']='https://'+u[len('http://'):]
 PINS={r['id']:r for r in csv.DictReader(open('sources/exact-pins.csv'))}  # exact map pins from other sources
 for r in rows:
     if r['id'] in PINS: r['lat'],r['lng']=PINS[r['id']]['lat'],PINS[r['id']]['lng']

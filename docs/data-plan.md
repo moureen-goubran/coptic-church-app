@@ -53,6 +53,12 @@ Open NJ conflicts (also in `notes`):
 - A weekly automatic check flags dead websites or changed pages for a person to review. It never edits data on its own.
 - Corrections from the public go to the moderated suggestion inbox, never straight into the data.
 
+## Link safety (standing rule, 2026-10-26)
+
+- Every outside link is checked for spam, adult content and malware before it goes in, and re-checked weekly by the automatic link check.
+- Website fields copied from Nihov or Wikipedia are unverified until checked. A hijacked or expired domain is worse than no link.
+- `data/sources/link-fixes-2026-10-26.csv` holds removed domains (with the reason) and http-to-https upgrades. The build applies it, and the blocked domains are also hard-coded in `build_places.py`, so they can never come back on a rebuild. Add new findings there, never by editing `places.csv`.
+
 ## Tools
 
 For now: saved copies of each source in `data/sources/`, and a script (`build_places.py`) that builds `places.csv` from them, so every row can be traced and rebuilt. **Don't hand-edit `places.csv`.** Put corrections in a source file. When the app goes live, this moves to a hosted database (Supabase, free at this size) with an admin screen for clergy, so the move happens once and nothing gets redone.
