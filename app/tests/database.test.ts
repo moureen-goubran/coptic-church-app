@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 
 const root = new URL("../../", import.meta.url);
 const migration = readFileSync(new URL("supabase/migrations/20261026000000_init.sql", root), "utf8")
-  .replace("create extension if not exists pg_cron;", "")
+  .replace("create extension if not exists pg_cron with schema pg_catalog;", "")
   .replace(/select cron\.schedule\([^;]*\$\$[^$]*\$\$\);/, "");
 const seed = readFileSync(new URL("supabase/seed.sql", root), "utf8");
 

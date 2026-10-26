@@ -2,7 +2,7 @@
 -- Public visitors can only READ approved data. Nobody but admins can write, and
 -- later clergy can write only rows for their own church (see safety-and-accounts.md).
 
-create extension if not exists pg_cron;
+create extension if not exists pg_cron with schema pg_catalog;
 
 -- ---------- places ----------
 create table public.places (
