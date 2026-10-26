@@ -68,7 +68,7 @@ for (const r of read("resources.csv")) add(r.url, `resources.csv ${r.id}`);
 for (const u of APP_LINKS) add(u, "app");
 // Feast and fast background sources (ABOUT in src/lib/coptic.ts): every full page link written in that file.
 const coptic = readFileSync(new URL("../src/lib/coptic.ts", import.meta.url), "utf8").replace(/SX \+ "/g, '"https://st-takla.org/books/en/church/synaxarium/');
-for (const u of new Set(coptic.match(/https:\/\/[^"`$\s]+\.html|https:\/\/[^"`$\s]+\/(?=")/g))) if (!APP_LINKS.includes(u)) add(u, "feast info");
+for (const u of new Set(coptic.match(/https:\/\/[^"`$\s]+(?=")/g))) if (!APP_LINKS.includes(u)) add(u, "feast info");
 
 const results = [];
 for (let i = 0; i < targets.length; i += 10) results.push(...await Promise.all(targets.slice(i, i + 10).map(check)));

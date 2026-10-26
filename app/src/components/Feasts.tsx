@@ -219,6 +219,10 @@ export function FeastsView({ t, lang }: P) {
         <StatusChips t={t} lang={lang} />
         <Synaxarium t={t} lang={lang} inHero />
         <small>{t.fastsNote}</small>
+        <details class="more"><summary>{t.aboutCal}</summary>
+          <AboutText a={ABOUT.calendar} t={t} lang={lang} />
+          <AboutText a={ABOUT.synaxarium} t={t} lang={lang} />
+        </details>
       </section>
       <label class="search">
         <Icon name="search" />
@@ -239,7 +243,8 @@ export function FeastsView({ t, lang }: P) {
       <div class="sec-h"><h2>{t.fastsTitle}</h2></div>
       <div class="fastlist">{fastsSorted.map(f => <FastCard f={f} t={t} lang={lang} key={f.key} />)}</div>
       </>}
-      {(!searching || hit(t.wedFriTitle, t.wedFriBody)) && <div class="card"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p></div>}
+      {(!searching || hit(t.wedFriTitle, t.wedFriBody, ABOUT.wedFri.en, ABOUT.wedFri.ar)) && <div class="card fastcard"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p>
+        <details class="more"><summary>{t.aboutWedFri}</summary><AboutText a={ABOUT.wedFri} t={t} lang={lang} /></details></div>}
 
       {comms.length > 0 && <>
       <div class="sec-h"><h2>{t.commTitle}</h2><a class="linkbtn" href={synaxUrl(t0)} target="_blank" rel="noopener noreferrer">{t.synaxToday}</a></div>
@@ -252,6 +257,7 @@ export function FeastsView({ t, lang }: P) {
               <div class="fhead"><h3>{name}</h3><span class={"chip" + (ds[0] === t0 ? "" : " gold")}>{ds[0] === t0 ? t.today : rel(t, daysBetween(t0, ds[0]))}</span></div>
               <div class="muted small">{t.commOn(c.day)}</div>
               <div class="kv"><span class="k">{t.nextDates}</span><span>{ds.map((d, k) => <>{k > 0 && <br />}{fmt(d, lang, { weekday: "short", month: "short", day: "numeric" })} <span class="muted">({copticShort(d, t)})</span></>)}</span></div>
+              <details class="more"><summary>{t.aboutComm}</summary><AboutText a={ABOUT[c.key === "mary" ? "commMary" : "commMichael"]} t={t} lang={lang} /></details>
               <div><AddCal t={t} title={c.title[lang]} start={ds[0]} end={ds[0]} /></div>
             </div>
           );

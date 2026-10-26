@@ -67,9 +67,9 @@ const N = {
 const keyOf = (name: Bi) => (Object.keys(N) as (keyof typeof N)[]).find(k => N[k] === name)!;
 
 // Short background for every feast and fast, written for kids and newcomers in our own words.
-// Each one links the trusted Coptic Orthodox page it is based on (St-Takla.org, the Los Angeles and Southern US dioceses).
+// Each one links the trusted Coptic Orthodox page it is based on (St-Takla.org, CopticChurch.net, the Los Angeles and Southern US dioceses).
 // The weekly link check (scripts/check-links.mjs) opens every link in this file.
-export type AboutKey = keyof typeof N | "apostlesFast";
+export type AboutKey = keyof typeof N | "apostlesFast" | "wedFri" | "commMary" | "commMichael" | "synaxarium" | "calendar";
 export type About = Bi & { src: string };
 const TAKLA = "https://st-takla.org/faith/en/terms/feasts.html", SX = "https://st-takla.org/books/en/church/synaxarium/";
 const HOLY_WEEK = "https://www.lacopts.org/story/how-to-benefit-spiritually-in-the-holy-pascha-week/";
@@ -140,6 +140,21 @@ export const ABOUT: Record<AboutKey, About> = {
   nativityFast: { src: "https://st-takla.org/Feastes-&-Special-Events/Coptic-Nativity-of-Jesus-Christ-Milad-El-Masih/Coptic-Jesus-Incarnation-Christmas-00-index.html",
     en: "43 days of fasting to get ready for Christmas: 40 days, like Moses before he received God's Law, plus 3 days that remember the miracle of moving the Muqattam Mountain in Cairo.",
     ar: "43 يومًا صوم استعدادًا لعيد الميلاد: أربعون يومًا مثل صوم موسى قبل أن يستلم الشريعة، وثلاثة أيام تذكارًا لمعجزة نقل جبل المقطم في القاهرة." },
+  wedFri: { src: "https://www.suscopts.org/mightyarrows/vol1_no3/fasting.html",
+    en: "Since the time of the apostles, the Church fasts on Wednesdays, the day Judas agreed to betray Jesus, and on Fridays, the day Jesus was crucified. There is no fasting in the 50 days after Easter.",
+    ar: "منذ أيام الرسل تصوم الكنيسة يوم الأربعاء الذي اتفق فيه يهوذا على تسليم يسوع، ويوم الجمعة الذي صُلب فيه. ولا صوم في الخمسين يومًا بعد القيامة." },
+  commMary: { src: "https://www.copticchurch.net/introduction-to-the-coptic-church/book/church2-1",
+    en: "On the 21st of every Coptic month the Church honors St. Mary, the Mother of God, remembering her departure on 21 Toba. Many churches pray a Liturgy or praises for her that day.",
+    ar: "في يوم 21 من كل شهر قبطي تكرّم الكنيسة السيدة العذراء والدة الإله، تذكارًا لنياحتها في 21 طوبة. وتقيم كنائس كثيرة قداسًا أو تمجيدًا لها في هذا اليوم." },
+  commMichael: { src: "https://www.copticchurch.net/synaxarium/3_12.html",
+    en: "On the 12th of every Coptic month the Church honors the Archangel Michael, the leader of the angels, who stands before God and prays for us. Many people give to the poor in his name.",
+    ar: "في يوم 12 من كل شهر قبطي تكرّم الكنيسة رئيس الملائكة ميخائيل، رئيس جند السماء الواقف أمام الله يشفع فينا. ويقدّم كثيرون صدقات للفقراء باسمه." },
+  synaxarium: { src: "https://www.suscopts.org/mightyarrows/copticsyn.html",
+    en: "The Synaxarium is the Church's book of the lives of saints and martyrs, with a reading for every day of the Coptic year. It is read in the Liturgy right after the Book of Acts.",
+    ar: "السنكسار هو كتاب الكنيسة لسير القديسين والشهداء، فيه قراءة لكل يوم من السنة القبطية، ويُقرأ في القداس بعد سفر أعمال الرسل." },
+  calendar: { src: "https://www.copticchurch.net/calendar",
+    en: "The Coptic calendar is one of the oldest in the world. Its years are counted from 284 AD, when Emperor Diocletian began a terrible persecution of Christians, so it is called the Year of the Martyrs. Each year starts with the Feast of Nayrouz, usually on September 11.",
+    ar: "التقويم القبطي من أقدم التقاويم في العالم. تُحسب سنواته من سنة 284م حين بدأ الإمبراطور دقلديانوس اضطهادًا شديدًا للمسيحيين، لذلك يسمى تقويم الشهداء. وتبدأ كل سنة بعيد النيروز، غالبًا في 11 سبتمبر." },
 };
 // The background for one of the five fasting seasons (fastsFor keys).
 export const fastAbout = (key: string): About => ABOUT[({ nineveh: "nineveh", lent: "lent", apostles: "apostlesFast", mary: "maryFast", nativity: "nativityFast" } as Record<string, AboutKey>)[key]];
