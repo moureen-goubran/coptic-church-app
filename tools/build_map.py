@@ -20,7 +20,7 @@ for key, group in by_city.items():
             plat, plng = lat + d * math.sin(a), lng + d * math.cos(a) / math.cos(math.radians(lat))
         else: plat, plng = lat, lng
         places.append({k: r[k] for k in ('id','name','type','street','city','state','zip','region','diocese','website','phone','verification','source_url','source_checked','notes')} | {'lat': round(plat, 4), 'lng': round(plng, 4)})
-done_states = ['NJ', 'NY', 'PA', 'DE', 'CT', 'MD', 'VA', 'WV', 'MA', 'RI', 'NH', 'VT', 'ME', 'NC', 'SC', 'KY', 'OH', 'MI', 'IN', 'IL', 'WI', 'MN', 'IA', 'MO', 'NE']
+done_states = ['TN','TX','FL','GA','AL','AR','LA','MS','OK','AZ','NM','CO','WA','OR','NV','UT','ID','NJ', 'NY', 'PA', 'DE', 'CT', 'MD', 'VA', 'WV', 'MA', 'RI', 'NH', 'VT', 'ME', 'NC', 'SC', 'KY', 'OH', 'MI', 'IN', 'IL', 'WI', 'MN', 'IA', 'MO', 'NE']
 tpl = open(os.path.join(here, 'map_template.html')).read()
 out = (tpl.replace('/*PLACES*/[]', json.dumps(places, ensure_ascii=False))
           .replace('/*STATES*/{}', open(os.path.join(here, 'us-states-10m.json')).read())

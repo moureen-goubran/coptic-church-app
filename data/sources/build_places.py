@@ -1,4 +1,4 @@
-import csv, re, sys
+import csv, re, sys, os
 ST = {'Alabama':'AL','Arizona':'AZ','Arkansas':'AR','California':'CA','Colorado':'CO','Delaware':'DE','Florida':'FL','Georgia':'GA','Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA','Kentucky':'KY','Louisiana':'LA','Maine':'ME','Maryland':'MD','Massachusetts':'MA','Michigan':'MI','Minnesota':'MN','Missouri':'MO','Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH','New Jersey':'NJ','New Mexico':'NM','New York':'NY','North Carolina':'NC','Ohio':'OH','Oklahoma':'OK','Pennsylvania':'PA','Rhode Island':'RI','South Carolina':'SC','Tennessee':'TN','Texas':'TX','Utah':'UT','Vermont':'VT','Virginia':'VA','Washington':'WA','West Virginia':'WV','Wisconsin':'WI','U.S. Virgin Islands':'VI','Connecticut':'CT'}
 TODAY='2026-10-26'
 WIKI='https://en.wikipedia.org/wiki/List_of_Coptic_Orthodox_churches_in_the_United_States'
@@ -37,6 +37,34 @@ for r in csv.DictReader(open('sources/lacopts-directory-2026-10-26.csv')):
 for r in csv.DictReader(open('sources/nj-2026-10-26.csv')):
     add(r['name'],r['type'],r['street'],r['city'],'NJ',NJ_DIO,r['verification'],r['source_url'],r['notes'],r['zip'],r['region'],r['phone'],r['website'])
 DIO={'NYNE':'New York & New England (Bishop David)','PA':'Pennsylvania, Delaware, Maryland & West Virginia (Bishop Karas)','ARCH':'Archdiocese of North America','NSCK':'North & South Carolina and Kentucky (Bishop Peter)','OMI':'Ohio, Michigan & Indiana (Bishop Seraphim)','':''}
+
+# Remaining states: the Nihov directory lists (name|city|url) are the primary source.
+# Wikipedia rows that match a Nihov row become cross_checked; Wikipedia-only rows stay unverified.
+import glob
+STOP={'st','saint','sts','coptic','orthodox','church','american','the','and','of','cathedral','community','mission'}
+def toks(n): return frozenset(t for t in re.findall(r'[a-z]+',n.lower().replace('antonius','anthony').replace('antonious','anthony').replace('antony','anthony').replace('meena','mina').replace('mena','mina').replace('apanoub','abanoub').replace('rouis','reweis').replace('rueis','reweis').replace('kyrillos','kyrillos')) if t not in STOP)
+SOUTH={'AL','AZ','AR','FL','GA','LA','MS','NM','OK','TN','TX'}
+nihov_states=set()
+for f in sorted(glob.glob('sources/nihov/*.txt')):
+    st=os.path.basename(f).split('.')[0].split('-')[0]; nihov_states.add(st)
+    wiki=[r for r in rows if r['state']==st and r['source_url']==WIKI]
+    for line in open(f, encoding='utf-8'):
+        if not line.strip(): continue
+        name,city,url=line.strip().split('|')
+        if name.startswith('Coptic Community'): name=f'{city} Coptic Community'
+        t=toks(name); match=None
+        cands=[w for w in wiki if toks(w['name'])==t]
+        if len(cands)>1: cands=[w for w in cands if w['city']==city] or cands[:1]
+        if cands: match=cands[0]
+        notes=''
+        if match:
+            rows.remove(match); wiki.remove(match)
+            if match['city']!=city: notes=f"Older lists say {match['city']}"
+        dio=match['diocese'] if match else ('Southern US (Metropolitan Youssef)' if st in SOUTH else '')
+        add(name,kind(name),'',city,st,dio,'cross_checked' if match else 'unverified',url,notes)
+    for w in wiki:
+        if st!='CA' and w['type']=='church':
+            w['notes']=(w['notes']+'; ' if w['notes'] else '')+'Not in the Nihov directory; may have moved, merged or closed'
 for r in [*csv.DictReader(open('sources/neighbors-2026-10-26.csv')), *csv.DictReader(open('sources/midatlantic-2026-10-26.csv')), *csv.DictReader(open('sources/newengland-2026-10-26.csv')), *csv.DictReader(open('sources/carolinas-ky-2026-10-26.csv')), *csv.DictReader(open('sources/ohio-mi-in-2026-10-26.csv')), *csv.DictReader(open('sources/midwest-2026-10-26.csv'))]:
     add(r['name'],r['type'],r['street'],r['city'],r['state'],DIO[r['diocese']],r['verification'],r['source_url'],r['notes'],r['zip'],r['region'],r['phone'],r['website'])
 add('St. Mary & St. Demiana Convent','convent','','Dawsonville','GA','Southern US (Metropolitan Youssef)','unverified',COC)
