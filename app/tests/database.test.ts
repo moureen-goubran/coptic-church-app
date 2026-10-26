@@ -93,6 +93,21 @@ describe("database", () => {
     await expect(as("authenticated", CLERGY, `insert into public.place_links (place_id, kind, url) values ('${id}', 'live', 'http://example.com')`)).rejects.toThrow();
   });
 
+  it("shows upcoming and undated events to the public, hides past ones, and lets clergy edit only their own", async () => {
+    const own = "nj-jersey-city-st-mark-jersey-city", other = "nj-bayonne-virgin-mary-st-john";
+    const n = async (where: string) => (await as("anon", null, `select count(*)::int n from public.events where ${where}`)).rows[0].n;
+    expect(await n("date is null")).toBeGreaterThan(5);
+    await as("authenticated", CLERGY, `insert into public.events (place_id, date, start_time, kind, title_en) values ('${own}', current_date + 3, '19:00', 'praise', 'Future vespers'), ('${own}', current_date - 5, '19:00', 'praise', 'Old vespers')`);
+    expect(await n("title_en = 'Future vespers'")).toBe(1);
+    expect(await n("title_en = 'Old vespers'")).toBe(0);
+    expect((await as("authenticated", CLERGY, "select count(*)::int n from public.events where title_en = 'Old vespers'")).rows[0].n).toBe(1);
+    await expect(as("authenticated", CLERGY, `insert into public.events (place_id, date, kind, title_en) values ('${other}', current_date, 'meeting', 'x')`)).rejects.toThrow();
+    await expect(as("anon", null, `insert into public.events (place_id, kind, title_en) values ('${own}', 'meeting', 'x')`)).rejects.toThrow();
+    // A time without a date, or a made-up kind, is refused.
+    await expect(as("authenticated", CLERGY, `insert into public.events (place_id, start_time, kind, title_en) values ('${own}', '10:00', 'meeting', 'x y')`)).rejects.toThrow();
+    await expect(as("authenticated", CLERGY, `insert into public.events (place_id, kind, title_en) values ('${own}', 'party', 'x y')`)).rejects.toThrow();
+  });
+
   it("logs every change", async () => {
     const r = await db.query<any>("select count(*)::int n from public.audit_log where table_name = 'places' and action = 'UPDATE' and row_id = 'nj-jersey-city-st-mark-jersey-city'");
     expect(r.rows[0].n).toBeGreaterThan(0);

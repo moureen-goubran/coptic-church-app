@@ -13,15 +13,16 @@ import { CorrectionForm } from "./components/CorrectionForm";
 import { Icon, Logo, placeName, regionLine } from "./components/bits";
 import { FeastStrip, FeastsView } from "./components/Feasts";
 import { TodayView } from "./components/Today";
+import { EventsView, NO_FILTERS, type EvFilters } from "./components/Events";
 
-type Tab = "today" | "churches" | "feasts" | "about";
+type Tab = "today" | "churches" | "events" | "feasts" | "about";
 const SIZES = [0.875, 0.9375, 1.0625, 1.1875, 1.3125];
 const PAGE = 40;
 
 function readHash(): { tab: Tab; place: string | null } {
   const m = location.hash.match(/^#\/(place)\/([a-z0-9-]+)$/);
   if (m) return { tab: (sessionStorage.getItem("mcc.tab") as Tab | null) ?? "churches", place: m[2] };
-  const tabs: Record<string, Tab> = { "#/churches": "churches", "#/feasts": "feasts", "#/about": "about" };
+  const tabs: Record<string, Tab> = { "#/churches": "churches", "#/events": "events", "#/feasts": "feasts", "#/about": "about" };
   return { tab: tabs[location.hash] ?? "today", place: null };
 }
 
@@ -44,11 +45,13 @@ export function App() {
     const next = new Set(prev); if (next.has(k)) next.delete(k); else next.add(k);
     store.set("saved", [...next]); return next;
   });
+  const [evFilters, setEvFiltersState] = useState<EvFilters>(() => ({ ...NO_FILTERS, ...store.get<Partial<EvFilters>>("evFilters", {}), date: "" }));
+  const setEvFilters = (f: EvFilters) => { setEvFiltersState(f); store.set("evFilters", f); };
   const t = STRINGS[lang];
 
   useEffect(() => {
     loadBuiltIn().then(setData).catch(() => {});
-    loadLive().then(d => d && setData(d));
+    loadLive().then(d => d && setData(prev => ({ ...d, events: d.events ?? prev?.events ?? [] })));
     const onHash = () => setRoute(readHash());
     const net = () => setOnline(navigator.onLine);
     addEventListener("hashchange", onHash); addEventListener("online", net); addEventListener("offline", net);
@@ -96,6 +99,7 @@ export function App() {
   const detailsBy = useMemo(() => new Map((data?.details ?? []).map(d => [d.place_id, d])), [data]);
   const clergyBy = useMemo(() => byPlace(data?.clergy), [data]);
   const linksBy = useMemo(() => byPlace(data?.links), [data]);
+  const eventsBy = useMemo(() => byPlace(data?.events), [data]);
   const dist = (p: Place) => (userLoc && p.lat !== null && p.lng !== null ? milesBetween(userLoc, [p.lat, p.lng]) : null);
 
   const results = useMemo(() => {
@@ -123,7 +127,7 @@ export function App() {
   useEffect(() => { try { sessionStorage.setItem("mcc.tab", route.tab); } catch { /* private mode */ } }, [route.tab]);
   const placesById = useMemo(() => new Map((data?.places ?? []).map(p => [p.id, p])), [data]);
   const nearest = useMemo(() => (userLoc ? (data?.places ?? []).filter(p => servicesBy.has(p.id) && dist(p) !== null).sort((a, b) => dist(a)! - dist(b)!) : null), [data, userLoc]);
-  const tabHash: Record<Tab, string> = { today: "#/", churches: "#/churches", feasts: "#/feasts", about: "#/about" };
+  const tabHash: Record<Tab, string> = { today: "#/", churches: "#/churches", events: "#/events", feasts: "#/feasts", about: "#/about" };
   const openPlace = (id: string) => go(`#/place/${id}`);
   const closePlace = () => (history.length > 1 && route.place ? history.back() : go(tabHash[route.tab]));
   const selected = route.place ? data?.places.find(p => p.id === route.place) ?? null : null;
@@ -173,11 +177,12 @@ export function App() {
       <nav class="tabs" role="tablist">
         <button role="tab" type="button" aria-selected={route.tab === "today"} onClick={() => go("#/")}><Icon name="home" />{t.tabToday}</button>
         <button role="tab" type="button" aria-selected={route.tab === "churches"} onClick={() => go("#/churches")}><Icon name="church" />{t.tabChurches}</button>
+        <button role="tab" type="button" aria-selected={route.tab === "events"} onClick={() => go("#/events")}><Icon name="clock" />{t.tabEvents}</button>
         <button role="tab" type="button" aria-selected={route.tab === "feasts"} onClick={() => go("#/feasts")}><Icon name="calendar" />{t.tabFeasts}</button>
         <button role="tab" type="button" aria-selected={route.tab === "about"} onClick={() => go("#/about")}><Icon name="info" />{t.tabAbout}</button>
       </nav>
 
-      {route.tab === "today" && <TodayView t={t} lang={lang} places={placesById} services={data?.services ?? []} saved={saved} toggleSave={toggleSave}
+      {route.tab === "today" && <TodayView t={t} lang={lang} places={placesById} services={data?.services ?? []} events={data?.events ?? []} saved={saved} toggleSave={toggleSave}
         nearest={nearest} distanceOf={fmtMi} onOpen={openPlace} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
@@ -230,6 +235,9 @@ export function App() {
         {data && <p class="muted small">{t.updated(fmtDate(data.generated, lang))}</p>}
       </main>}
 
+      {route.tab === "events" && <EventsView t={t} lang={lang} places={placesById} services={data?.services ?? []} events={data?.events ?? []}
+        saved={saved} toggleSave={toggleSave} filters={evFilters} setFilters={setEvFilters} distanceOf={fmtMi} onOpen={openPlace} />}
+
       {route.tab === "feasts" && <FeastsView t={t} lang={lang} />}
 
       {route.tab === "about" && <main class="stack">
@@ -252,7 +260,8 @@ export function App() {
         </section>
       </main>}
 
-      {selected && <PlaceSheet place={selected} services={servicesBy.get(selected.id) ?? []} details={detailsBy.get(selected.id) ?? null} clergy={clergyBy.get(selected.id) ?? []} links={linksBy.get(selected.id) ?? []} saved={saved} toggleSave={toggleSave} t={t} lang={lang} distance={fmtMi(selected)} onClose={closePlace} />}
+      {selected && <PlaceSheet place={selected} services={servicesBy.get(selected.id) ?? []} events={eventsBy.get(selected.id) ?? []} details={detailsBy.get(selected.id) ?? null} clergy={clergyBy.get(selected.id) ?? []} links={linksBy.get(selected.id) ?? []} saved={saved} toggleSave={toggleSave} t={t} lang={lang} distance={fmtMi(selected)} onClose={closePlace}
+        onSeeEvents={() => { setEvFilters({ ...NO_FILTERS, churches: [selected.id] }); go("#/events"); }} />}
     </div>
   );
 }

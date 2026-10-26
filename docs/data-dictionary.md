@@ -22,6 +22,10 @@ One row per place. Blank means "not added yet". Never guess a value.
 
 One row per weekly service, linked to `places.csv` by `place_id`. `day` is 0 (Sunday) to 6 (Saturday). `start` and `end` are 24-hour `HH:MM`. `kind` is one of `liturgy`, `praise`, `bible`, `youth`, `meeting`, `classes`, `servants`. `title_en`/`title_ar` and `room_en`/`room_ar` are shown in the app. `source_checked` is the date it was read. The first 59 rows are the four Jersey City and Bayonne churches from the demo.
 
+## `data/events.csv`: special dates and "also offered"
+
+Everything that isn't a weekly time. With a `date` (YYYY-MM-DD) it's a one-off event; `end_date` is for events over several days, and `start`/`end` are optional (blank = all day). With no `date` it shows under "Also Offered (Day and Time Not Published)". `kind` is a weekly kind or `retreat`/`social`. Titles and rooms only, no links or descriptions. The public stops seeing an event the day after it ends.
+
 ## `data/translations.csv`: Arabic names
 
 `place_id`, `name_ar`, `city_ar`. Blank Arabic falls back to English.

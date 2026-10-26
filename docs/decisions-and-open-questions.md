@@ -41,6 +41,12 @@ Last updated: October 26, 2026
 - Priests' personal phones and emails from the demo were left out (safety rule: only with the priest's written OK). Names are shown.
 - Synaxarium links go to st-takla.org (same as the demo). Check that a few days open correctly, especially the Nasie month.
 
+## Events (October 26, 2026)
+
+- Before clergy logins go live: an edit made in the app must mark the church `edited_in_app`, or the next CSV import replaces that church's services and events. Add a database trigger for this in version 2.
+- Also Offered items from the demo had links to church pages. They were left out because outside links need admin approval; the church's website is on its page.
+- Event colors per church: the 4 demo churches keep the demo colors; others get a fixed color from a palette.
+
 ## Renewals
 
 - **Supabase access token "github"** (Edge Functions + Edge Function Secrets, project my-coptic-church) expires **October 25, 2027**. Renew it before then: make a new token the same way (docs/setup-guide.md step 1.7), then replace the `SUPABASE_ACCESS_TOKEN` secret in GitHub.

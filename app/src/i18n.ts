@@ -16,7 +16,7 @@ const en = {
     church: "Church", mission: "Mission", community: "Community", monastery: "Monastery", convent: "Convent",
     retreat_center: "Retreat center", diocese_office: "Diocese office", seminary: "Seminary", school: "School",
   } as Record<string, string>,
-  kinds: { liturgy: "Liturgy", praise: "Vespers & praises", bible: "Bible study", youth: "Youth & college", meeting: "Meetings", classes: "Classes", servants: "Servants" } as Record<string, string>,
+  kinds: { liturgy: "Liturgy", praise: "Vespers & praises", bible: "Bible study", youth: "Youth & college", meeting: "Meetings", classes: "Classes", servants: "Servants", retreat: "Retreats & trips", social: "Fellowship" } as Record<string, string>,
   days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
   today: "Today",
   tomorrow: "Tomorrow",
@@ -151,6 +151,20 @@ const en = {
   feastsTitle: "Feasts This Year",
   addCal: "Add to calendar",
   feastSource: "Dates are worked out from the Coptic calendar and match copticchurch.net. Fixed feasts move one day after a Coptic leap year.",
+  // Events
+  tabEvents: "Events",
+  qEvents: "Search the schedule",
+  eventsNote: "Times change, and some updates are only announced in church. Call before you go.",
+  specialTitle: "Special Dates", alsoOffered: "Also Offered (Day and Time Not Published)", undatedWhen: "Day and time not published",
+  noEvents: "Nothing matches these filters.",
+  ddChurch: "Church", ddType: "Type", ddDay: "Day", ddDate: "Date", anyDate: "Pick a date to see that day only.",
+  clear: "Clear", done: "Done", showing: "Showing:", showingAll: "All churches, all types, every day", clearAll: "Clear All", removeF: "Remove",
+  groupBy: "Group By", gDay: "Day", gChurch: "Church", gType: "Type", expandAll: "Expand All", collapseAll: "Collapse All",
+  every: (d: string) => `Every ${d}`, allDay: "All day",
+  saveShare: "Save or Share", saveMine: "☆ Save to My Events", savedMine: "★ Saved · tap to remove", savedChip: "★ Saved",
+  icsCal: "Add to Apple or Outlook Calendar", gcal: "Add to Google Calendar", shareNative: "Share…", whatsapp: "Send on WhatsApp",
+  shareSms: "Send as a text message", shareEmail: "Send by email", copyDetails: "Copy Details",
+  seeEvents: "See this church's events",
 };
 
 type Strings = typeof en;
@@ -169,7 +183,7 @@ const ar: Strings = {
     church: "كنيسة", mission: "خدمة", community: "جماعة", monastery: "دير رهبان", convent: "دير راهبات",
     retreat_center: "بيت خلوة", diocese_office: "مقر الإيبارشية", seminary: "كلية إكليريكية", school: "مدرسة",
   },
-  kinds: { liturgy: "قداسات", praise: "عشية وتسبحة", bible: "درس كتاب", youth: "شباب وجامعيين", meeting: "اجتماعات", classes: "فصول", servants: "خدام" },
+  kinds: { liturgy: "قداسات", praise: "عشية وتسبحة", bible: "درس كتاب", youth: "شباب وجامعيين", meeting: "اجتماعات", classes: "فصول", servants: "خدام", retreat: "رحلات وخلوات", social: "لقاءات اجتماعية" },
   days: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
   today: "اليوم",
   tomorrow: "غدًا",
@@ -300,6 +314,20 @@ const ar: Strings = {
   feastsTitle: "أعياد هذه السنة",
   addCal: "أضف إلى التقويم",
   feastSource: "المواعيد محسوبة من التقويم القبطي ومطابقة لموقع copticchurch.net. الأعياد الثابتة تتأخر يومًا بعد السنة القبطية الكبيسة.",
+  // Events
+  tabEvents: "الفعاليات",
+  qEvents: "ابحث في الفعاليات",
+  eventsNote: "المواعيد قد تتغير، وبعض الإعلانات تكون في الكنيسة فقط. اتصل قبل الذهاب.",
+  specialTitle: "مواعيد خاصة", alsoOffered: "خدمات أخرى (اليوم والموعد غير منشورين)", undatedWhen: "اليوم والموعد غير منشورين",
+  noEvents: "لا توجد مواعيد بهذه الاختيارات.",
+  ddChurch: "الكنيسة", ddType: "النوع", ddDay: "اليوم", ddDate: "التاريخ", anyDate: "اختر تاريخًا لعرض هذا اليوم فقط.",
+  clear: "مسح", done: "تم", showing: "المعروض:", showingAll: "كل الكنائس، كل الأنواع، كل الأيام", clearAll: "مسح الكل", removeF: "إزالة",
+  groupBy: "تجميع حسب", gDay: "اليوم", gChurch: "الكنيسة", gType: "النوع", expandAll: "فتح الكل", collapseAll: "إغلاق الكل",
+  every: (d: string) => `كل ${d}`, allDay: "طوال اليوم",
+  saveShare: "حفظ أو مشاركة", saveMine: "☆ احفظ في مواعيدي", savedMine: "★ محفوظ · اضغط للإزالة", savedChip: "★ محفوظ",
+  icsCal: "إضافة إلى تقويم Apple أو Outlook", gcal: "إضافة إلى تقويم Google", shareNative: "مشاركة…", whatsapp: "إرسال عبر واتساب",
+  shareSms: "إرسال كرسالة نصية", shareEmail: "إرسال بالبريد الإلكتروني", copyDetails: "نسخ التفاصيل",
+  seeEvents: "فعاليات هذه الكنيسة",
 };
 
 export const STRINGS: Record<Lang, Strings> = { en, ar };

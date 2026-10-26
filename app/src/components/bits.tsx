@@ -3,6 +3,16 @@ import type { Lang } from "../i18n";
 import { stateName, COUNTRY_NAMES } from "../lib/search";
 
 export const placeName = (p: Place, lang: Lang) => (lang === "ar" && p.name_ar) || p.name;
+// "St. Mark" instead of "St. Mark Coptic Orthodox Church", for tight rows.
+export const shortName = (p: Place, lang: Lang) => placeName(p, lang)
+  .replace(/ (Coptic Orthodox )?(Church|Community)( \(.*\))?$/, "").replace(/^كنيسة /, "").replace(/ القبطية الأرثوذكسية$/, "");
+// Each church keeps one color everywhere on the Events tab (the demo's four, then a fixed palette).
+const CHURCH_COLORS: Record<string, string> = {
+  "nj-jersey-city-st-mark-jersey-city": "#8a6414", "nj-jersey-city-st-george-st-shenouda": "#9b3b2e",
+  "nj-bayonne-virgin-mary-st-john": "#4f6b3a", "nj-bayonne-st-abanoub-st-antonious": "#6f4a73",
+};
+const PALETTE = ["#8a6414", "#9b3b2e", "#4f6b3a", "#6f4a73", "#2f6b6b", "#a0522d", "#2f5a7a", "#9a4a6a"];
+export const churchColor = (id: string) => CHURCH_COLORS[id] ?? PALETTE[[...id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % PALETTE.length];
 export const cityName = (p: Place, lang: Lang) => (lang === "ar" && p.city_ar) || p.city;
 // "Jersey City, New Jersey", or "Calgary, Alberta, Canada" outside the US.
 export const regionLine = (p: Place, lang: Lang) =>

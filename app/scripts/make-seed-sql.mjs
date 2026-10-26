@@ -4,7 +4,7 @@
 import { writeFileSync } from "node:fs";
 import { loadData } from "./load-data.mjs";
 
-const { places, services, details, clergy, links, errors } = loadData();
+const { places, services, events, details, clergy, links, errors } = loadData();
 if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
 
 const lit = v => (v === null || v === undefined ? "null" : typeof v === "number" || typeof v === "boolean" ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
@@ -32,8 +32,9 @@ const replace = (table, cols, rows, extra = {}) => {
   return q;
 };
 sql += replace("place_details", ["place_id", "email", "parking_en", "parking_ar", "clergy_note_en", "clergy_note_ar", "logo", "logo_dark", "last_verified"], details);
+sql += replace("events", ["place_id", "date", "end_date", "start_time", "end_time", "kind", "title_en", "title_ar", "room_en", "room_ar", "last_verified"], events.map(e => ({ ...e, start_time: e.start, end_time: e.end })));
 sql += replace("clergy", ["place_id", "sort", "name_en", "name_ar", "phone", "email", "last_verified"], clergy);
 sql += replace("place_links", ["place_id", "kind", "url", "label_en", "label_ar", "last_verified"], links, { approved: "true" });
 sql += `commit;\n`;
 writeFileSync(new URL("../../supabase/seed.sql", import.meta.url), sql);
-console.log(`seed.sql: ${places.length} places, ${services.length} service times, ${details.length} details, ${clergy.length} clergy, ${links.length} links`);
+console.log(`seed.sql: ${places.length} places, ${services.length} service times, ${events.length} events, ${details.length} details, ${clergy.length} clergy, ${links.length} links`);
