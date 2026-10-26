@@ -94,12 +94,12 @@ for line in open('sources/nihov-canada/canada.txt', encoding='utf-8').read().spl
     if m: cwiki.remove(m[0])
     dio=CA_DIO[m[0]['dio']] if m else (CA_DIO['MVW'] if prov in WEST else CA_DIO['OME'] if prov in ('QC','NB','NL','NS','PE') or city in ('Ottawa','Kanata','Navan','Kingston') else '')
     street,zp,phone,web,lat,lng=CDET.get(url,['']*6)
-    add(name,kind(name),street,city,prov,dio,'cross_checked' if m else 'unverified',url,CA_NOTES.get(url,''),zp,'',phone,web,'Canada')
+    add(name,kind(name),street,city,prov,dio,'cross_checked' if m else 'unverified',url,CA_NOTES.get(url,''),zp,'',phone,web,'CA')
     rows[-1]['lat'],rows[-1]['lng']=lat,lng
 for w in cwiki:  # in Wikipedia only
-    add(w['name'],kind(w['name']),'',w['city'],w['state'],CA_DIO[w['dio']],'unverified','https://en.wikipedia.org/wiki/List_of_Coptic_Orthodox_churches_in_Canada','Not in the Nihov directory',country='Canada')
+    add(w['name'],kind(w['name']),'',w['city'],w['state'],CA_DIO[w['dio']],'unverified','https://en.wikipedia.org/wiki/List_of_Coptic_Orthodox_churches_in_Canada','Not in the Nihov directory',country='CA')
 # Mexico: one church, listed by Nihov and Wikipedia
-add('St. Mary & St. Mark Coptic Orthodox Church (Iglesia de Santa María y San Marcos)','church','Colonia Paraíso del Sol','Tlayacapan','MOR','','cross_checked','https://directory.nihov.org/church/226','Wikipedia: first Coptic church in Mexico (2001); website listed there is copticmexico.org',website='http://www.copticmexico.org/',country='Mexico')
+add('St. Mary & St. Mark Coptic Orthodox Church (Iglesia de Santa María y San Marcos)','church','Colonia Paraíso del Sol','Tlayacapan','MOR','','cross_checked','https://directory.nihov.org/church/226','Wikipedia: first Coptic church in Mexico (2001); website listed there is copticmexico.org',website='http://www.copticmexico.org/',country='MX')
 rows[-1]['lat'],rows[-1]['lng']='18.947935','-98.978706'
 # Dawsonville convent (first found on copticorthodox.church) now comes from the Nihov GA list
 seen={}
@@ -108,6 +108,9 @@ for r in rows:
     if s in seen: seen[s]+=1; s=f'{s}-{seen[s]}'
     else: seen[s]=1
     r['id']=s
+PINS={r['id']:r for r in csv.DictReader(open('sources/exact-pins.csv'))}  # exact map pins from other sources
+for r in rows:
+    if r['id'] in PINS: r['lat'],r['lng']=PINS[r['id']]['lat'],PINS[r['id']]['lng']
 rows.sort(key=lambda r:(r['state'],r['city'],r['name']))
 w=csv.DictWriter(open(sys.argv[1],'w',newline=''),fieldnames=list(rows[0]))
 w.writeheader(); w.writerows(rows)
