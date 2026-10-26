@@ -191,7 +191,7 @@ function FastCard({ f, t, lang }: P & { f: Fast }) {
 
 /* ---------- the Feasts & Fasts tab ---------- */
 export function FeastsView({ t, lang }: P) {
-  const t0 = todayIso();
+  const now = new Date(), t0 = iso(now), p = copticParts(now);
   const fasts = useMemo(() => upcomingFasts(t0), [t0]);
   const [sort, setSortState] = useState<string>(() => store.get("feastSort", "date"));
   const setSort = (v: string) => { setSortState(v); store.set("feastSort", v); };
@@ -213,6 +213,13 @@ export function FeastsView({ t, lang }: P) {
   const feastsShown = feasts.filter(f => hit(f.name.en, f.name.ar, t.feastKinds[f.kind], ABOUT[f.key].en, ABOUT[f.key].ar));
   return (
     <main class="stack">
+      <section class="hero">
+        <div class="hero-d">{now.toLocaleDateString(loc(lang), { weekday: "long", month: "long", day: "numeric" })}</div>
+        <div class="hero-c">{t.copticDate(p.day, t.copticMonths[p.month - 1], p.year)}</div>
+        <StatusChips t={t} lang={lang} />
+        <Synaxarium t={t} lang={lang} inHero />
+        <small>{t.fastsNote}</small>
+      </section>
       <label class="search">
         <Icon name="search" />
         <input type="search" placeholder={t.qFeasts} aria-label={t.qFeasts} enterKeyHint="search" value={q} onInput={e => setQ((e.target as HTMLInputElement).value)}
@@ -225,12 +232,11 @@ export function FeastsView({ t, lang }: P) {
         <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setTerms([])}>{t.clearAll}</button>
       </div>}
       {searching && !fastsSorted.length && !comms.length && !feastsShown.length && <div class="empty">{t.noEvents}</div>}
-      <div class="sortrow"><StatusChips t={t} lang={lang} />
+      <div class="sortrow"><span />
         <SortBy t={t} value={sort} onChange={setSort} options={[["date", t.sortSoonest], ["name", t.sortName], ["importance", t.sortImportance]]} /></div>
 
       {fastsSorted.length > 0 && <>
       <div class="sec-h"><h2>{t.fastsTitle}</h2></div>
-      <p class="muted small lead">{t.fastsNote}</p>
       <div class="fastlist">{fastsSorted.map(f => <FastCard f={f} t={t} lang={lang} key={f.key} />)}</div>
       </>}
       {(!searching || hit(t.wedFriTitle, t.wedFriBody)) && <div class="card"><h3 class="h3">{t.wedFriTitle}</h3><p class="muted small" style="margin:0">{t.wedFriBody}</p></div>}
