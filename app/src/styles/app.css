@@ -173,9 +173,11 @@ html[lang="ar"] .nextcard .lbl { letter-spacing: 0; }
 .cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; align-items: stretch; }
 .ccard { cursor: pointer; font-size: var(--fs-sm); }
 /* Logos: every church's logo sits in the same neutral, fixed-height box so different brand styles don't clash. */
-.ccard .cbanner, .ccard .cbanner.dark { margin: -14px -16px 0; padding: 0 16px; height: 76px; box-sizing: border-box; border-radius: 13px 13px 0 0; background: #f6efe3; } /* always light: most logos are dark ink */
+.ccard .cbanner, .ccard .cbanner.dark { margin: -14px -16px 0; padding: 0 16px; height: 76px; box-sizing: border-box; border-radius: 13px 13px 0 0; background: #fbf7ef; } /* always light: most logos are dark ink */
 .ccard .cbanner img { max-height: 52px; max-width: 70%; object-fit: contain; }
-.ccard .next { box-sizing: border-box; }
+.ccard .next { box-sizing: border-box; background: var(--next-bg); }
+.ccard .next small { color: var(--gold); }
+.ccard .next:hover { background: var(--gold-soft); }
 .ccard .morebody { display: flex; flex-direction: column; gap: 10px; }
 /* Type scale on the card: name 20, next service 16, body 14, labels 12. */
 .ccard h2 { font-size: var(--fs-lg); line-height: 1.25; }

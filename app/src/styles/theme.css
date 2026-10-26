@@ -2,9 +2,12 @@
    To restyle the app, change the variables in :root (and the dark-mode blocks) first. */
 /* Layout: one column. Demo banner, header (brand + location, text size, language), feast strip, scrollable top tabs, five views. */
 :root {
-  --bg: #f6efe3; --surface: #fffbf4; --fg: #2b1f1a; --muted: #6b5a4c; --line: #e6d9c3;
+  /* Look "J" (M, 2026-10-26): white page, white cards with a soft shadow and a gold top line, gold-tinted next-service box.
+     --page is the page background; --bg is the soft fill for chips, hovers and boxes. */
+  --page: #ffffff; --bg: #faf8f4; --surface: #ffffff; --fg: #2b1f1a; --muted: #6b5a4c; --line: #e8e4dc;
+  --accent-line: #c9a24a; --next-bg: #fbf5e6;
   --maroon: #7a1f2b; --maroon-soft: #f3e2e0; --gold: #8a6414; --gold-soft: #f1e3c4; --blue: #1f4e8c;
-  --land: #f1e9da; --water: #c6d6e4; --park: #dbe5c9; --road: #fffbf4; --road-edge: #ddcfb6; --road-major: #f0d9a6; --road-major-edge: #d2b06a; --label: #4a3b30;
+  --land: #f1e9da; --water: #c6d6e4; --park: #dbe5c9; --road: #ffffff; --road-edge: #ddcfb6; --road-major: #f0d9a6; --road-major-edge: #d2b06a; --label: #4a3b30;
   --warn: #8a5a00; --warn-bg: #fff3d6; --ok: #1d6b3a;
   --ty-liturgy: #7a1f2b; --ty-liturgy-bg: #f3e2e0;
   --ty-praise: #2f6b6b; --ty-praise-bg: #dfeceb;
@@ -17,7 +20,7 @@
   --ty-social: #9a4a6a; --ty-social-bg: #f3e0e8;
   --tag-line: #dcc69a;
   --day0: #8a6414; --day1: #4a3b30; --day2: #4f6b3a; --day3: #7a1f2b; --day4: #5b3f7a; --day5: #a0522d; --day6: #2f6b6b;
-  --shadow: 0 1px 2px rgba(60,35,20,.06);
+  --shadow: 0 1px 3px rgba(60,35,20,.08), 0 4px 14px rgba(60,35,20,.06);
   /* Type scale (12 / 14 / 16 / 20 / 28px at the default text size, where 1rem = 15px). Use only these on the Churches page. */
   --fs-xs: calc(12rem / 15); --fs-sm: calc(14rem / 15); --fs-md: calc(16rem / 15); --fs-lg: calc(20rem / 15); --fs-xl: calc(28rem / 15);
   --font-display: "Cormorant Garamond", "Reem Kufi", Georgia, serif;
@@ -25,7 +28,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1a1411; --surface: #241b17; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
+    --page: #1a1411; --bg: #1a1411; --surface: #241b17; --accent-line: #8a6a2a; --next-bg: #3a2f18; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
     --maroon: #e8a0a8; --maroon-soft: #3a1d22; --gold: #e2b45a; --gold-soft: #3a2f18; --blue: #9cc0f0;
     --land: #1b2133; --water: #12284a; --park: #1d3326; --road: #2c3550; --road-edge: #222a40; --road-major: #6b5a33; --road-major-edge: #4d4126; --label: #c9d1e6;
     --warn: #ffd27a; --warn-bg: #3b2e10; --ok: #7fd49c;
@@ -36,7 +39,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1a1411; --surface: #241b17; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
+  --page: #1a1411; --bg: #1a1411; --surface: #241b17; --accent-line: #8a6a2a; --next-bg: #3a2f18; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
   --maroon: #e8a0a8; --maroon-soft: #3a1d22; --gold: #e2b45a; --gold-soft: #3a2f18; --blue: #9cc0f0;
   --land: #1b2133; --water: #12284a; --park: #1d3326; --road: #2c3550; --road-edge: #222a40; --road-major: #6b5a33; --road-major-edge: #4d4126; --label: #c9d1e6;
   --warn: #ffd27a; --warn-bg: #3b2e10; --ok: #7fd49c;
@@ -47,7 +50,7 @@
 }
 html[lang="ar"] { --font-display: "Reem Kufi", "IBM Plex Sans Arabic", serif; --font-body: "IBM Plex Sans Arabic", "Source Sans 3", system-ui, sans-serif; }
 body {
-  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: .9375rem; line-height: 1.55;
+  background: var(--page); color: var(--fg); font-family: var(--font-body); font-size: .9375rem; line-height: 1.55;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 0 48px;
 }
@@ -156,7 +159,7 @@ button.chip { cursor: pointer; }
 .mapctl button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 1.1rem; cursor: pointer; }
 .mapnote { position: absolute; bottom: 0; inset-inline: 0; font-size: .72rem; color: var(--muted); padding: 4px 10px; background: color-mix(in srgb, var(--surface) 85%, transparent); }
 .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
-.ccard { display: flex; flex-direction: column; gap: 10px; border-top: 4px solid var(--cc); }
+.ccard { display: flex; flex-direction: column; gap: 10px; border-top: 3px solid var(--cc); }
 .ccard.active { box-shadow: 0 0 0 2px var(--maroon-soft); border-color: var(--maroon); border-top-color: var(--cc); }
 .ccard h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.15rem; margin: 0; }
 .city { font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: flex; align-items: center; gap: 6px; }
