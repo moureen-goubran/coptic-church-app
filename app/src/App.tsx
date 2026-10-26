@@ -8,6 +8,7 @@ import { fmtDate } from "./lib/time";
 import { store } from "./lib/store";
 import { MapView } from "./components/MapView";
 import { PlaceSheet } from "./components/PlaceSheet";
+import { ChurchCard } from "./components/ChurchInfo";
 import { CorrectionForm } from "./components/CorrectionForm";
 import { Icon, Logo, placeName, regionLine } from "./components/bits";
 import { FeastStrip, FeastsView } from "./components/Feasts";
@@ -64,7 +65,11 @@ export function App() {
     store.set("theme", theme);
   }, [theme]);
   useEffect(() => {
-    const close = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest(".pop")) setPop(null); };
+    const close = (e: MouseEvent) => {
+      const el = e.target as HTMLElement;
+      if (!el.closest(".pop")) setPop(null);
+      document.querySelectorAll("details.evmenu[open]").forEach(d => { if (!d.contains(el) || el.closest(".menu-item")) d.removeAttribute("open"); });
+    };
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
@@ -99,6 +104,21 @@ export function App() {
     return list.sort((a, b) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
   }, [data, q, stateF, typeF, userLoc]);
 
+  const [focus, setFocus] = useState<string | null>(null);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(store.get<string[]>("openGroups", [])));
+  useEffect(() => store.set("openGroups", [...openGroups]), [openGroups]);
+  const filtered = !!(q || stateF || typeF || userLoc);
+  // State groups, in the same order as the list: country, then state name.
+  const groups = useMemo(() => {
+    const m = new Map<string, Place[]>();
+    for (const p of results) { const k = `${p.country}-${p.state}`; if (!m.has(k)) m.set(k, []); m.get(k)!.push(p); }
+    return [...m].map(([k, list]) => [k, stateName(list[0].state, list[0].country) + (list[0].country !== "US" ? `, ${COUNTRY_NAMES[list[0].country]?.[lang] ?? list[0].country}` : ""), list] as const);
+  }, [results, lang]);
+  const card = (p: Place) => (
+    <ChurchCard key={p.id} place={p} details={detailsBy.get(p.id) ?? null} clergy={clergyBy.get(p.id) ?? []} links={linksBy.get(p.id) ?? []}
+      services={servicesBy.get(p.id) ?? []} distance={fmtMi(p)} active={focus === p.id} t={t} lang={lang}
+      onOpen={() => openPlace(p.id)} onFocus={() => { setFocus(p.id); document.querySelector(".mapbox")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+  );
   const go = (hash: string) => { if (location.hash !== hash) location.hash = hash; };
   useEffect(() => { try { sessionStorage.setItem("mcc.tab", route.tab); } catch { /* private mode */ } }, [route.tab]);
   const placesById = useMemo(() => new Map((data?.places ?? []).map(p => [p.id, p])), [data]);
@@ -161,7 +181,7 @@ export function App() {
         nearest={nearest} distanceOf={fmtMi} onOpen={openPlace} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
-        <MapView places={results} selectedId={route.place} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
+        <MapView places={results} selectedId={route.place ?? focus} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
         <div class="searchrow">
           <label class="search">
             <Icon name="search" />
@@ -186,27 +206,27 @@ export function App() {
           <span class="muted small count" role="status">{data ? t.results(results.length) : "…"}</span>
         </div>
 
-        <div class="list">
-          {data && results.length === 0 && <div class="empty">{t.noneFound}</div>}
-          {results.slice(0, shown).map(p => {
-            const svc = servicesBy.get(p.id);
-            const mi = fmtMi(p);
-            return (
-              <button type="button" class="card pcard" key={p.id} onClick={() => openPlace(p.id)} data-kind={p.type}>
-                <span class="pmain">
-                  <b class="pname">{placeName(p, lang)}</b>
-                  <span class="muted small">{regionLine(p, lang)}{p.type !== "church" && <> · {t.types[p.type]}</>}</span>
-                </span>
-                <span class="pside">
-                  {mi && <span class="chip gold num">{mi}</span>}
-                  {svc && <span class="chip ty-liturgy">{t.services}</span>}
-                  {linksBy.get(p.id)?.some(l => l.kind === "live") && <span class="chip plain">{t.liveStream}</span>}
-                </span>
-              </button>
-            );
-          })}
+        {data && results.length === 0 && <div class="empty">{t.noneFound}</div>}
+        {filtered ? <>
+          <div class="cgrid">{results.slice(0, shown).map(card)}</div>
           {results.length > shown && <button class="btn" type="button" onClick={() => setShown(shown + PAGE * 3)}>{`+ ${results.length - shown}`}</button>}
-        </div>
+        </> : data && <>
+          {results.some(p => servicesBy.has(p.id)) && <>
+            <div class="sec-h"><h3>{t.featuredH}</h3></div>
+            <div class="cgrid">{results.filter(p => servicesBy.has(p.id)).map(card)}</div>
+          </>}
+          <div class="sec-h"><h3>{t.allH(results.length)}</h3></div>
+          <p class="muted small lead">{t.setLocHint}</p>
+          {groups.map(([key, label, list]) => (
+            <details class="grp" key={key} open={openGroups.has(key)} onToggle={e => {
+              const open = (e.currentTarget as HTMLDetailsElement).open;
+              setOpenGroups(prev => { const n = new Set(prev); if (open) n.add(key); else n.delete(key); return n; });
+            }}>
+              <summary>{label}<span class="gn num">{list.length.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}</span></summary>
+              {openGroups.has(key) && <div class="grpbody"><div class="cgrid">{list.map(card)}</div></div>}
+            </details>
+          ))}
+        </>}
         {data && <p class="muted small">{t.updated(fmtDate(data.generated, lang))}</p>}
       </main>}
 
