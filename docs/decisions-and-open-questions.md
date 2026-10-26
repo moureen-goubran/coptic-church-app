@@ -50,3 +50,13 @@ Last updated: October 26, 2026
 ## Renewals
 
 - **Supabase access token "github"** (Edge Functions + Edge Function Secrets, project my-coptic-church) expires **October 25, 2027**. Renew it before then: make a new token the same way (docs/setup-guide.md step 1.7), then replace the `SUPABASE_ACCESS_TOKEN` secret in GitHub.
+
+## Coptic Welcome (October 26, 2026)
+
+- Built like the demo: Helpful Links, Video Walkthroughs, Mental Health Support (coming soon) and the Suggestion Box, with a search box. Items live in `data/resources.csv` and the `resources` table (admins only).
+- Most links are New Jersey only, so each shows a "New Jersey" or "United States" tag. Other states need their own 211, ESL and aid links.
+- The suggestion box has no name field (the demo had one): children may use the app, so it never asks who you are. It uses the same screening and bot check as corrections.
+- "Welcome Home Jersey City" links to a blog article (hobokengirl.com), not the group's own site. Replace it when the official page is found.
+- The Coptic Reader link is the iPhone App Store only. Add the Android link.
+- Walkthrough videos are not recorded yet. Mental health names need priests' OK first.
+- Church map: the map now shows every church. A search or filter zooms to the matches and fades the rest; moving the map lists everything in view, with "Back to my search".

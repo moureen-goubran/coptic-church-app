@@ -14,6 +14,9 @@ const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 // Group chats (WhatsApp, GroupMe, Telegram) are left out on purpose: each needs a priest's written OK.
 const SAFE_HOSTS = ["facebook.com", "instagram.com", "youtube.com", "twitter.com", "x.com", "tiktok.com", "pushpay.com", "paypal.com",
   "calendar.google.com", "forms.gle", "docs.google.com", "ccbchurch.com", "givelify.com", "tithe.ly"];
+// Coptic Welcome links (help for newcomers) go only to sites an admin has looked at and added here.
+const RESOURCE_HOSTS = ["nj211.org", "ssa.gov", "aclu-nj.org", "hobokengirl.com", "needhelppayingbills.com", "studentaid.gov", "hesaa.org",
+  "propertytaxreliefapp.nj.gov", "apps.apple.com"];
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 const under = (h, d) => h === d || h.endsWith("." + d);
 // Country is stored as a 2-letter ISO code (US, CA, MX). Full names are accepted and converted.
@@ -93,5 +96,20 @@ export function loadData() {
     if (!SAFE_HOSTS.some(d => under(h, d)) && !(site && under(h, site))) errors.push(`links row ${i + 2}: ${h} isn't on the safe list (SAFE_HOSTS in app/scripts/load-data.mjs) or the church's own website`);
     return { place_id: r.place_id, kind: r.kind, url: r.url, label_en: opt(r.label_en), label_ar: opt(r.label_ar), last_verified: opt(r.source_checked) };
   });
-  return { places, services, events, details, clergy, links, errors };
+  // Coptic Welcome: help for newcomers. region is a state or province code, US (whole country) or ALL.
+  const rids = new Set();
+  const resources = read("resources.csv").map((r, i) => {
+    const at = `resources row ${i + 2}`;
+    if (!/^[a-z0-9-]{2,60}$/.test(r.id) || rids.has(r.id)) errors.push(`${at}: id must be unique, lowercase letters, numbers and dashes`);
+    rids.add(r.id);
+    if (!["link", "video"].includes(r.kind)) errors.push(`${at}: kind must be link or video`);
+    if (!/^([A-Z]{2,3}|ALL)$/.test(r.region)) errors.push(`${at}: region must be a state code, US or ALL`);
+    if (!r.title_en || r.title_en.length > 140) errors.push(`${at}: title_en must be 2 to 140 characters`);
+    if (r.kind === "link") {
+      if (!/^https:\/\/\S+$/.test(r.url)) errors.push(`${at}: url must start with https://`);
+      else if (!RESOURCE_HOSTS.some(d => under(hostOf(r.url), d))) errors.push(`${at}: ${hostOf(r.url)} isn't on the approved list (RESOURCE_HOSTS in app/scripts/load-data.mjs)`);
+    }
+    return { id: r.id, sort: i, kind: r.kind, region: r.region, title_en: r.title_en, title_ar: opt(r.title_ar), body_en: opt(r.body_en), body_ar: opt(r.body_ar), url: opt(r.url), last_verified: opt(r.source_checked) };
+  });
+  return { places, services, events, details, clergy, links, resources, errors };
 }

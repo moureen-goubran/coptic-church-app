@@ -1,21 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { Lang, Strings } from "../i18n";
-import type { ChurchEvent, Clergy, Place, Service } from "../lib/types";
+import type { ChurchEvent, Clergy, Place, Resource, Service } from "../lib/types";
 import { alsoOffered, fromService, nextDateFor, specialDates, type Item } from "../lib/events";
 import { feastsAround, iso, parseIso, upcomingFasts } from "../lib/coptic";
 import { matches, norm } from "../lib/search";
 import { fmtTime } from "../lib/time";
 import { Icon, churchColor, placeName, regionLine, shortName } from "./bits";
 import { dayLabel, itemHay, itemTitle } from "./Events";
+import { resourceHay } from "./Welcome";
 
 interface Props {
-  t: Strings; lang: Lang; places: Place[]; services: Service[]; events: ChurchEvent[]; clergy: Clergy[];
-  onClose: () => void; onOpenPlace: (id: string) => void; onGo: (tab: "churches" | "events" | "feasts", q: string) => void;
+  t: Strings; lang: Lang; places: Place[]; services: Service[]; events: ChurchEvent[]; clergy: Clergy[]; resources: Resource[];
+  onClose: () => void; onOpenPlace: (id: string) => void; onGo: (tab: "churches" | "events" | "feasts" | "welcome", q: string) => void;
 }
 const LIMIT = 6;
 
-// The search button at the top right: one box that looks through churches, events, and feasts and fasts.
-export function GlobalSearch({ t, lang, places, services, events, clergy, onClose, onOpenPlace, onGo }: Props) {
+// The search button at the top right: one box that looks through churches, events, feasts and fasts, and Coptic Welcome.
+export function GlobalSearch({ t, lang, places, services, events, clergy, resources, onClose, onOpenPlace, onGo }: Props) {
   const [q, setQ] = useState("");
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -43,6 +44,7 @@ export function GlobalSearch({ t, lang, places, services, events, clergy, onClos
     ...upcomingFasts(t0).map(f => ({ key: "f" + f.key, name: f.name[lang], date: f.start, hay: f.name.en + " " + f.name.ar })),
     ...feastsAround(t0, 0, 365).map(f => ({ key: "d" + f.date + f.name.en, name: f.name[lang], date: f.date, hay: f.name.en + " " + f.name.ar })),
   ].filter(f => has(norm(f.hay)));
+  const help = !toks.length ? [] : resources.filter(r => has(resourceHay(r)));
 
   const when = (it: Item) => (!it.date ? t.undatedWhen : it.weekly !== null ? `${t.days[it.weekly]} ${fmtTime(it.start!, lang)}`
     : `${dayLabel(t, lang, it.date, it.end_date)}${it.start ? " " + fmtTime(it.start, lang) : ""}`);
@@ -64,13 +66,15 @@ export function GlobalSearch({ t, lang, places, services, events, clergy, onClos
         <button class="btn" type="button" onClick={onClose}>{t.close}</button>
       </div>
       {!toks.length ? <p class="muted small" style={{ margin: 0 }}>{t.gsHint}</p>
-        : !churches.length && !items.length && !seasons.length ? <p class="muted small" style={{ margin: 0 }}>{t.gsNone}</p>
+        : !churches.length && !items.length && !seasons.length && !help.length ? <p class="muted small" style={{ margin: 0 }}>{t.gsNone}</p>
         : <>
           {group(t.tabChurches, churches.length, churches.map(p => row(p.id, churchColor(p.id), placeName(p, lang), regionLine(p, lang), () => onOpenPlace(p.id))), () => onGo("churches", q))}
           {group(t.tabEvents, items.length, items.map(it => { const p = byId.get(it.place_id);
             return row(it.key, churchColor(it.place_id), itemTitle(it, lang), `${p ? shortName(p, lang) : ""} · ${when(it)}`, () => onOpenPlace(it.place_id)); }), () => onGo("events", q))}
           {group(t.tabFeasts, seasons.length, seasons.map(f => row(f.key, "var(--gold)", f.name,
             parseIso(f.date).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }), () => onGo("feasts", ""))))}
+          {group(t.tabWelcome, help.length, help.map(r => row(r.id, "var(--gold)", (lang === "ar" && r.title_ar) || r.title_en,
+            (lang === "ar" && r.body_ar) || r.body_en || t.comingSoon, () => onGo("welcome", q))), () => onGo("welcome", q))}
         </>}
     </div>
   );

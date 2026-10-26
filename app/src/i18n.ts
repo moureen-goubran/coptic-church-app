@@ -51,7 +51,7 @@ const en = {
   locPick: "Pick My Spot on the Map", locPicked: "Using the spot you picked on the map. It's saved on this phone only.",
   pickHint: "Tap where you are on the map", cancel: "Cancel",
   inMapArea: (n: number) => `${n} ${n === 1 ? "place" : "places"} in this map area. Search or filter to look anywhere.`,
-  gsBtn: "Search the app", gsPh: "Search churches, services, classes and feasts", gsHint: "Try a church name, a class, a priest, a feast or a street.",
+  gsBtn: "Search the app", gsPh: "Search churches, services, classes, feasts and help", gsHint: "Try a church name, a class, a priest, a feast or a street.",
   gsNone: "Nothing found. Try another word.", gsMore: (n: number) => `See all ${n} in this tab`,
   mi: (n: number) => (n < 10 ? n.toFixed(1) : Math.round(n).toLocaleString("en-US")) + " mi",
   nearMe: "Near me",
@@ -173,6 +173,18 @@ const en = {
   sortBy: "Sort by", sortRecommended: "Recommended", sortNear: "Nearest to me", sortName: "Name (A–Z)", sortState: "State and city",
   sortVerified: "Recently verified", showMore: (n: number) => `Show more (${n} left)`,
   sortSoonest: "Soonest first", sortChurch: "Church (A–Z)", sortImportance: "Major feasts first",
+  inMapAreaAll: (n: number) => `${n} ${n === 1 ? "place" : "places"} in this map area, including ones outside your search.`,
+  backToResults: "Back to my search",
+  // Coptic Welcome
+  tabWelcome: "Coptic Welcome", qWelcome: "Search Coptic Welcome",
+  helpLinks: "Helpful Links", helpLinksSub: "Interpreters, 211, ESL, winter coats, college aid, property tax",
+  helpVideos: "Video Walkthroughs", videosNote: "Step-by-step recordings are on the way. Personal details are blurred or replaced with sample info.",
+  comingSoon: "Coming soon", open: "Open", watch: "Watch",
+  mhTitle: "Mental Health Support", mhSub: "Priests who are psychiatrists and community members who are therapists",
+  mhEmpty: "Names and contact info haven't been added yet.",
+  suggestTitle: "Suggestion Box", suggestSub: "Tell us what to add or fix",
+  suggestIntro: "Tell us what would help you or your family. Don't include names, phone numbers, emails or links. A person reads every message.",
+  suggestLabel: "Your suggestion",
 };
 
 type Strings = typeof en;
@@ -226,7 +238,7 @@ const ar: Strings = {
   locPick: "حدد مكاني على الخريطة", locPicked: "نستخدم المكان الذي حددته على الخريطة. محفوظ على هذا الهاتف فقط.",
   pickHint: "اضغط على مكانك في الخريطة", cancel: "إلغاء",
   inMapArea: (n: number) => `${n.toLocaleString("ar-EG")} في هذه المنطقة من الخريطة. ابحث أو اختر من القوائم للبحث في أي مكان.`,
-  gsBtn: "بحث في التطبيق", gsPh: "ابحث عن كنيسة أو خدمة أو فصل أو عيد", gsHint: "جرّب اسم كنيسة أو فصل أو كاهن أو عيدًا أو شارعًا.",
+  gsBtn: "بحث في التطبيق", gsPh: "ابحث عن كنيسة أو خدمة أو فصل أو عيد أو مساعدة", gsHint: "جرّب اسم كنيسة أو فصل أو كاهن أو عيدًا أو شارعًا.",
   gsNone: "لا توجد نتائج. جرّب كلمة أخرى.", gsMore: (n: number) => `عرض كل النتائج (${n.toLocaleString("ar-EG")}) في هذه الصفحة`,
   mi: (n: number) => (n < 10 ? n.toLocaleString("ar-EG", { maximumFractionDigits: 1 }) : Math.round(n).toLocaleString("ar-EG")) + " ميل",
   nearMe: "الأقرب إليّ",
@@ -344,6 +356,18 @@ const ar: Strings = {
   sortBy: "ترتيب حسب", sortRecommended: "المقترح", sortNear: "الأقرب إليّ", sortName: "الاسم (أ–ي)", sortState: "الولاية والمدينة",
   sortVerified: "الأحدث تحققًا", showMore: (n: number) => `عرض المزيد (${n.toLocaleString("ar-EG")} متبقية)`,
   sortSoonest: "الأقرب موعدًا", sortChurch: "الكنيسة (أ–ي)", sortImportance: "الأعياد السيدية الكبرى أولًا",
+  inMapAreaAll: (n: number) => `${n.toLocaleString("ar-EG")} في هذه المنطقة من الخريطة، ومنها أماكن خارج بحثك.`,
+  backToResults: "العودة إلى بحثي",
+  // أهلًا بكم
+  tabWelcome: "أهلًا بكم", qWelcome: "ابحث في أهلًا بكم",
+  helpLinks: "روابط مفيدة", helpLinksSub: "مترجمون، خط ٢١١، دروس إنجليزي، معاطف شتوية، مساعدات الجامعة، ضريبة العقارات",
+  helpVideos: "فيديوهات شرح", videosNote: "فيديوهات الشرح خطوة بخطوة قادمة قريبًا. البيانات الشخصية مخفية أو بيانات تجريبية.",
+  comingSoon: "قريبًا", open: "فتح", watch: "مشاهدة",
+  mhTitle: "الدعم النفسي", mhSub: "آباء كهنة أطباء نفسيون وأفراد من مجتمعنا معالجون نفسيون",
+  mhEmpty: "لم تتم إضافة الأسماء ومعلومات التواصل بعد.",
+  suggestTitle: "صندوق الاقتراحات", suggestSub: "أخبرنا بما نضيفه أو نصلحه",
+  suggestIntro: "أخبرنا بما يساعدك أنت وأسرتك. لا تكتب أسماء أو أرقام هواتف أو بريدًا إلكترونيًا أو روابط. يقرأ شخص كل رسالة.",
+  suggestLabel: "اقتراحك",
 };
 
 export const STRINGS: Record<Lang, Strings> = { en, ar };

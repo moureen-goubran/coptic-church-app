@@ -6,6 +6,8 @@ import type { Strings } from "../i18n";
 
 interface Props {
   places: Place[];
+  matchIds: Set<string> | null; // when a search or filter is on: the matches. Other places stay on the map, faded, so you can look around.
+  fitKey: string; // changes when the search or filters change; the map then zooms to the matches
   selectedId: string | null;
   userLoc: [number, number] | null;
   onSelect: (id: string) => void;
@@ -46,13 +48,13 @@ function paintPins(map: MLMap) {
   map.setPaintProperty("pin-labels", "text-halo-color", css("--surface"));
 }
 
-function toGeoJSON(places: Place[]) {
+function toGeoJSON(places: Place[], matchIds: Set<string> | null = null) {
   return {
     type: "FeatureCollection" as const,
     features: places.filter(p => p.lat !== null && p.lng !== null).map(p => ({
       type: "Feature" as const,
       geometry: { type: "Point" as const, coordinates: [p.lng!, p.lat!] },
-      properties: { id: p.id, name: p.name.replace(/ Coptic Orthodox (Church|Monastery|Convent)/, ""), kind: p.type === "monastery" || p.type === "convent" ? "monastery" : p.type === "church" ? "church" : "other" },
+      properties: { id: p.id, dim: !!matchIds && !matchIds.has(p.id), name: p.name.replace(/ Coptic Orthodox (Church|Monastery|Convent)/, ""), kind: p.type === "monastery" || p.type === "convent" ? "monastery" : p.type === "church" ? "church" : "other" },
     })),
   };
 }
@@ -65,7 +67,7 @@ function fitAll(map: MLMap | null, places: Place[]) {
   map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 30, maxZoom: 12, duration: 600 });
 }
 
-export function MapView({ places, selectedId, userLoc, onSelect, onView, picking, onPick, onPickCancel, t, theme }: Props) {
+export function MapView({ places, matchIds, fitKey, selectedId, userLoc, onSelect, onView, picking, onPick, onPickCancel, t, theme }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
   const [failed, setFailed] = useState(false);
@@ -106,10 +108,11 @@ export function MapView({ places, selectedId, userLoc, onSelect, onView, picking
           map.addLayer({ id: "pins", type: "circle", source: "places", filter: ["!", ["has", "point_count"]],
             paint: { "circle-radius": ["case", ["==", ["get", "id"], ""], 10, 7],
               "circle-color": ["match", ["get", "kind"], "church", css("--lapis"), "monastery", css("--gold"), css("--muted")],
+              "circle-opacity": ["case", ["get", "dim"], 0.35, 1], "circle-stroke-opacity": ["case", ["get", "dim"], 0.35, 1],
               "circle-stroke-color": "#fff", "circle-stroke-width": 2 } });
           map.addLayer({ id: "pin-labels", type: "symbol", source: "places", filter: ["!", ["has", "point_count"]], minzoom: 11,
             layout: { "text-field": ["get", "name"], "text-size": 12, "text-offset": [0, 1.2], "text-anchor": "top", "text-font": ["Noto Sans Regular"], "text-max-width": 10 },
-            paint: { "text-color": css("--fg"), "text-halo-color": css("--surface"), "text-halo-width": 1.5 } });
+            paint: { "text-color": css("--fg"), "text-halo-color": css("--surface"), "text-halo-width": 1.5, "text-opacity": ["case", ["get", "dim"], 0.5, 1] } });
           map.on("click", "clusters", async e => {
             const f = e.features?.[0]; if (!f) return;
             const src = map.getSource("places") as GeoJSONSource;
@@ -139,8 +142,15 @@ export function MapView({ places, selectedId, userLoc, onSelect, onView, picking
 
   useEffect(() => {
     const map = mapRef.current;
-    if (ready && map) (map.getSource("places") as GeoJSONSource).setData(toGeoJSON(places));
-  }, [ready, places]);
+    if (ready && map) (map.getSource("places") as GeoJSONSource).setData(toGeoJSON(places, matchIds));
+  }, [ready, places, matchIds]);
+
+  // A new search or filter zooms the map to its matches (after a pause in typing).
+  useEffect(() => {
+    if (!ready || !fitKey || !matchIds?.size) return;
+    const id = setTimeout(() => fitAll(mapRef.current, places.filter(p => matchIds.has(p.id))), 450);
+    return () => clearTimeout(id);
+  }, [ready, fitKey]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -181,7 +191,7 @@ export function MapView({ places, selectedId, userLoc, onSelect, onView, picking
       {picking && <div class="pickbar" role="status"><span>{t.pickHint}</span><button type="button" onClick={onPickCancel}>{t.cancel}</button></div>}
       <div class="mapbar">
         <span class="mapnote">{t.mapNote}</span>
-        <button class="btn small" type="button" onClick={() => { fitAll(mapRef.current, places); onView(null); }}>{t.fullMap}</button>
+        <button class="btn small" type="button" onClick={() => { fitAll(mapRef.current, matchIds?.size ? places.filter(p => matchIds.has(p.id)) : places); onView(null); }}>{t.fullMap}</button>
       </div>
     </div>
   );

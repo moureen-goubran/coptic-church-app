@@ -17,7 +17,8 @@ function loadTurnstile(): Promise<void> {
   return turnstileLoading;
 }
 
-export function CorrectionForm({ placeId, t, lang }: { placeId: string | null; t: Strings; lang: string }) {
+// Also the Coptic Welcome suggestion box (same screening and bot check, its own wording).
+export function CorrectionForm({ placeId, t, lang, intro, label }: { placeId: string | null; t: Strings; lang: string; intro?: string; label?: string }) {
   const enabled = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && TURNSTILE_SITE_KEY);
   const [msg, setMsg] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent" | "fail">("idle");
@@ -56,8 +57,8 @@ export function CorrectionForm({ placeId, t, lang }: { placeId: string | null; t
 
   return (
     <form class="f" onSubmit={submit}>
-      <p class="muted small">{t.reportIntro}</p>
-      <label for="fix">{t.reportLabel}</label>
+      <p class="muted small">{intro ?? t.reportIntro}</p>
+      <label for="fix">{label ?? t.reportLabel}</label>
       <textarea id="fix" maxLength={1000} rows={4} value={msg} onInput={e => setMsg((e.target as HTMLTextAreaElement).value)} autocomplete="off" />
       <div ref={widget} />
       {problem && <p class="status warn" role="alert">{problem}</p>}

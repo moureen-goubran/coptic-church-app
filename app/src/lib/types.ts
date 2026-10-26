@@ -19,6 +19,12 @@ export interface Details {
 }
 export interface Clergy { place_id: string; sort: number; name_en: string; name_ar: string | null; phone: string | null; email: string | null }
 export interface Link { place_id: string; kind: string; url: string; label_en: string | null; label_ar: string | null }
+// Coptic Welcome: a helpful link, or a walkthrough video (no url until it's recorded).
+export interface Resource {
+  id: string; sort: number; kind: "link" | "video"; region: string; title_en: string; title_ar: string | null;
+  body_en: string | null; body_ar: string | null; url: string | null; last_verified: string | null;
+}
 export interface Dataset {
-  generated: string; places: Place[]; services: Service[]; events: ChurchEvent[]; details: Details[]; clergy: Clergy[]; links: Link[]; source: "live" | "built-in";
+  generated: string; places: Place[]; services: Service[]; events: ChurchEvent[]; details: Details[]; clergy: Clergy[]; links: Link[];
+  resources: Resource[]; source: "live" | "built-in";
 }
