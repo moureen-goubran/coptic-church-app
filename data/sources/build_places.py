@@ -22,7 +22,7 @@ for r in csv.DictReader(open('sources/wikipedia-list-2026-10-26.csv')):
     if r['diocese'].startswith('Los Angeles') and 'Monastery' not in r['name']: continue  # replaced by official LA list
     n=r['name']; notes=''
     if 'Eritrean' in n: continue
-    if r['state'] in ('New Jersey','New York','Pennsylvania','Delaware','Connecticut','Maryland','Virginia','West Virginia','Massachusetts','Rhode Island','New Hampshire','Vermont','Maine','North Carolina','South Carolina','Kentucky','Ohio','Michigan','Indiana'): continue  # replaced by state files  # not Coptic; listed in error by the source
+    if r['state'] in ('New Jersey','New York','Pennsylvania','Delaware','Connecticut','Maryland','Virginia','West Virginia','Massachusetts','Rhode Island','New Hampshire','Vermont','Maine','North Carolina','South Carolina','Kentucky','Ohio','Michigan','Indiana','Illinois','Wisconsin','Minnesota','Iowa','Missouri','Nebraska'): continue  # replaced by state files  # not Coptic; listed in error by the source
     city=r['city']
     if 'former location' in n: notes='Source says former location; confirm whether it moved'
     if n=='St. Anthony Coptic Orthodox Monastery': notes='Papal monastery (directly under the Pope); source lists it under Los Angeles'
@@ -37,7 +37,7 @@ for r in csv.DictReader(open('sources/lacopts-directory-2026-10-26.csv')):
 for r in csv.DictReader(open('sources/nj-2026-10-26.csv')):
     add(r['name'],r['type'],r['street'],r['city'],'NJ',NJ_DIO,r['verification'],r['source_url'],r['notes'],r['zip'],r['region'],r['phone'],r['website'])
 DIO={'NYNE':'New York & New England (Bishop David)','PA':'Pennsylvania, Delaware, Maryland & West Virginia (Bishop Karas)','ARCH':'Archdiocese of North America','NSCK':'North & South Carolina and Kentucky (Bishop Peter)','OMI':'Ohio, Michigan & Indiana (Bishop Seraphim)','':''}
-for r in [*csv.DictReader(open('sources/neighbors-2026-10-26.csv')), *csv.DictReader(open('sources/midatlantic-2026-10-26.csv')), *csv.DictReader(open('sources/newengland-2026-10-26.csv')), *csv.DictReader(open('sources/carolinas-ky-2026-10-26.csv')), *csv.DictReader(open('sources/ohio-mi-in-2026-10-26.csv'))]:
+for r in [*csv.DictReader(open('sources/neighbors-2026-10-26.csv')), *csv.DictReader(open('sources/midatlantic-2026-10-26.csv')), *csv.DictReader(open('sources/newengland-2026-10-26.csv')), *csv.DictReader(open('sources/carolinas-ky-2026-10-26.csv')), *csv.DictReader(open('sources/ohio-mi-in-2026-10-26.csv')), *csv.DictReader(open('sources/midwest-2026-10-26.csv'))]:
     add(r['name'],r['type'],r['street'],r['city'],r['state'],DIO[r['diocese']],r['verification'],r['source_url'],r['notes'],r['zip'],r['region'],r['phone'],r['website'])
 add('St. Mary & St. Demiana Convent','convent','','Dawsonville','GA','Southern US (Metropolitan Youssef)','unverified',COC)
 seen={}
