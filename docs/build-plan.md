@@ -1,6 +1,6 @@
 # Build Plan: Version 1 (US)
 
-Last updated: October 26, 2026. Status: **waiting for M's OK.**
+Last updated: October 26, 2026. Status: **approved by M on October 26, 2026** (real database now, ready-made map, website and app from one build). Building.
 
 ## Goal
 

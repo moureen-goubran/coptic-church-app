@@ -1,0 +1,57 @@
+/* App-only pieces. Uses the same tokens as theme.css, so restyling stays in one place. */
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+#app { min-height: 100vh; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.small { font-size: .84rem; }
+.subh { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; margin: 4px 0 6px; }
+.prose h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; margin: 0 0 6px; }
+.prose h3 { font-size: .95rem; margin: 14px 0 4px; }
+.prose p, .prose ul, .prose ol { margin: 0 0 6px; }
+.prose li { margin-bottom: 3px; }
+.sizes.three { grid-template-columns: repeat(3, 1fr); }
+
+/* search and filters */
+.searchrow { display: flex; gap: 8px; }
+.search { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; color: var(--muted); min-width: 0; }
+.search:focus-within { border-color: var(--lapis); }
+.search input { flex: 1; min-width: 0; border: 0; background: none; color: var(--fg); font: inherit; height: 44px; outline: none; }
+.searchrow .btn { height: 46px; border-radius: 12px; white-space: nowrap; }
+.filters { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filters select { flex: 1 1 140px; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .86rem; padding: 0 12px; max-width: 260px; }
+.filters .count { margin-inline-start: auto; }
+
+/* result cards */
+.list { display: flex; flex-direction: column; gap: 8px; }
+.pcard { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: start; font: inherit; color: inherit; cursor: pointer; border-inline-start: 4px solid var(--lapis); padding: 11px 14px; width: 100%; }
+.pcard[data-kind="monastery"], .pcard[data-kind="convent"] { border-inline-start-color: var(--gold); }
+.pcard:not([data-kind="church"]):not([data-kind="monastery"]):not([data-kind="convent"]) { border-inline-start-color: var(--muted); }
+.pcard:hover { border-color: var(--lapis); }
+.pmain { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pname { font-family: var(--font-display); font-weight: 600; font-size: 1.08rem; line-height: 1.25; }
+.pside { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
+
+/* map */
+.mapbox .map { touch-action: pan-y; cursor: default; }
+.mapbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; border-top: 1px solid var(--line); background: var(--surface); }
+.mapbar .mapnote { position: static; background: none; padding: 0; font-size: .78rem; color: var(--muted); }
+.mapfail { position: absolute; inset: 0 0 44px; display: grid; place-items: center; padding: 20px; text-align: center; color: var(--muted); background: var(--land); }
+.maplibregl-ctrl-attrib { font-size: 11px; }
+
+/* place sheet */
+.sheet .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.sheet dl.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; }
+.sheet dl.kv dd { margin: 0; overflow-wrap: anywhere; }
+.sheet dl.kv .k { color: var(--muted); }
+.svc { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.svc li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr) auto; gap: 8px; align-items: baseline; font-size: .9rem; }
+.svc .time { color: var(--muted); }
+@media (max-width: 420px) { .svc li { grid-template-columns: 6.8em minmax(0, 1fr); } .svc li .chip { display: none; } }
+.dayblock h4 { margin: 8px 0 4px; font-size: .88rem; color: var(--gold); }
+.next { margin: 0 0 6px; box-sizing: border-box; cursor: default; }
+.next:hover { background: var(--bg); }
+.linkbtn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; color: var(--lapis); font: inherit; cursor: pointer; padding: 4px 0; }
+form.f { display: flex; flex-direction: column; gap: 8px; }
+form.f textarea { width: 100%; box-sizing: border-box; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.status.warn { color: var(--warn); background: var(--warn-bg); padding: 8px 10px; border-radius: 8px; margin: 0; }
+.status.ok { color: var(--ok); margin: 0; }

@@ -1,0 +1,5 @@
+# Supabase CLI settings. The real project is linked through GitHub secrets (docs/setup-guide.md).
+project_id = "my-coptic-church"
+
+[functions.submit-correction]
+verify_jwt = false
