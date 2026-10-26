@@ -1,3 +1,4 @@
+import { useState } from "preact/hooks";
 import type { Lang, Strings } from "../i18n";
 import type { ChurchEvent, Place, Service } from "../lib/types";
 import { fmtTime } from "../lib/time";
@@ -52,8 +53,13 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
       </button>
     );
   };
+  // No share sheet (most computers): copy the link and say so, so the button never seems to do nothing.
+  const [copied, setCopied] = useState(false);
   const shareApp = async () => {
-    try { if (navigator.share) await navigator.share({ title: t.appName, text: t.shareAppText, url: location.origin }); else await navigator.clipboard.writeText(location.origin); } catch { /* cancelled */ }
+    try {
+      if (navigator.share) await navigator.share({ title: t.appName, text: t.shareAppText, url: location.origin });
+      else { await navigator.clipboard.writeText(location.origin); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    } catch { /* cancelled */ }
   };
 
   return (
@@ -90,7 +96,7 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
         <div class="mini">{coming.map(row)}</div>
       </>}
 
-      <div class="center"><button class="btn" type="button" onClick={shareApp}><Icon name="share" />{t.shareApp}</button></div>
+      <div class="center"><button class="btn" type="button" onClick={shareApp}><Icon name="share" />{copied ? t.copied : t.shareApp}</button></div>
     </main>
   );
 }

@@ -17,6 +17,8 @@ const SAFE_HOSTS = ["facebook.com", "instagram.com", "youtube.com", "twitter.com
 // Coptic Welcome links (help for newcomers) go only to sites an admin has looked at and added here.
 const RESOURCE_HOSTS = ["nj211.org", "ssa.gov", "aclu-nj.org", "hobokengirl.com", "needhelppayingbills.com", "studentaid.gov", "hesaa.org",
   "propertytaxreliefapp.nj.gov", "apps.apple.com"];
+// Old church domains that expired or now show spam (found by the weekly link check). Never link to them again.
+const BLOCKED_HOSTS = ["amsmcoptic.org", "stphilopater.ca", "smspvancouver.ca", "coloradocopticchurch.com", "pensacolacopticchurch.com", "saintanthonynj.org", "dp-sk.org"];
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 const under = (h, d) => h === d || h.endsWith("." + d);
 // Country is stored as a 2-letter ISO code (US, CA, MX). Full names are accepted and converted.
@@ -37,6 +39,7 @@ export function loadData() {
     if (lat === null) { const c = cityPin.get(`${r.state}|${r.city}`); if (c) { [lat, lng] = c; approx = true; } }
     if (lat !== null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) errors.push(`${r.id}: bad coordinates`);
     if (r.website && !/^https?:\/\//.test(r.website)) errors.push(`${r.id}: website must start with http(s)://`);
+    if (r.website && BLOCKED_HOSTS.some(d => under(hostOf(r.website), d))) errors.push(`${r.id}: ${hostOf(r.website)} is blocked (expired or spam, see BLOCKED_HOSTS)`);
     const t = ar.get(r.id);
     return {
       id: r.id, name: r.name, name_ar: opt(t?.name_ar ?? ""), type: r.type,
