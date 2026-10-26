@@ -81,6 +81,7 @@ const en = {
   aboutTitle: "About This App",
   aboutBody: "My Coptic Church helps you find Coptic Orthodox churches, monasteries and convents near you, with addresses, phone numbers and service times.",
   aboutInfoH: "Where the Information Comes From",
+  aboutDisclaimer: "This is an independent app made by a volunteer. It is not an official app of the Coptic Orthodox Church or any diocese. Times can change, so call the church before you go.",
   aboutInfo: "Diocese directories, church websites and local members. Each place shows how it was checked and when. If something is wrong, open the place and tap “Suggest a correction”.",
   privacyH: "Your Privacy",
   privacy: [
@@ -279,6 +280,7 @@ const ar: Strings = {
   aboutTitle: "عن هذا التطبيق",
   aboutBody: "يساعدك تطبيق كنيستي القبطية على إيجاد الكنائس والأديرة القبطية الأرثوذكسية القريبة منك، مع العناوين وأرقام الهواتف ومواعيد القداسات.",
   aboutInfoH: "مصدر المعلومات",
+  aboutDisclaimer: "هذا تطبيق مستقل أعدّه متطوع، وليس تطبيقًا رسميًا للكنيسة القبطية الأرثوذكسية أو أي إيبارشية. قد تتغير المواعيد، لذا اتصل بالكنيسة قبل ذهابك.",
   aboutInfo: "أدلة الإيبارشيات ومواقع الكنائس وأعضاء الكنائس. يوضح كل مكان كيف ومتى تم التحقق منه. إذا وجدت خطأ، افتح المكان واضغط «اقترح تصحيحًا».",
   privacyH: "خصوصيتك",
   privacy: [
