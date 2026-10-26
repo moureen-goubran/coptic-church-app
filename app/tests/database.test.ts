@@ -108,6 +108,20 @@ describe("database", () => {
     await expect(as("authenticated", CLERGY, `insert into public.events (place_id, kind, title_en) values ('${own}', 'party', 'x y')`)).rejects.toThrow();
   });
 
+  it("lets only admins change Coptic Welcome items, and keeps their edits when the import runs again", async () => {
+    expect((await as("anon", null, "select count(*)::int n from public.resources where kind = 'link'")).rows[0].n).toBeGreaterThan(5);
+    await expect(as("anon", null, "update public.resources set url = 'https://example.com' where id = 'nj-211'")).rejects.toThrow();
+    await as("authenticated", CLERGY, "update public.resources set url = 'https://example.com' where id = 'nj-211'");
+    expect((await db.query<any>("select url from public.resources where id = 'nj-211'")).rows[0].url).toBe("https://nj211.org");
+    await expect(as("authenticated", CLERGY, "insert into public.resources (id, kind, region, title_en, url) values ('x-x', 'link', 'NJ', 'Spam', 'https://example.com')")).rejects.toThrow();
+    // A link must be https, and a hidden item isn't shown to the public.
+    await expect(as("authenticated", ADMIN, "insert into public.resources (id, kind, region, title_en, url) values ('x-y', 'link', 'NJ', 'Plain', 'http://example.com')")).rejects.toThrow();
+    await as("authenticated", ADMIN, "update public.resources set hidden = true, body_en = 'Edited' where id = 'fafsa'");
+    expect((await as("anon", null, "select count(*)::int n from public.resources where id = 'fafsa'")).rows[0].n).toBe(0);
+    await db.exec(seed);
+    expect((await db.query<any>("select body_en from public.resources where id = 'fafsa'")).rows[0].body_en).toBe("Edited");
+  });
+
   it("logs every change", async () => {
     const r = await db.query<any>("select count(*)::int n from public.audit_log where table_name = 'places' and action = 'UPDATE' and row_id = 'nj-jersey-city-st-mark-jersey-city'");
     expect(r.rows[0].n).toBeGreaterThan(0);

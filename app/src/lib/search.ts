@@ -26,6 +26,9 @@ export const COUNTRY_NAMES: Record<string, { en: string; ar: string }> = {
   US: { en: "United States", ar: "الولايات المتحدة" }, CA: { en: "Canada", ar: "كندا" }, MX: { en: "Mexico", ar: "المكسيك" },
 };
 export const stateName = (state: string, country = "US") => BY_COUNTRY[country]?.[state] ?? state;
+// Arabic names for the states that have Coptic Welcome help so far; others fall back to English.
+const STATE_NAMES_AR: Record<string, string> = { NJ: "نيوجيرسي", NY: "نيويورك", PA: "بنسلفانيا", CA: "كاليفورنيا", TX: "تكساس", FL: "فلوريدا" };
+export const stateNameIn = (state: string, lang: string) => (lang === "ar" && STATE_NAMES_AR[state]) || stateName(state);
 // Country order in lists: US first, then the rest alphabetically.
 export const countryRank = (c: string) => (c === "US" ? "0" : "1" + c);
 

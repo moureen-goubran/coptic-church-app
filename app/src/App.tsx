@@ -15,15 +15,16 @@ import { FeastStrip, FeastsView } from "./components/Feasts";
 import { TodayView } from "./components/Today";
 import { GlobalSearch } from "./components/GlobalSearch";
 import { EventsView, NO_FILTERS, type EvFilters } from "./components/Events";
+import { WelcomeView } from "./components/Welcome";
 
-type Tab = "today" | "churches" | "events" | "feasts" | "about";
+type Tab = "today" | "churches" | "events" | "feasts" | "welcome" | "about";
 const SIZES = [0.875, 0.9375, 1.0625, 1.1875, 1.3125];
 const PAGE = 40;
 
 function readHash(): { tab: Tab; place: string | null } {
   const m = location.hash.match(/^#\/(place)\/([a-z0-9-]+)$/);
   if (m) return { tab: (sessionStorage.getItem("mcc.tab") as Tab | null) ?? "churches", place: m[2] };
-  const tabs: Record<string, Tab> = { "#/churches": "churches", "#/events": "events", "#/feasts": "feasts", "#/about": "about" };
+  const tabs: Record<string, Tab> = { "#/churches": "churches", "#/events": "events", "#/feasts": "feasts", "#/welcome": "welcome", "#/about": "about" };
   return { tab: tabs[location.hash] ?? "today", place: null };
 }
 
@@ -46,6 +47,7 @@ export function App() {
   const [mapView, setMapView] = useState<[[number, number], [number, number]] | null>(null);
   const [gsOpen, setGsOpen] = useState(false);
   const [evQ, setEvQ] = useState("");
+  const [welcomeQ, setWelcomeQ] = useState("");
   const [churchSort, setChurchSortState] = useState<string>(() => store.get("churchSort", "recommended"));
   const setChurchSort = (v: string) => { setChurchSortState(v); store.set("churchSort", v); };
   const [locMsg, setLocMsg] = useState<string | null>(null);
@@ -63,7 +65,7 @@ export function App() {
 
   useEffect(() => {
     loadBuiltIn().then(setData).catch(() => {});
-    loadLive().then(d => d && setData(prev => ({ ...d, events: d.events ?? prev?.events ?? [] })));
+    loadLive().then(d => d && setData(prev => ({ ...d, events: d.events ?? prev?.events ?? [], resources: d.resources ?? prev?.resources ?? [] })));
     const onHash = () => setRoute(readHash());
     const net = () => setOnline(navigator.onLine);
     addEventListener("hashchange", onHash); addEventListener("online", net); addEventListener("offline", net);
@@ -116,10 +118,11 @@ export function App() {
   const eventsBy = useMemo(() => byPlace(data?.events), [data]);
   const dist = (p: Place) => (userLoc && p.lat !== null && p.lng !== null ? milesBetween(userLoc, [p.lat, p.lng]) : null);
 
-  // The list follows the map: after you drag or zoom it, only the places in view are listed, until you search or filter.
+  // The list follows the map: after you drag or zoom it, every place in view is listed, even past your search or
+  // state (so you can see what's nearby). The type filter still applies. A new search or filter starts over.
   const inView = (p: Place) => !mapView || (p.lat !== null && p.lng !== null && p.lng >= mapView[0][0] && p.lng <= mapView[1][0] && p.lat >= mapView[0][1] && p.lat <= mapView[1][1]);
   const results = useMemo(() => {
-    const list = (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q)) && inView(p));
+    const list = (data?.places ?? []).filter(p => (!typeF || p.type === typeF) && (mapView ? inView(p) : (!stateF || `${p.country}-${p.state}` === stateF) && (!q || matches(p, q))));
     const byState = (a: Place, b: Place) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name);
     const near = (a: Place, b: Place) => (dist(a) ?? Infinity) - (dist(b) ?? Infinity);
     const name = (a: Place, b: Place) => placeName(a, lang).localeCompare(placeName(b, lang), lang === "ar" ? "ar" : "en");
@@ -129,7 +132,9 @@ export function App() {
       verified: (a: Place, b: Place) => (b.last_verified ?? "").localeCompare(a.last_verified ?? "") || byState(a, b) }[churchSort] ?? byState;
     return list.sort(cmp);
   }, [data, q, stateF, typeF, userLoc, mapView, churchSort, lang]);
-  const mapPlaces = useMemo(() => (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q))), [data, q, stateF, typeF]);
+  // The map always shows every place; with a search or filter on, the matches are bright and the rest faded.
+  const filtering = Boolean(q || stateF || typeF);
+  const matchIds = useMemo(() => (filtering ? new Set((data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q))).map(p => p.id)) : null), [data, q, stateF, typeF]);
 
   const [focus, setFocus] = useState<string | null>(null);
   const card = (p: Place) => (
@@ -141,7 +146,7 @@ export function App() {
   useEffect(() => { try { sessionStorage.setItem("mcc.tab", route.tab); } catch { /* private mode */ } }, [route.tab]);
   const placesById = useMemo(() => new Map((data?.places ?? []).map(p => [p.id, p])), [data]);
   const nearest = useMemo(() => (userLoc ? (data?.places ?? []).filter(p => servicesBy.has(p.id) && dist(p) !== null).sort((a, b) => dist(a)! - dist(b)!) : null), [data, userLoc]);
-  const tabHash: Record<Tab, string> = { today: "#/", churches: "#/churches", events: "#/events", feasts: "#/feasts", about: "#/about" };
+  const tabHash: Record<Tab, string> = { today: "#/", churches: "#/churches", events: "#/events", feasts: "#/feasts", welcome: "#/welcome", about: "#/about" };
   const openPlace = (id: string) => go(`#/place/${id}`);
   const closePlace = () => (history.length > 1 && route.place ? history.back() : go(tabHash[route.tab]));
   const selected = route.place ? data?.places.find(p => p.id === route.place) ?? null : null;
@@ -190,9 +195,9 @@ export function App() {
         </div>
       </header>
 
-      {gsOpen && <GlobalSearch t={t} lang={lang} places={data?.places ?? []} services={data?.services ?? []} events={data?.events ?? []} clergy={data?.clergy ?? []}
+      {gsOpen && <GlobalSearch t={t} lang={lang} places={data?.places ?? []} services={data?.services ?? []} events={data?.events ?? []} clergy={data?.clergy ?? []} resources={data?.resources ?? []}
         onClose={() => setGsOpen(false)} onOpenPlace={id => { setGsOpen(false); openPlace(id); }}
-        onGo={(tab, text) => { setGsOpen(false); if (tab === "churches") setQ(text); if (tab === "events") setEvQ(text); go(tabHash[tab]); scrollTo({ top: 0 }); }} />}
+        onGo={(tab, text) => { setGsOpen(false); if (tab === "churches") setQ(text); if (tab === "events") setEvQ(text); if (tab === "welcome") setWelcomeQ(text); go(tabHash[tab]); scrollTo({ top: 0 }); }} />}
 
       {!online && <div class="callout">{t.offline}</div>}
 
@@ -203,6 +208,7 @@ export function App() {
         <button role="tab" type="button" aria-selected={route.tab === "churches"} onClick={() => go("#/churches")}><Icon name="church" />{t.tabChurches}</button>
         <button role="tab" type="button" aria-selected={route.tab === "events"} onClick={() => go("#/events")}><Icon name="clock" />{t.tabEvents}</button>
         <button role="tab" type="button" aria-selected={route.tab === "feasts"} onClick={() => go("#/feasts")}><Icon name="calendar" />{t.tabFeasts}</button>
+        <button role="tab" type="button" aria-selected={route.tab === "welcome"} onClick={() => go("#/welcome")}><Icon name="help" />{t.tabWelcome}</button>
         <button role="tab" type="button" aria-selected={route.tab === "about"} onClick={() => go("#/about")}><Icon name="info" />{t.tabAbout}</button>
       </nav>
 
@@ -210,7 +216,7 @@ export function App() {
         nearest={nearest} distanceOf={fmtMi} onOpen={openPlace} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
-        <MapView places={mapPlaces} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
+        <MapView places={data?.places ?? []} matchIds={matchIds} fitKey={filtering ? `${q}|${stateF}|${typeF}` : ""} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
           onPick={l => { setUserLoc(l, "pick"); setPicking(false); setLocMsg(null); }} selectedId={route.place ?? focus} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
         <div class="searchrow">
           <label class="search">
@@ -237,8 +243,8 @@ export function App() {
             options={[["recommended", t.sortRecommended], ["near", t.sortNear], ["name", t.sortName], ["state", t.sortState], ["verified", t.sortVerified]]} />
           <span class="muted small count" role="status">{data ? t.results(results.length) : "…"}</span>
         </div>
-        {mapView && !q && !stateF && !typeF && <div class="showing"><span>{t.inMapArea(results.length)}</span>
-          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setMapView(null)}>{t.fullMap}</button></div>}
+        {mapView && <div class="showing"><span>{q || stateF ? t.inMapAreaAll(results.length) : t.inMapArea(results.length)}</span>
+          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setMapView(null)}>{q || stateF ? t.backToResults : t.fullMap}</button></div>}
 
         {data && results.length === 0 && <div class="empty">{t.noneFound}</div>}
         {data && !userLoc && !q && !stateF && !typeF && !mapView && <p class="muted small lead">{t.setLocHint}</p>}
@@ -251,6 +257,8 @@ export function App() {
         saved={saved} toggleSave={toggleSave} filters={evFilters} setFilters={setEvFilters} distanceOf={fmtMi} onOpen={openPlace} q={evQ} setQ={setEvQ} />}
 
       {route.tab === "feasts" && <FeastsView t={t} lang={lang} />}
+
+      {route.tab === "welcome" && <WelcomeView t={t} lang={lang} resources={data?.resources ?? []} q={welcomeQ} setQ={setWelcomeQ} />}
 
       {route.tab === "about" && <main class="stack">
         <section class="card prose">

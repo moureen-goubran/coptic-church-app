@@ -47,3 +47,7 @@ Places without `lat`/`lng` get their city's center from `data/sources/city-coord
 `place_id`, `kind`, `url`, `label_en`, `label_ar`, `source_checked`. `kind` is one of `live`, `facebook`, `instagram`, `youtube`, `x`, `tiktok`, `donate`, `calendar` (an `https://` calendar feed; the app offers Google and Apple subscribe buttons), `form`, `clergy_page`, `other`. Links must be `https://` and go to the church's own website or a platform on the safe list (`SAFE_HOSTS` in `app/scripts/load-data.mjs`). Group chats (WhatsApp, GroupMe) are not allowed without a priest's written OK.
 
 Links in this file count as admin-approved. Links clergy add in the app later stay hidden until an admin approves them.
+
+## `data/resources.csv`: Coptic Welcome (help for newcomers)
+
+`id` (unique, lowercase and dashes), `kind` (`link` or `video`), `region` (a state or province code like `NJ`, `US` for the whole country, or `ALL` for anywhere), `title_en`, `title_ar`, `body_en`, `body_ar`, `url`, `source_checked`. Rows show in file order. A `link` needs an `https://` url on the approved list (`RESOURCE_HOSTS` in `app/scripts/load-data.mjs`); adding a site there is the admin's approval. A `video` with no url shows "Coming soon". Only admins can change these in the database; an edit made in the app is kept when the CSV is imported again.
