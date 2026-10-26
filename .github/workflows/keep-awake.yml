@@ -1,0 +1,19 @@
+# Free Supabase projects pause after a week with no visits. This reads one row each
+# Monday and Thursday so the database stays awake. Uses only the public read key.
+name: Keep database awake
+on:
+  schedule:
+    - cron: "17 9 * * 1,4"
+  workflow_dispatch:
+permissions: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read one place
+        env:
+          URL: ${{ vars.SUPABASE_URL }}
+          KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$URL" ]; then echo "Supabase not set up yet; skipping."; exit 0; fi
+          curl -fsS "$URL/rest/v1/public_places?select=id&limit=1" -H "apikey: $KEY"

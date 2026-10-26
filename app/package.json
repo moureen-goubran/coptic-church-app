@@ -1,0 +1,30 @@
+{
+  "name": "my-coptic-church",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "data": "node scripts/build-data.mjs",
+    "dev": "npm run data && vite",
+    "build": "npm run data && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "node scripts/make-seed-sql.mjs && vitest run",
+    "seed-sql": "node scripts/make-seed-sql.mjs"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "5.3.0",
+    "@fontsource/ibm-plex-sans-arabic": "5.3.0",
+    "@fontsource/reem-kufi": "5.3.0",
+    "@fontsource/source-sans-3": "5.3.1",
+    "maplibre-gl": "6.16.0",
+    "preact": "11.0.2"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.11",
+    "@preact/preset-vite": "2.10.6",
+    "@types/node": "26.6.5",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}
