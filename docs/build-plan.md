@@ -22,24 +22,22 @@ A free, installable web app at `church.datumarc.com` that lets anyone find a Cop
 - Events, classes and announcements beyond the 4 demo churches.
 - Newcomer help (immigration, language, jobs), Church Supplies, other countries' screens.
 
-## Stack (challenge: no database yet)
-
-Version 1 only *shows* data and nobody logs in, so it doesn't need a database. A **static site** built from `places.csv` is free, faster, works offline, and has nothing to hack.
+## Stack (updated after M's feedback: real database now)
 
 | Part | Choice | Why |
 |---|---|---|
-| App | Static PWA (Vite, plain TypeScript, small Preact UI) | Fast on cheap phones, no server. |
-| Data | Build step turns `places.csv` into `places.json` | Same master list; new countries load with no code change. |
-| Map | MapLibre with a map file hosted on our own site (Protomaps) | No outside tile service, so no third party sees who looks where. |
+| App | Installable web app (PWA): Vite, TypeScript, Preact | Fast on cheap phones, one codebase for iPhone and Android. |
+| Database | **Supabase (Postgres) from day one** | M wants it done properly once. Tables for places, service times, clergy, edit history and corrections are designed now so clergy logins slot in later with no rework. `places.csv` is imported into it; new countries import the same way. |
+| Map | Ready-made street map like Google's (OpenStreetMap data via MapLibre), not drawn by hand | Looks like Google Maps and is consistent everywhere. Free, and unlike Google Maps it doesn't track users or need a credit card. "Directions" opens Google or Apple Maps on the phone. |
 | Hosting | Cloudflare Pages (free), auto-deploys from GitHub `main` | Already decided. |
-| Corrections box | One Cloudflare Worker + Turnstile, emails the admin | Free, no tracking. |
-| Database | **Supabase, added in version 2** when clergy log in | Only pay the complexity when it's needed. |
+| Corrections box | Saved to a private database table, with a Turnstile bot check | Only admins can read it. |
+| Offline | The app keeps a copy of the list on the phone | Works with weak signal. |
 
-Strict security headers (no outside scripts), HTTPS, no cookies, no analytics beyond Cloudflare's cookie-free visitor count.
+Strict security headers (no outside scripts), HTTPS, no cookies, no analytics beyond Cloudflare's cookie-free visitor count. The public can only read; only admins (later clergy) can write.
 
 ## Steps
 
-1. Scaffold the app in this repo (`app/`), with the data build step and tests.
+1. Design the database and import `places.csv`. Scaffold the app in this repo (`app/`), with tests.
 2. Map, list, search, near me, church page, matching the demo's look.
 3. Arabic and right-to-left, offline, install.
 4. Preview link on Cloudflare (`*.pages.dev`) for M to try on a phone.
@@ -48,5 +46,5 @@ Strict security headers (no outside scripts), HTTPS, no cookies, no analytics be
 
 ## What M will need to do
 
-- Create a free Cloudflare account and connect it to GitHub (steps will be given when step 4 is ready).
+- Create free Supabase and Cloudflare accounts (click-by-click steps given when needed; about 10 minutes).
 - Later, approve the DNS change.
