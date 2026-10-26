@@ -15,7 +15,7 @@ const PLATFORMS = ["facebook.com", "instagram.com", "youtube.com", "twitter.com"
 const SPAM = /\b(casino|slot gacor|judi|togel|sportsbook|betting odds|porn|xxx(?!-)|escort|viagra|cialis)\b|domain (is|may be) for sale|buy this domain|hugedomains|sedo\.com|dan\.com\/buy|parked free|domain parking/i;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36";
 // Outside pages the app itself links to (not in the data files).
-const APP_LINKS = ["https://st-takla.org/books/en/church/synaxarium/"];
+const APP_LINKS = ["https://st-takla.org/books/en/church/synaxarium/", "https://988lifeline.org"];
 const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_KEY;
 const NEEDED_HEADERS = ["content-security-policy", "strict-transport-security", "x-content-type-options", "referrer-policy", "permissions-policy"];
 

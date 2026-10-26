@@ -145,6 +145,13 @@ export function App() {
   const go = (hash: string) => { if (location.hash !== hash) location.hash = hash; };
   useEffect(() => { try { sessionStorage.setItem("mcc.tab", route.tab); } catch { /* private mode */ } }, [route.tab]);
   const placesById = useMemo(() => new Map((data?.places ?? []).map(p => [p.id, p])), [data]);
+  // Your state or province ("US-NJ"), from the closest church to your spot. Used to pick local help links.
+  const homeRegion = useMemo(() => {
+    if (!userLoc) return null;
+    let best: Place | null = null, bd = Infinity;
+    for (const p of data?.places ?? []) { const d = dist(p); if (d !== null && d < bd) { bd = d; best = p; } }
+    return best ? `${best.country}-${best.state}` : null;
+  }, [data, userLoc]);
   const nearest = useMemo(() => (userLoc ? (data?.places ?? []).filter(p => servicesBy.has(p.id) && dist(p) !== null).sort((a, b) => dist(a)! - dist(b)!) : null), [data, userLoc]);
   const tabHash: Record<Tab, string> = { today: "#/", churches: "#/churches", events: "#/events", feasts: "#/feasts", welcome: "#/welcome", about: "#/about" };
   const openPlace = (id: string) => go(`#/place/${id}`);
@@ -258,7 +265,7 @@ export function App() {
 
       {route.tab === "feasts" && <FeastsView t={t} lang={lang} />}
 
-      {route.tab === "welcome" && <WelcomeView t={t} lang={lang} resources={data?.resources ?? []} q={welcomeQ} setQ={setWelcomeQ} />}
+      {route.tab === "welcome" && <WelcomeView t={t} lang={lang} resources={data?.resources ?? []} q={welcomeQ} setQ={setWelcomeQ} regions={regions} homeRegion={homeRegion} />}
 
       {route.tab === "about" && <main class="stack">
         <section class="card prose">
