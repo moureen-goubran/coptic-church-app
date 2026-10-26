@@ -59,9 +59,21 @@ On the **Variables** tab, click **New repository variable** for each:
 
 Claude sends separate GoDaddy steps for `church.datumarc.com` when the app is ready. Nothing changes on GoDaddy until you say so.
 
+## 5. Malware check for links (free, 5 minutes, optional but recommended)
+
+The weekly link check already catches spam and expired church sites. This adds Google's malware and phishing list.
+
+1. Go to console.cloud.google.com and sign in with your Google account. No card is needed.
+2. Top bar: **Select a project → New project**. Name it `my-coptic-church` and click **Create**.
+3. Menu (☰) → **APIs & Services → Library**. Search **Safe Browsing API**, open it, and click **Enable**.
+4. Menu (☰) → **APIs & Services → Credentials → + Create credentials → API key**. Copy the key.
+5. On the same page, click the key's name. Under **API restrictions**, pick **Restrict key**, tick **Safe Browsing API**, and click **Save**.
+6. On GitHub, open the repo, then **Settings → Secrets and variables → Actions → New repository secret**. Name: `SAFE_BROWSING_KEY`. Secret: paste the key. Click **Add secret**.
+
 ## What runs by itself after this
 
 - Every change to the church list or database on `main` is loaded into Supabase (GitHub **Actions → Deploy database**).
 - Every change to the app is published by Cloudflare.
 - Twice a week, GitHub reads one row so the free database never pauses.
 - Corrections are deleted after 90 days.
+- Every Monday, GitHub opens every outside link and emails you if one turns into spam or malware (**Actions → Link safety check**).

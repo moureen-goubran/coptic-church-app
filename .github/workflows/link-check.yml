@@ -1,5 +1,6 @@
 # Weekly safety check of every outside link (spam takeovers, dead links, redirects) and the live site's
-# security headers. Fails (and GitHub emails the owner) only if a link turned into spam or a header is gone.
+# security headers, plus a malware check when the free SAFE_BROWSING_KEY secret is set. Fails (and GitHub emails
+# the owner) if a link turned into spam or malware, or a security header is gone.
 name: Link safety check
 on:
   schedule:
@@ -19,3 +20,5 @@ jobs:
         with:
           node-version: 22
       - run: node app/scripts/check-links.mjs
+        env:
+          SAFE_BROWSING_KEY: ${{ secrets.SAFE_BROWSING_KEY }}
