@@ -1,0 +1,69 @@
+url|street|zip|phone|website|lat|lng
+https://directory.nihov.org/church/809|2039 26a St SW|T3E 2B9|-|-|51.03511|-114.125458
+https://directory.nihov.org/church/801|2035 26a St SW|T3E 2B9|-|-|51.035091|-114.125542
+https://directory.nihov.org/church/134|5803 11A Avenue|T6L 6A8|+1 780-490-5885|https://www.stmarystmark.ca/|53.440102|-113.428925
+https://directory.nihov.org/church/564|4346 39th Street|T4N 0Z5|+1 403-848-0884|-|52.259571|-113.798805
+https://directory.nihov.org/church/133|292120 Wagon Wheel Blvd|T4A 0E2|-|https://stminacalgary.ca/|51.211411|-113.968147
+https://directory.nihov.org/church/758|790 Kilmalu Rd.|V0R 2P2|+1 250-446-4474|-|48.66436|-123.557434
+https://directory.nihov.org/church/135|13905 108 Avenue|V3T 2L1|+1 604-588-8020|https://www.stgeorge.ca/|49.198856|-122.836807
+https://directory.nihov.org/church/565|12469 104th Avenue|V3V 6A2|+1 604-945-3911|-|49.192123|-122.87709
+https://directory.nihov.org/church/621|154 10th Avenue East|V5T 1Z4|+1 778-865-4377|https://www.smspvancouver.ca/|49.261757|-123.10202
+https://directory.nihov.org/church/578|114 Ashgrove Blvd.|R7B|-|-|49.830238|-99.977516
+https://directory.nihov.org/church/136|1111 Chevrier Boulevard|R3P 1Y2|+1 204-478-6743|https://stmark.ca/|49.830486|-97.156258
+https://directory.nihov.org/church/581|47 Rivershore Drive|E2K 4T5|+1 506-658-6822|-|45.288807|-66.116325
+https://directory.nihov.org/church/137|34 Jersey Ave|A1N 1T8|+1 709-747-6260|https://www.stmaurice.net/|47.516727|-52.801373
+https://directory.nihov.org/church/138|167 Willett Street|B3M 3L6|+1 902-445-5884|https://stmenahalifax.com/|44.654503|-63.646858
+https://directory.nihov.org/church/139|360 Westney Road South|L1S 6M7|+1 905-426-4500|https://stmarystabraam.ca/|43.837719|-79.035995
+https://directory.nihov.org/church/141|12091 Hurontario Street|L6Z 4P8|+1 905-840-4600|https://sttekla.org/|43.735985|-79.827156
+https://directory.nihov.org/church/808|1160 Blair Road Unit D1|L7M 1K9|365-779-2776|https://www.arsm.ca/|43.365685|-79.799469
+https://directory.nihov.org/church/142|87 Elmhurst Drive|M9W 2J8|+1 416-745-1643|https://www.stdemiana.ca/|43.722771|-79.559189
+https://directory.nihov.org/church/297|40 Wilbert St.|N1K 0A3|+1 416-887-5442|https://stphilopater.ca/|43.544048|-80.315979
+https://directory.nihov.org/church/143|1562 Rymal Road East|L8W 3P1|+1 905-544-1953|https://stminahamilton.ca/|43.185474|-79.824127
+https://directory.nihov.org/church/717|20 Young Rd|K2L 1W1|-|-|45.297413|-75.893921
+https://directory.nihov.org/church/498|1281 Midland Avenue|K7P 2Y1|+1 343-333-6268|https://www.saintmenakingston.com/|44.271358|-76.575035
+https://directory.nihov.org/church/646|1281 Midland Avenue|K7P 2Y1|-|https://www.saintmenakingston.com/|44.271366|-76.57505
+https://directory.nihov.org/church/144|388 Ottawa Street South|N2M 3P4|+1 519-570-2199|https://stmarystmaurice.ca/|43.433052|-80.479584
+https://directory.nihov.org/church/145|1151 Royal York Road|N6H|+1 519-452-0464|https://www.stpaulcoptic.ca/|42.978832|-81.322472
+https://directory.nihov.org/church/802|455 Ferrier St|L3R 5Z2|+1 416-800-5500|https://www.stmarkstoronto.ca/|43.81942|-79.32917
+https://directory.nihov.org/church/303|9393 McCowan Road|L3P 3J3|+1 416-800-3111|https://www.smsscoptic.ca/|43.889118|-79.28933
+https://directory.nihov.org/church/220|3300 Hwy 7 East|L3R 5N9|+1 416-800-8888|https://www.smsv.ca/|43.852745|-79.346687
+https://directory.nihov.org/church/298|860 Nipissing Road|L9T 4Z9|+1 416-268-4906|https://sgsa.ca/|43.523006|-79.86367
+https://directory.nihov.org/church/880|6 Alpha Mills Rd.|L5N 1H5|-|https://nativitychurch.ca/|43.594265|-79.728951
+https://directory.nihov.org/church/756|237 Brunel Road|L4Z 1X3|416-268-3861|https://mycorchurch.ca/|43.629982|-79.671791
+https://directory.nihov.org/church/148|6465 Millcreek Road|L5V 2M4|+1 416-618-4402|https://www.spsachurch.ca/|43.590008|-79.742722
+https://directory.nihov.org/church/757|1699 Dundas Street East|L4X 1L5|-|http://smsd.ca/|43.616131|-79.577538
+https://directory.nihov.org/church/147|1699 Dundas St E|L4X 1L5|+1 905-624-0078|https://smpk.ca/|43.615929|-79.577377
+https://directory.nihov.org/church/545|6341 Mississauga Road|L5N 1A5|+1 416-819-4425|https://7altars.stmarkstdemiana.ca/|43.595573|-79.72979
+https://directory.nihov.org/church/146|1245 Eglinton Avenue West|L5V 2M4|+1 905-567-4032|https://www.cccnet.ca/|43.580292|-79.683975
+https://directory.nihov.org/church/299|953376 7th Line E|L9W 2Z2|-|-|43.978985|-79.975761
+https://directory.nihov.org/church/645|3739 Navan Road|K4B 1H9|+1 613-513-8341|https://www.stjosephchurch.ca/|-|-
+https://directory.nihov.org/church/805|1095 Stellar Dr|L3Y 7B8|-|https://spsdchurch.ca/|44.076763|-79.433006
+https://directory.nihov.org/church/803|33 Mallard Rd|M3B 1S4|+1 647-478-6720|https://www.stgr.org/|43.747292|-79.349579
+https://directory.nihov.org/church/544|1177 Invicta Drive|L6H 4M1|+1 416-617-8756|https://spspoakville.com/|43.476006|-79.676338
+https://directory.nihov.org/church/140|697 7 Line S|L0L 2E0|+1 705-487-5473|https://www.saintjohnbarrie.com/|44.458454|-79.516739
+https://directory.nihov.org/church/150|1081 Cadboro Road|K1J 7T8|+1 613-741-8000|https://www.orthodoxy.ca/|45.432892|-75.620956
+https://directory.nihov.org/church/579|555 Parkdale Avenue|K1Y 1H9|+1 647-545-2046|https://www.smsm.ca/|45.396881|-75.726151
+https://directory.nihov.org/church/151|1 Canfield Road|K2H 5S7|+1 613-596-0052|https://stmary-ottawa.org/|45.330166|-75.782379
+https://directory.nihov.org/church/563|608 Miners Point Rd|K7H 3C5|+1 613-264-8071|https://abbaanthony.ca/|44.751644|-76.253822
+https://directory.nihov.org/church/387|984 Kingston Rd|L1V 1B3|+1 905-837-0888|https://www.smsjb.org/|43.825462|-79.102287
+https://directory.nihov.org/church/152|11308 Yonge Street|L4S 1K9|+1 416-800-3333|http://www.smsj.ca/|43.903629|-79.44532
+https://directory.nihov.org/church/153|118 Glenridge Avenue|L2R 4X7|+1 905-684-9594|https://www.stgeorge-stmercurius.com/|43.146137|-79.240295
+https://directory.nihov.org/church/806|1608 Pioneer Rd|P3E 1A8|+1 705-561-6305|-|46.435642|-80.938828
+https://directory.nihov.org/church/149|141 Bond Avenue|M3B 1M1|+1 416-447-0108|https://www.stgr.org/|43.745758|-79.347321
+https://directory.nihov.org/church/154|41 Glendinning Avenue|M1W 3E2|+1 416-494-4449|https://stmarkstoronto.ca/|43.811844|-79.33252
+https://directory.nihov.org/church/503|557 Bathurst Street|M5S 2P8|+1 647-968-2865|https://www.smsk.ca/|43.658134|-79.408066
+https://directory.nihov.org/church/804|139 Bond Ave|M3B 1M1|+1 647-478-6720|https://www.stgr.org/|43.745491|-79.348099
+https://directory.nihov.org/church/155|Jane St & Major Mackenzie Dr (Maple)|L6A 0A2|(905) 230-3057|-|-|-
+https://directory.nihov.org/church/156|6500 Main Street|L4A 5Z4|+1 905-508-1976|https://saintbishoy.ca/|43.973282|-79.239197
+https://directory.nihov.org/church/157|1125 Ottawa St|N8X 2E4|+1 519-252-7366|https://www.windsorcopts.com/|42.308571|-83.013947
+https://directory.nihov.org/church/580|5001 Ch. du Souvenir|H7W 1E1|+1 514-979-4293|https://www.amsm.ca/|45.536461|-73.774384
+https://directory.nihov.org/church/158|7395 Garnier Street|H2E 2A1|+1 514-274-1589|https://www.stmarkmontreal.ca/|45.54792|-73.611313
+https://directory.nihov.org/church/159|17400 Pierrefonds Boulevard|H9J 3V4|+1 514-626-6614|https://www.stgeorgestjoseph.ca/|45.465691|-73.879349
+https://directory.nihov.org/church/482|1 Avenue de l'Église|H9S 5J1|+1 514-803-5573|https://www.stpeterstpaul.ca/|45.446751|-73.780319
+https://directory.nihov.org/church/338|2160 Rue Marie-Victorin|G1T 1J4|+1 581-309-7712|https://vmcchurch.com/|46.777203|-71.260628
+https://directory.nihov.org/church/305|45 Boulevard Curé-Labelle|J7E 2X2|+1 450-508-1212|https://smpcvi.ca/|45.640137|-73.829987
+https://directory.nihov.org/church/160|6100 Grande Allée|J3Y 1B4|(450) 656-3680|http://www.virginmarymtl.org|-|-
+https://directory.nihov.org/church/718|120 3e Boulevard|J7V 5P2|-|https://stjohnbaptist.ca/|45.389885|-73.990303
+https://directory.nihov.org/church/644|390 Route 309|J0X 3C0|-|https://eccopts.ca/trinity-centre/|45.883396|-75.603676
+https://directory.nihov.org/church/577|1932 1 Ave N|S4R 8G6|+1 306-525-3303|https://stmarkstgeorgereginask.ca/|50.471069|-104.608826
+https://directory.nihov.org/church/540|1405 31 Street West|S7L 0R9|+1 306-974-0389|http://vmsmsaskatoonchurch.ca/|52.139923|-106.691765

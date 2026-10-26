@@ -16,8 +16,8 @@ def kind(n):
     return 'church'
 def slug(*p): return re.sub(r'[^a-z0-9]+','-',' '.join(p).lower()).strip('-')
 rows=[]
-def add(name,typ,street,city,state,diocese,verif,src,notes='',zip='',region='',phone='',website=''):
-    rows.append(dict(id='',name=name,type=typ,street=street,city=city,state=state,zip=zip,region=region,country='US',diocese=diocese,website=website,phone=phone,lat='',lng='',verification=verif,source_url=src,source_checked=TODAY,notes=notes))
+def add(name,typ,street,city,state,diocese,verif,src,notes='',zip='',region='',phone='',website='',country='US'):
+    rows.append(dict(id='',name=name,type=typ,street=street,city=city,state=state,zip=zip,region=region,country=country,diocese=diocese,website=website,phone=phone,lat='',lng='',verification=verif,source_url=src,source_checked=TODAY,notes=notes))
 for r in csv.DictReader(open('sources/wikipedia-list-2026-10-26.csv')):
     if r['diocese'].startswith('Los Angeles') and 'Monastery' not in r['name']: continue  # replaced by official LA list
     n=r['name']; notes=''
@@ -42,7 +42,8 @@ DIO={'NYNE':'New York & New England (Bishop David)','PA':'Pennsylvania, Delaware
 # Wikipedia rows that match a Nihov row become cross_checked; Wikipedia-only rows stay unverified.
 import glob
 STOP={'great','the','th','sixth','vi','christian','retreat','center','st','saint','sts','coptic','orthodox','church','american','the','and','of','cathedral','community','mission'}
-def toks(n): return frozenset(t for t in re.findall(r'[a-z]+',n.lower().replace('antonius','anthony').replace('antonious','anthony').replace('antony','anthony').replace('meena','mina').replace('mena','mina').replace('apanoub','abanoub').replace('rouis','reweis').replace('rueis','reweis').replace('kyrillos','kyrillos')) if t not in STOP)
+ALIAS={'cyrill':'kyrillos','cyril':'kyrillos','kyrollos':'kyrillos','kyrillos':'kyrillos','philopater':'philopateer','maximos':'maximus','mercorios':'mercurius','chapel':'church'}
+def toks(n): return frozenset(ALIAS.get(t,t) for t in re.findall(r'[a-z]+',n.lower().replace('antonius','anthony').replace('antonious','anthony').replace('antony','anthony').replace('meena','mina').replace('mena','mina').replace('apanoub','abanoub').replace('rouis','reweis').replace('rueis','reweis').replace('kyrillos','kyrillos')) if t not in STOP)
 SOUTH={'AL','AZ','AR','FL','GA','LA','MS','NM','OK','TN','TX'}
 nihov_states=set()
 DET={}
@@ -75,6 +76,31 @@ for f in sorted(glob.glob('sources/nihov/*.txt')):
             w['notes']=(w['notes']+'; ' if w['notes'] else '')+'Not in the Nihov directory; may have moved, merged or closed'
 for r in [*csv.DictReader(open('sources/neighbors-2026-10-26.csv')), *csv.DictReader(open('sources/midatlantic-2026-10-26.csv')), *csv.DictReader(open('sources/newengland-2026-10-26.csv')), *csv.DictReader(open('sources/carolinas-ky-2026-10-26.csv')), *csv.DictReader(open('sources/ohio-mi-in-2026-10-26.csv')), *csv.DictReader(open('sources/midwest-2026-10-26.csv'))]:
     add(r['name'],r['type'],r['street'],r['city'],r['state'],DIO[r['diocese']],r['verification'],r['source_url'],r['notes'],r['zip'],r['region'],r['phone'],r['website'])
+# Canada: Nihov directory list + page details; cross_checked when Wikipedia's Canada list has the same church in the same town.
+CA_DIO={'MVW':'Mississauga, Vancouver & Western Canada (Bishop Mina)','OME':'Ottawa, Montreal & Eastern Canada (Bishop Bishoy)','TOR':'Archdiocese of Toronto'}
+WEST={'AB','BC','MB','SK'}
+CA_SKIP={'https://directory.nihov.org/church/809':'duplicate of /801 (same Calgary church)','https://directory.nihov.org/church/646':'duplicate of /498 (same Kingston church)'}
+CA_NOTES={'https://directory.nihov.org/church/545':"Wikipedia also lists St. Mark & St. Demiana and 'The 7 Altars' in Mississauga; this church's website is 7altars.stmarkstdemiana.ca, so they are likely one campus",
+          'https://directory.nihov.org/church/155':'No street number listed; the directory gives the Jane St & Major Mackenzie Dr corner in Maple'}
+CDET={}
+for line in open('sources/nihov-canada/details-2026-10-26.txt', encoding='utf-8').read().splitlines()[1:]:
+    u,*v=line.split('|'); CDET[u]=['' if x=='-' else x for x in v]
+cwiki=[dict(zip(('name','city','state','dio'),l.split('|'))) for l in open('sources/wikipedia-canada-2026-10-26.txt', encoding='utf-8').read().splitlines() if l.strip()]
+for line in open('sources/nihov-canada/canada.txt', encoding='utf-8').read().splitlines():
+    name,city,prov,url=line.split('|')
+    if url in CA_SKIP: continue
+    t=toks(name)
+    m=[w for w in cwiki if w['state']==prov and w['city']==city and (toks(w['name'])==t or toks(w['name'])<=t or t<=toks(w['name']))]
+    if m: cwiki.remove(m[0])
+    dio=CA_DIO[m[0]['dio']] if m else (CA_DIO['MVW'] if prov in WEST else CA_DIO['OME'] if prov in ('QC','NB','NL','NS','PE') or city in ('Ottawa','Kanata','Navan','Kingston') else '')
+    street,zp,phone,web,lat,lng=CDET.get(url,['']*6)
+    add(name,kind(name),street,city,prov,dio,'cross_checked' if m else 'unverified',url,CA_NOTES.get(url,''),zp,'',phone,web,'Canada')
+    rows[-1]['lat'],rows[-1]['lng']=lat,lng
+for w in cwiki:  # in Wikipedia only
+    add(w['name'],kind(w['name']),'',w['city'],w['state'],CA_DIO[w['dio']],'unverified','https://en.wikipedia.org/wiki/List_of_Coptic_Orthodox_churches_in_Canada','Not in the Nihov directory',country='Canada')
+# Mexico: one church, listed by Nihov and Wikipedia
+add('St. Mary & St. Mark Coptic Orthodox Church (Iglesia de Santa María y San Marcos)','church','Colonia Paraíso del Sol','Tlayacapan','MOR','','cross_checked','https://directory.nihov.org/church/226','Wikipedia: first Coptic church in Mexico (2001); website listed there is copticmexico.org',website='http://www.copticmexico.org/',country='Mexico')
+rows[-1]['lat'],rows[-1]['lng']='18.947935','-98.978706'
 # Dawsonville convent (first found on copticorthodox.church) now comes from the Nihov GA list
 seen={}
 for r in rows:

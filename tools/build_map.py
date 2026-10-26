@@ -13,11 +13,11 @@ for r in rows: by_city[(r['state'], r['city'])].append(r)
 places = []
 FIELDS = ('id','name','type','street','city','state','zip','region','diocese','website','phone','verification','source_url','source_checked','notes')
 for key, group in by_city.items():
-    lat, lng = coords[key]
     loose = [r for r in group if not r['lat']]  # exact pins from the source need no jitter
     for r in group:
         if r['lat']:
             places.append({k: r[k] for k in FIELDS} | {'lat': float(r['lat']), 'lng': float(r['lng'])}); continue
+        lat, lng = coords[key]
         i = loose.index(r)
         # spread places that share a city in a small ring so each dot can be tapped
         if len(loose) > 1:
@@ -25,10 +25,11 @@ for key, group in by_city.items():
             plat, plng = lat + d * math.sin(a), lng + d * math.cos(a) / math.cos(math.radians(lat))
         else: plat, plng = lat, lng
         places.append({k: r[k] for k in FIELDS} | {'lat': round(plat, 4), 'lng': round(plng, 4)})
-done_states = ['CA','HI','TN','TX','FL','GA','AL','AR','LA','MS','OK','AZ','NM','CO','WA','OR','NV','UT','ID','NJ', 'NY', 'PA', 'DE', 'CT', 'MD', 'VA', 'WV', 'MA', 'RI', 'NH', 'VT', 'ME', 'NC', 'SC', 'KY', 'OH', 'MI', 'IN', 'IL', 'WI', 'MN', 'IA', 'MO', 'NE']
+done_states = ['AB','BC','MB','NB','NL','NS','ON','QC','SK','MOR','CA','HI','TN','TX','FL','GA','AL','AR','LA','MS','OK','AZ','NM','CO','WA','OR','NV','UT','ID','NJ', 'NY', 'PA', 'DE', 'CT', 'MD', 'VA', 'WV', 'MA', 'RI', 'NH', 'VT', 'ME', 'NC', 'SC', 'KY', 'OH', 'MI', 'IN', 'IL', 'WI', 'MN', 'IA', 'MO', 'NE']
 tpl = open(os.path.join(here, 'map_template.html')).read()
 out = (tpl.replace('/*PLACES*/[]', json.dumps(places, ensure_ascii=False))
           .replace('/*STATES*/{}', open(os.path.join(here, 'us-states-10m.json')).read())
+          .replace('/*NA*/{}', open(os.path.join(here, 'canada-mexico-50m.geojson')).read())
           .replace('/*DONE*/[]', json.dumps(done_states))
           .replace('{{UPDATED}}', max(r['source_checked'] for r in rows)))
 open(os.path.join(here, 'map.html'), 'w').write(out)

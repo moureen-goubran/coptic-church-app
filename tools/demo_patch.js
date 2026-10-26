@@ -26,7 +26,10 @@ const STATE_NAMES = {
   NM: ["New Mexico", "نيومكسيكو"], NY: ["New York", "نيويورك"], NC: ["North Carolina", "كارولاينا الشمالية"], ND: ["North Dakota", "داكوتا الشمالية"], OH: ["Ohio", "أوهايو"],
   OK: ["Oklahoma", "أوكلاهوما"], OR: ["Oregon", "أوريغون"], PA: ["Pennsylvania", "بنسلفانيا"], RI: ["Rhode Island", "رود آيلاند"], SC: ["South Carolina", "كارولاينا الجنوبية"],
   SD: ["South Dakota", "داكوتا الجنوبية"], TN: ["Tennessee", "تينيسي"], TX: ["Texas", "تكساس"], UT: ["Utah", "يوتا"], VT: ["Vermont", "فيرمونت"], VA: ["Virginia", "فيرجينيا"],
-  WA: ["Washington", "واشنطن"], WV: ["West Virginia", "فيرجينيا الغربية"], WI: ["Wisconsin", "ويسكونسن"], WY: ["Wyoming", "وايومنغ"], VI: ["US Virgin Islands", "جزر العذراء الأمريكية"]
+  WA: ["Washington", "واشنطن"], WV: ["West Virginia", "فيرجينيا الغربية"], WI: ["Wisconsin", "ويسكونسن"], WY: ["Wyoming", "وايومنغ"], VI: ["US Virgin Islands", "جزر العذراء الأمريكية"],
+  AB: ["Alberta, Canada", "ألبرتا، كندا"], BC: ["British Columbia, Canada", "كولومبيا البريطانية، كندا"], MB: ["Manitoba, Canada", "مانيتوبا، كندا"], NB: ["New Brunswick, Canada", "نيو برونزويك، كندا"],
+  NL: ["Newfoundland and Labrador, Canada", "نيوفاوندلاند ولابرادور، كندا"], NS: ["Nova Scotia, Canada", "نوفا سكوشا، كندا"], ON: ["Ontario, Canada", "أونتاريو، كندا"], QC: ["Québec, Canada", "كيبيك، كندا"],
+  SK: ["Saskatchewan, Canada", "ساسكاتشوان، كندا"], MOR: ["Morelos, Mexico", "موريلوس، المكسيك"]
 };
 const stateName = s => (STATE_NAMES[s] || [s, s])[lang === "ar" ? 1 : 0];
 const placeById = id => PLACES.find(p => p.id === id);
@@ -61,7 +64,8 @@ function renderPlaces(CQ, demoShown) {
   const list = CQ ? PLACES.filter(p => CQ(placeHay(p))) : PLACES;
   const by = {}; list.forEach(p => (by[p.s] = by[p.s] || []).push(p));
   Object.values(by).forEach(a => a.sort((x, y) => x.c.localeCompare(y.c) || x.n.localeCompare(y.n)));
-  const states = Object.keys(by).sort((a, b) => (a === "NJ" ? -1 : b === "NJ" ? 1 : stateName(a).localeCompare(stateName(b), loc())));
+  const CO_ORDER = { "": 0, Canada: 1, Mexico: 2 }, coOf = s => CO_ORDER[by[s][0].co || ""];
+  const states = Object.keys(by).sort((a, b) => (a === "NJ" ? -1 : b === "NJ" ? 1 : coOf(a) - coOf(b) || stateName(a).localeCompare(stateName(b), loc())));
   let h = "";
   if (!CQ && userLoc) {
     const near = [...PLACES].map(p => [p, placeMiles(p)]).sort((a, b) => a[1] - b[1]).slice(0, 6);
