@@ -122,7 +122,7 @@ export function PlaceSheet({ place: p, services, events, details: d, clergy, lin
 
         <div class="chips">
           <button class="linkbtn" type="button" aria-expanded={form === "report"} onClick={() => setForm(form === "report" ? null : "report")}><Icon name="flag" />{t.report}</button>
-          <button class="linkbtn" type="button" aria-expanded={form === "claim"} onClick={() => setForm(form === "claim" ? null : "claim")}>{t.claim}</button>
+          <button class="linkbtn claim" type="button" aria-expanded={form === "claim"} onClick={() => setForm(form === "claim" ? null : "claim")}>{t.claim}</button>
         </div>
         {form && <CorrectionForm key={form} placeId={p.id} t={t} lang={lang} claim={form === "claim"} />}
       </div>

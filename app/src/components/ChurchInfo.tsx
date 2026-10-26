@@ -145,7 +145,7 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
             <span class="chip plain">{t.verification[p.verification] ?? p.verification}</span>
             {p.last_verified && <span>{t.lastVerified} <span class="num">{fmtDate(p.last_verified, lang)}</span></span>}
           </div>
-          <button class="linkbtn" type="button" aria-expanded={form === "claim"} onClick={() => setForm(form === "claim" ? null : "claim")}>{t.claim}</button>
+          <button class="linkbtn claim" type="button" aria-expanded={form === "claim"} onClick={() => setForm(form === "claim" ? null : "claim")}>{t.claim}</button>
           {form === "claim" && <CorrectionForm placeId={p.id} t={t} lang={lang} claim />}
         </div>
       </details>

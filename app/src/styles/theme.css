@@ -3,7 +3,7 @@
 /* Layout: one column. Demo banner, header (brand + location, text size, language), feast strip, scrollable top tabs, five views. */
 :root {
   --bg: #f6efe3; --surface: #fffbf4; --fg: #2b1f1a; --muted: #6b5a4c; --line: #e6d9c3;
-  --lapis: #7a1f2b; --lapis-soft: #f3e2e0; --gold: #8a6414; --gold-soft: #f1e3c4;
+  --lapis: #7a1f2b; --lapis-soft: #f3e2e0; --gold: #8a6414; --gold-soft: #f1e3c4; --blue: #1f4e8c;
   --land: #f1e9da; --water: #c6d6e4; --park: #dbe5c9; --road: #fffbf4; --road-edge: #ddcfb6; --road-major: #f0d9a6; --road-major-edge: #d2b06a; --label: #4a3b30;
   --warn: #8a5a00; --warn-bg: #fff3d6; --ok: #1d6b3a;
   --ty-liturgy: #7a1f2b; --ty-liturgy-bg: #f3e2e0;
@@ -24,7 +24,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #1a1411; --surface: #241b17; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
-    --lapis: #e8a0a8; --lapis-soft: #3a1d22; --gold: #e2b45a; --gold-soft: #3a2f18;
+    --lapis: #e8a0a8; --lapis-soft: #3a1d22; --gold: #e2b45a; --gold-soft: #3a2f18; --blue: #9cc0f0;
     --land: #1b2133; --water: #12284a; --park: #1d3326; --road: #2c3550; --road-edge: #222a40; --road-major: #6b5a33; --road-major-edge: #4d4126; --label: #c9d1e6;
     --warn: #ffd27a; --warn-bg: #3b2e10; --ok: #7fd49c;
     --ty-liturgy: #cbaaf2; --ty-liturgy-bg: #2e2442; --ty-praise: #7fd6dd; --ty-praise-bg: #143236; --ty-bible: #f5b07a; --ty-bible-bg: #3a2414;
@@ -35,7 +35,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #1a1411; --surface: #241b17; --fg: #f2e9dc; --muted: #bfae9c; --line: #3a2e27;
-  --lapis: #e8a0a8; --lapis-soft: #3a1d22; --gold: #e2b45a; --gold-soft: #3a2f18;
+  --lapis: #e8a0a8; --lapis-soft: #3a1d22; --gold: #e2b45a; --gold-soft: #3a2f18; --blue: #9cc0f0;
   --land: #1b2133; --water: #12284a; --park: #1d3326; --road: #2c3550; --road-edge: #222a40; --road-major: #6b5a33; --road-major-edge: #4d4126; --label: #c9d1e6;
   --warn: #ffd27a; --warn-bg: #3b2e10; --ok: #7fd49c;
   --ty-liturgy: #cbaaf2; --ty-liturgy-bg: #2e2442; --ty-praise: #7fd6dd; --ty-praise-bg: #143236; --ty-bible: #f5b07a; --ty-bible-bg: #3a2414;
