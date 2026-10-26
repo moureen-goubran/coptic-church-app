@@ -6,7 +6,7 @@ Last updated: October 26, 2026
 
 1. **New Jersey**: North, then Central, then South Jersey. ✅ First pass done (30 places).
 2. **Neighboring states**: New York, Pennsylvania, Delaware, Connecticut. ✅ First pass done (51 places).
-3. ✅ Rest of the US: first pass done (367 places total). Next: street addresses for the South and West in one batch.
+3. ✅ Rest of the US: first pass done (355 places after merging duplicates). Street addresses for the South and West added Oct 26 from the Nihov directory; 102 places have exact map pins.
 4. Review progress together, then decide the rest of the US, then Canada and beyond.
 
 ## Status

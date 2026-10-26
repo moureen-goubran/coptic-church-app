@@ -1,0 +1,132 @@
+url|street|zip|phone|website|lat|lng
+https://directory.nihov.org/church/759|5988 Cane Ridge Rd|37013|+1 954-663-0569|https://www.stkyrillostn.org/|36.005524|-86.639328
+https://directory.nihov.org/church/529|-|36609|+1 251-661-0383|-|30.658701|-88.153534
+https://directory.nihov.org/church/293|19440 Lawson Rd|72210|501-766-9429|https://www.facebook.com/littlerockcopts/|-|-
+https://directory.nihov.org/church/783|-|-|+1 480-562-1619|-|-|-
+https://directory.nihov.org/church/788|5013 E Broadway Rd|85206|+1 480-809-0028|https://www.stjosephaz.org/|33.408115|-111.723251
+https://directory.nihov.org/church/292|10320 North 84th Avenue|85345|+1 623-486-2371|https://www.stmaryaz.org/|33.578686|-112.240166
+https://directory.nihov.org/church/779|13221 N 34th St.|85032|+1 623-335-2057|http://archangelphx.org/|33.606949|-112.008614
+https://directory.nihov.org/church/2|525 North 74th Street|85257|(480) 264-8738|http://www.suscopts.org/stmarkphoenix/|-|-
+https://directory.nihov.org/church/550|8530 East Calle Bogota|85715|-|-|-|-
+https://directory.nihov.org/church/6|395 West Rincon Avenue|95008|(408) 370-1124|https://stgeorgechurch.org|-|-
+https://directory.nihov.org/church/10|988 Oak Grove Road|94518|+1 925-673-3602|https://www.stmaryandstmina.church/|37.948009|-122.032898
+https://directory.nihov.org/church/14|2500 Hansen Road|94541|(510) 881-9372|https://www.antonius.org|-|-
+https://directory.nihov.org/church/18|698 Laine Street|93940|+1 831-375-7200|https://stmarkmonterey.org/|36.613739|-121.904266
+https://directory.nihov.org/church/25|4300 Mirador Drive|94566|(925) 247-8564|https://www.stmarystjohn.org/|-|-
+https://directory.nihov.org/church/331|401 Hudson Street|94062|(916) 628-3030|https://www.amsmcoptic.org/|-|-
+https://directory.nihov.org/church/386|315 Orange Avenue|95366|+1 209-599-3310|https://stmarkripon.org/|37.737293|-121.130081
+https://directory.nihov.org/church/27|200 Cirby Way|95678|916-834-9457|https://stmccs.org|-|-
+https://directory.nihov.org/church/36|4775 South Pearl Street|80113|(303) 761-6444|http://www.coloradocopticchurch.com/|-|-
+https://directory.nihov.org/church/638|1251 SW 15th Ave|33486|+1 954-707-3797|https://stlukefl.org/|26.339621|-80.115845
+https://directory.nihov.org/church/790|11107 Palmbrush Trail|34202|+1 813-528-2397|-|27.431793|-82.43148
+https://directory.nihov.org/church/38|2930 County Road 193|33759|+1 727-726-4317|https://stmarystmina.org/|27.988558|-82.716141
+https://directory.nihov.org/church/39|300 North Halifax Avenue|32118|(386) 257-1122|http://suscopts.org/stgeorgedaytona/|-|-
+https://directory.nihov.org/church/45|15450 Lyons Road|33446|+1 561-870-5004|https://www.stmarydelrayfl.org/|26.44725|-80.187012
+https://directory.nihov.org/church/761|-|34423|+1 727-488-5175|-|28.894691|-82.58754
+https://directory.nihov.org/church/40|19800 Allaire Lane|33908|(239) 273-5029|https://www.stmarkfortmyers.org/|-|-
+https://directory.nihov.org/church/721|2115 Holly Hill Fruit Rd|33837|+1 407-808-2113|-|28.181992|-81.637665
+https://directory.nihov.org/church/522|-|32541|+1 850-269-0484|-|30.389606|-86.48362
+https://directory.nihov.org/church/775|100 Bernard Road|32218|-|https://www.stcyriljaxcopts.org/|-|-
+https://directory.nihov.org/church/41|100 Bernard Road|32218|(386) 673-2223|-|-|-
+https://directory.nihov.org/church/771|17333 128th Trail N|33478|-|https://www.saintabraamfl.org/|26.93252|-80.237671
+https://directory.nihov.org/church/778|1197 Highland Ave N|33770|+1 727-455-8064|https://stshenoudachurchfl.org/|27.926907|-82.775574
+https://directory.nihov.org/church/853|2105 W Main St.|34748|-|https://www.stmosesthestrong.org/|28.812618|-81.897949
+https://directory.nihov.org/church/508|1185 N. Wymore Road|32751|+1 321-422-0944|https://www.stanthonyorlando.org/|28.639902|-81.386856
+https://directory.nihov.org/church/42|1653 Guava Street|32935|(321) 255-5894|-|-|-
+https://directory.nihov.org/church/43|7851 Riviera Blvd|33023|+1 954-520-2398|https://stjohnmiami.org/|25.9739|-80.243103
+https://directory.nihov.org/church/521|2014 SW 120 Terr.|32607|352-332-8660|-|-|-
+https://directory.nihov.org/church/507|6140 Perrine Ranch Road|34655|+1 727-688-6060|https://www.stverenafl.org/|28.194048|-82.712288
+https://directory.nihov.org/church/764|7509 Van Dyke Rd|33556|+1 319-371-9945|https://stmacariustampa.org/|28.129257|-82.566422
+https://directory.nihov.org/church/800|9274 Winter Garden Vineland Rd|32836|-|https://stmaryofegyptorlando.org/|28.431204|-81.533691
+https://directory.nihov.org/church/789|8849 Passaic Pkwy|32829|+1 313-671-0709|https://stpeterorlando.org/|28.472855|-81.261375
+https://directory.nihov.org/church/231|12700 Balcombe Road|32837|+1 407-497-3093|https://www.strebekahorlando.org/|28.377003|-81.401131
+https://directory.nihov.org/church/44|1980 North County Road 426|32765|+1 407-977-0375|https://www.stmaryorlando.org/|-|-
+https://directory.nihov.org/church/815|2261 Tampa Road|34683|-|https://spmcoc.org/|28.067862|-82.744469
+https://directory.nihov.org/church/797|-|-|-|-|30.158813|-85.66021
+https://directory.nihov.org/church/509|400 West Gadsden Street|32501|-|http://www.pensacolacopticchurch.com/|-|-
+https://directory.nihov.org/church/520|7270 SW 120th St. (temporary)|33156|+1 305-853-2622|-|25.659081|-80.311691
+https://directory.nihov.org/church/793|601 E Airport Blvd|32773|+1 713-205-6252|https://www.stathanasiusorlando.org/|28.769638|-81.272408
+https://directory.nihov.org/church/46|3924 Meadow Creek Ln|34233|+1 941-927-2522|https://www.stsimonthetanner.org/|27.288092|-82.487701
+https://directory.nihov.org/church/47|4279 Bradfordville Road|32309|(850) 671-4448|-|-|-
+https://directory.nihov.org/church/48|2135 West Busch Boulevard|33612|+1 813-857-5725|https://www.saintgeorgecopticchurch.org/|28.033531|-82.481506
+https://directory.nihov.org/church/519|4951 S. Washington Avenue|32780|321-567-4961|http://retreatcenter.suscopts.org/|-|-
+https://directory.nihov.org/church/794|-|32961|+1 321-917-5344|-|27.69006|-80.412682
+https://directory.nihov.org/church/481|27137 Foamflower Blvd.|33544|+1 407-970-5898|http://www.streweis.org/|28.242151|-82.36705
+https://directory.nihov.org/church/342|3045 Forest Hill Boulevard|33406|(561) 963-4830|http://www.suscopts.org/stpeterwpb/|-|-
+https://directory.nihov.org/church/572|330 Village Drive|30534|+1 678-842-3281|https://convent.suscopts.org/|34.451389|-84.110001
+https://directory.nihov.org/church/640|2600 Ancient Faith Way|30360|+1 920-543-3096|https://www.stmarkatl.church/|33.926044|-84.281273
+https://directory.nihov.org/church/528|2006 Tucker Road|31220|+1 732-713-5353|-|32.840015|-83.743652
+https://directory.nihov.org/church/288|634 Furys Ferry Road|30907|-|-|-|-
+https://directory.nihov.org/church/773|600 Peachtree Club Dr|30269|+1 404-667-2578|-|33.384701|-84.562149
+https://directory.nihov.org/church/49|11450 Houze Road|30076|(770) 642-9727|http://www.suscopticdiocese.org/stmaryatlanta|-|-
+https://directory.nihov.org/church/527|5803 ACL Blvd|31405|+1 912-201-1593|https://stapanoubchurch.org/|32.03521|-81.1483
+https://directory.nihov.org/church/233|655 Satellite Blvd|30024|+1 770-294-9964|https://www.stpaulatlanta.org/|34.025578|-84.066452
+https://directory.nihov.org/church/549|2844 S. Portside Avenue|83706|+1 208-345-4807|http://www.st-antonious.org/CopticChurch-Idaho/|43.576099|-116.15947
+https://directory.nihov.org/church/526|-|70508|+1 337-981-0944|-|30.154741|-92.037117
+https://directory.nihov.org/church/58|5333 Saint Bernard Avenue|70122|+1 504-282-2117|https://saintmarknola.org/|30.01152|-90.081612
+https://directory.nihov.org/church/290|9702 Baird Rd|71118|+1 318-797-3635|https://stbarbarashreveport.org/|32.391083|-93.802406
+https://directory.nihov.org/church/798|-|39404|-|-|31.323271|-89.347984
+https://directory.nihov.org/church/525|9680 Eagle Ranch Rd NW Suite #1|87114|505-710-3503|-|-|-
+https://directory.nihov.org/church/67|6170 W Cartier Avenue|89108|+1 702-427-5105|http://stmarycopticchurchlv.org/|36.207176|-115.228012
+https://directory.nihov.org/church/100|17015 South Memorial Drive|74008|(918) 481-5996|http://www.peterpaulcoc.org/|-|-
+https://directory.nihov.org/church/523|-|73505|+1 580-574-6649|-|34.631683|-98.506203
+https://directory.nihov.org/church/524|3916 S Highland Park Drive|73129|-|-|35.425545|-97.463188
+https://directory.nihov.org/church/101|1422 SE Tacoma St|97202|+1 541-207-2981|https://stantonious.org/|45.464046|-122.65155
+https://directory.nihov.org/church/762|2255 Hobson Pike|37013|+1 847-208-5861|https://www.stmacariustn.org/|36.061989|-86.595016
+https://directory.nihov.org/church/112|3183 Hamilton Church Road|37013|+1 615-835-3400|https://www.saintpishoy.org/|36.064129|-86.621239
+https://directory.nihov.org/church/780|1517 Madison Street|37040|+1 931-614-4318|-|36.518074|-87.324913
+https://directory.nihov.org/church/767|9577 Clovercroft Rd|37067|+1 423-225-7799|https://stbarbaratn.org/|35.925804|-86.719719
+https://directory.nihov.org/church/768|410 Brick Church Pike|37072|+1 615-462-1111|-|36.326633|-86.723091
+https://directory.nihov.org/church/763|5825 Fort Henry Drive|37663|+1 423-491-5886|https://stjohntn.org/|36.444725|-82.458549
+https://directory.nihov.org/church/289|1921 Sunny Lane|37912|865-582-3000|-|-|-
+https://directory.nihov.org/church/517|173 Cherokee Drive|37086|-|https://www.archangelmichaeltn.org/|36.012821|-86.590508
+https://directory.nihov.org/church/515|501 N. Mendenhall Road|38117|+1 901-761-2620|https://www.smsrchurch.org/|35.145115|-89.898415
+https://directory.nihov.org/church/774|1002 Woodridge Place|37122|+1 615-397-3839|https://www.stphilopateerchurch.org/|36.217358|-86.511681
+https://directory.nihov.org/church/799|1207 SE Broad St.|37130|+1 615-423-6358|https://www.stkarastn.org/|35.829624|-86.379868
+https://directory.nihov.org/church/786|475 John R Rice Blvd|37129|+1 629-207-1028|-|35.85408|-86.448341
+https://directory.nihov.org/church/518|2412 Foster Ave|37210|+1 615-522-2081|https://www.stgeorgecocnashville.org/|36.119377|-86.742783
+https://directory.nihov.org/church/777|2754 Anderson Rd|37217|+1 917-536-4845|https://stjosephcopticchurchnashville.org/|36.075222|-86.630455
+https://directory.nihov.org/church/114|1931 Old Murfreesboro Pike|37217|+1 615-845-5577|https://www.stmarktn.org/|36.09708|-86.655334
+https://directory.nihov.org/church/295|1943 Dabbs Ave|37217|(615) 668-8516|https://www.stmarynashville.org/|-|-
+https://directory.nihov.org/church/113|476 McMurray Drive|37211|+1 615-333-9280|https://stminatn.org/|36.05925|-86.723045
+https://directory.nihov.org/church/754|5240 Edmondson Pike|37211|-|https://stvnashville.org/|36.057751|-86.740784
+https://directory.nihov.org/church/516|10225 Lee Hwy|37363|+1 423-503-4197|https://www.stathanasiustn.org/|35.08289|-85.030106
+https://directory.nihov.org/church/769|851 Baker Road|37167|+1 615-482-6971|https://www.stjohnsmyrna.org/|35.931904|-86.51815
+https://directory.nihov.org/church/791|-|79107|+1 832-273-5388|-|35.237431|-101.809357
+https://directory.nihov.org/church/514|830 Eden Road|76001|+1 817-291-4144|https://stgeorgearlington.org/|32.633553|-97.118729
+https://directory.nihov.org/church/642|1717 Schumac Lane|76022|+1 469-300-1493|https://archangelmichaeldfw.org/|32.831112|-97.140205
+https://directory.nihov.org/church/115|424 Mulberry Lane|77401|+1 713-669-1532|https://saintmarkhouston.org/|29.71018|-95.448685
+https://directory.nihov.org/church/512|900 Holy Cross Dr|78613|+1 512-763-0112|https://holycrossaustin.church/|30.506437|-97.786049
+https://directory.nihov.org/church/511|14620 S Dowling Rd|77845|+1 979-575-5851|-|30.537071|-96.305305
+https://directory.nihov.org/church/116|1110 John McCain Road|76034|+1 817-822-4232|https://www.stmarydfw.org/|32.912441|-97.15065
+https://directory.nihov.org/church/513|-|78414|+1 361-992-0821|-|27.64743|-97.362457
+https://directory.nihov.org/church/782|18937 Kz Rd.|77433|+1 817-863-4505|https://www.ststephencypresstx.org/|30.024715|-95.718849
+https://directory.nihov.org/church/787|-|-|+1 520-423-7787|-|-|-
+https://directory.nihov.org/church/117|850 South Main Street|76040|+1 817-399-1693|https://www.stabanoub-dallas.org/|32.825611|-97.082443
+https://directory.nihov.org/church/795|11545 Alta Vista Rd.|76244|-|https://www.stmeenadfw.org/|32.941097|-97.28183
+https://directory.nihov.org/church/119|14220 Crescent Landing Drive|77062|+1 281-480-6464|https://archangelraphael.org/|29.580414|-95.154335
+https://directory.nihov.org/church/118|7030 Lakeview Haven Dr.|77084|+1 281-855-8817|https://www.saintmaryhouston.org/|29.880642|-95.648125
+https://directory.nihov.org/church/1|2529 Central Avenue South|35209|+1 205-870-3505|https://www.stjohnkame.net/|33.484676|-86.792824
+https://directory.nihov.org/church/120|1450 East Campbell Road|75081|+1 972-669-2050|https://stphilopateerdallas.org/|32.973137|-96.69854
+https://directory.nihov.org/church/121|153 W. Borgfeld Dr.|78260|+1 830-980-3433|https://stantonychurch.org/|29.708639|-98.493362
+https://directory.nihov.org/church/122|101 South Vista Drive|78383|+1 361-547-3257|https://abbey.suscopts.org/|28.105118|-97.91304
+https://directory.nihov.org/church/123|564 South 800 East|84015|+1 801-261-2450|https://stmarycopticslc.org/|41.105392|-112.011169
+https://directory.nihov.org/church/129|13216 NE 100th Street|98033|+1 425-803-0516|https://www.stgeorgeseattle.org/|47.689934|-122.164017
+https://directory.nihov.org/church/130|4110 204th Street SW|98036|+1 425-412-8520|https://www.stmaryseattle.org/|47.813168|-122.288101
+https://directory.nihov.org/church/131|12407 214th Ave E|98391|+1 253-224-5782|https://stmarkbonneylake.com/|47.143387|-122.143799
+https://directory.nihov.org/church/510|5402 Quaker Ave.|79413|+1 832-273-5388|https://www.stgeorgelubbock.org/|33.54491|-101.905357
+https://directory.nihov.org/church/568|101 South Vista Dr|78383|-|-|28.104839|-97.910301
+https://directory.nihov.org/church/755|5050 Highway 6 North|77084|+1 281-516-8415|http://stpaulhouston.org/|29.851473|-95.644753
+https://directory.nihov.org/church/760|1275 Corporate Crossings|75032|+1 972-396-0991|-|32.907578|-96.417664
+https://directory.nihov.org/church/765|18401 FM 1804|75771|-|-|32.534668|-95.412331
+https://directory.nihov.org/church/766|8251 W Bedford Euless Rd|76180|+1 404-884-9471|https://www.stpkvi-dfw.org/|-|-
+https://directory.nihov.org/church/772|-|76706|+1 901-237-6112|-|31.456041|-97.071358
+https://directory.nihov.org/church/776|205 S Church St|75078|+1 727-301-9208|http://www.stmarkdfw.org/|33.234688|-96.797798
+https://directory.nihov.org/church/781|-|79707|-|-|32.05558|-102.231903
+https://directory.nihov.org/church/784|24818 Saddlespur Lane|77494|+1 281-944-5639|https://www.saintgeorgekaty.org/|29.753796|-95.797379
+https://directory.nihov.org/church/785|2525 MacArthur Blvd|75067|+1 615-554-3303|https://www.stmarinadfw.org/|33.001934|-96.97718
+https://directory.nihov.org/church/792|2539 Zapalac Rd|77584|-|https://www.stjulittapearland.org/|29.561909|-95.344894
+https://directory.nihov.org/church/796|707 McCarty Rd|78216|+1 919-468-1732|https://stdemianasa.org/|29.527922|-98.503334
+https://directory.nihov.org/church/938|4502 Rucker Ave|98203|+1 425-299-2235|https://archangelscoc.org/|47.957989|-122.211288
+https://directory.nihov.org/church/941|21910 SR-9 SE|98072|+1 425-444-7844|https://www.smpkchurch.com/|47.798222|-122.144302
+https://directory.nihov.org/church/942|18820 36th Ave W|98036|+1 425-289-8152|https://www.spsdseattle.com/|47.827568|-122.28231

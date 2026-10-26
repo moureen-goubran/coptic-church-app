@@ -1,6 +1,6 @@
 """Builds the progress map page (map.html) from data/places.csv.
 Run from the project folder: python3 tools/build_map.py
-Dot positions are approximate (city center) until addresses are geocoded."""
+Dots use the source's exact pin when it has one, otherwise the city center."""
 import csv, json, math, os
 from collections import Counter, defaultdict
 here = os.path.dirname(os.path.abspath(__file__))
@@ -11,15 +11,20 @@ rows = list(csv.DictReader(open(os.path.join(root, 'data/places.csv'))))
 by_city = defaultdict(list)
 for r in rows: by_city[(r['state'], r['city'])].append(r)
 places = []
+FIELDS = ('id','name','type','street','city','state','zip','region','diocese','website','phone','verification','source_url','source_checked','notes')
 for key, group in by_city.items():
     lat, lng = coords[key]
-    for i, r in enumerate(group):
+    loose = [r for r in group if not r['lat']]  # exact pins from the source need no jitter
+    for r in group:
+        if r['lat']:
+            places.append({k: r[k] for k in FIELDS} | {'lat': float(r['lat']), 'lng': float(r['lng'])}); continue
+        i = loose.index(r)
         # spread places that share a city in a small ring so each dot can be tapped
-        if len(group) > 1:
-            a = 2 * math.pi * i / len(group); d = 0.012 + 0.003 * len(group)
+        if len(loose) > 1:
+            a = 2 * math.pi * i / len(loose); d = 0.012 + 0.003 * len(loose)
             plat, plng = lat + d * math.sin(a), lng + d * math.cos(a) / math.cos(math.radians(lat))
         else: plat, plng = lat, lng
-        places.append({k: r[k] for k in ('id','name','type','street','city','state','zip','region','diocese','website','phone','verification','source_url','source_checked','notes')} | {'lat': round(plat, 4), 'lng': round(plng, 4)})
+        places.append({k: r[k] for k in FIELDS} | {'lat': round(plat, 4), 'lng': round(plng, 4)})
 done_states = ['TN','TX','FL','GA','AL','AR','LA','MS','OK','AZ','NM','CO','WA','OR','NV','UT','ID','NJ', 'NY', 'PA', 'DE', 'CT', 'MD', 'VA', 'WV', 'MA', 'RI', 'NH', 'VT', 'ME', 'NC', 'SC', 'KY', 'OH', 'MI', 'IN', 'IL', 'WI', 'MN', 'IA', 'MO', 'NE']
 tpl = open(os.path.join(here, 'map_template.html')).read()
 out = (tpl.replace('/*PLACES*/[]', json.dumps(places, ensure_ascii=False))
