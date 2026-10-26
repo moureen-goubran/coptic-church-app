@@ -8,11 +8,12 @@ const read = name => parseCsv(readFileSync(new URL(name, DATA), "utf8"));
 export const TYPES = ["church", "mission", "community", "monastery", "convent", "retreat_center", "diocese_office", "seminary", "school"];
 export const KINDS = ["liturgy", "praise", "bible", "youth", "meeting", "classes", "servants"];
 export const EVENT_KINDS = [...KINDS, "retreat", "social"];
-export const LINK_KINDS = ["live", "facebook", "instagram", "youtube", "x", "tiktok", "donate", "calendar", "form", "clergy_page", "other"];
+export const LINK_KINDS = ["live", "facebook", "instagram", "youtube", "x", "tiktok", "donate", "calendar", "form", "clergy_page", "group", "app", "tour", "other"];
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 // Outside links must go to a known platform or the church's own website (safety-and-accounts.md).
-// Group chats (WhatsApp, GroupMe, Telegram) are left out on purpose: each needs a priest's written OK.
-const SAFE_HOSTS = ["facebook.com", "instagram.com", "youtube.com", "twitter.com", "x.com", "tiktok.com", "pushpay.com", "paypal.com",
+// Group chats are only allowed as kind "group", and each needs a priest's written OK (note it in the row's label or the PR).
+const GROUP_HOSTS = ["chat.whatsapp.com", "groupme.com"];
+const SAFE_HOSTS = ["apps.apple.com", "play.google.com", "vimeo.com", "facebook.com", "instagram.com", "youtube.com", "twitter.com", "x.com", "tiktok.com", "pushpay.com", "paypal.com",
   "calendar.google.com", "forms.gle", "docs.google.com", "ccbchurch.com", "givelify.com", "tithe.ly"];
 // Coptic Welcome links (help for newcomers) go only to sites an admin has looked at and added here.
 const RESOURCE_HOSTS = ["nj211.org", "ssa.gov", "aclu-nj.org", "hobokengirl.com", "needhelppayingbills.com", "studentaid.gov", "hesaa.org",
@@ -96,7 +97,9 @@ export function loadData() {
     if (!LINK_KINDS.includes(r.kind)) errors.push(`links row ${i + 2}: unknown kind ${r.kind}`);
     if (!/^https:\/\/\S+$/.test(r.url)) errors.push(`links row ${i + 2}: url must start with https://`);
     const h = hostOf(r.url), site = hostOf(places.find(p => p.id === r.place_id)?.website ?? "");
-    if (!SAFE_HOSTS.some(d => under(h, d)) && !(site && under(h, site))) errors.push(`links row ${i + 2}: ${h} isn't on the safe list (SAFE_HOSTS in app/scripts/load-data.mjs) or the church's own website`);
+    const group = GROUP_HOSTS.some(d => under(h, d));
+    if (group !== (r.kind === "group")) errors.push(`links row ${i + 2}: group chat links (${GROUP_HOSTS.join(", ")}) must have kind group, and nothing else can`);
+    else if (!group && !SAFE_HOSTS.some(d => under(h, d)) && !(site && under(h, site))) errors.push(`links row ${i + 2}: ${h} isn't on the safe list (SAFE_HOSTS in app/scripts/load-data.mjs) or the church's own website`);
     return { place_id: r.place_id, kind: r.kind, url: r.url, label_en: opt(r.label_en), label_ar: opt(r.label_ar), last_verified: opt(r.source_checked) };
   });
   // Coptic Welcome: help for newcomers. region is a state or province code, US (whole country) or ALL.
