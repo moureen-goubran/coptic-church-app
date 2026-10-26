@@ -11,7 +11,7 @@ const read = name => parseCsv(readFileSync(new URL(name, DATA), "utf8"));
 const LIVE = process.env.LIVE_URL || "https://coptic-church-app.moureenjgoubran.workers.dev/";
 const PLATFORMS = ["facebook.com", "instagram.com", "youtube.com", "twitter.com", "x.com", "tiktok.com", "pushpay.com", "paypal.com",
   "google.com", "forms.gle", "ccbchurch.com", "givelify.com", "tithe.ly", "apple.com"];
-const SPAM = /\b(casino|slot gacor|judi|togel|sportsbook|betting odds|porn|xxx|escort|viagra|cialis)\b|domain (is|may be) for sale|buy this domain|hugedomains|sedo\.com|dan\.com\/buy|parked free|domain parking/i;
+const SPAM = /\b(casino|slot gacor|judi|togel|sportsbook|betting odds|porn|xxx(?!-)|escort|viagra|cialis)\b|domain (is|may be) for sale|buy this domain|hugedomains|sedo\.com|dan\.com\/buy|parked free|domain parking/i;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36";
 const NEEDED_HEADERS = ["content-security-policy", "strict-transport-security", "x-content-type-options", "referrer-policy", "permissions-policy"];
 

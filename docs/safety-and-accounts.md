@@ -25,6 +25,7 @@ Children (some under 13) will use this app, so it's built to be safe by default.
 - **No tracking, no ads aimed at kids, and no third-party analytics that profile users.** Location is used on the device to find nearby churches and is never sent or stored.
 - **No direct messaging** between users.
 - **External links** (WhatsApp groups, social media) appear only if the church approves them. A link to a group chat lets a stranger join, so each one needs a priest's OK.
+- **Church websites are re-checked every week** (`.github/workflows/link-check.yml`). Old church domains expire and get bought by gambling or adult sites, or get hacked. The check opens every link and fails, which makes GitHub email the owner, if a page shows spam or the live site loses a security header. Remove a bad link from `data/places.csv` and add its domain to `BLOCKED_HOSTS` in `app/scripts/load-data.mjs`. The first check, on 2026-10-26, found two hijacked sites and five expired domains, and all seven links were removed.
 
 ## Industry best practice, and where we go further
 
