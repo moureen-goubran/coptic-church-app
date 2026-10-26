@@ -4,7 +4,7 @@ Last updated: October 26, 2026
 
 Everything here is on free plans. You never paste a password or key into a chat. Keys go only into the websites named below.
 
-Open a private note (Apple Notes or your password manager). Wherever a step says **save**, copy that value into the note. There is no Save button on the websites; just copy, paste into your note, and close the window.
+Open your password manager (for example Apple Passwords or 1Password). Wherever a step says **save**, copy that value into a new entry there. There is no Save button on the websites; just copy, paste into the entry, and close the window. Don't keep these in plain notes or email: once everything is set up, the GitHub and Cloudflare copies are all you need.
 
 ## 1. Supabase (the database)
 
