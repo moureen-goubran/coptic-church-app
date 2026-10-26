@@ -18,7 +18,7 @@ const SAFE_HOSTS = ["facebook.com", "instagram.com", "youtube.com", "twitter.com
 const RESOURCE_HOSTS = ["nj211.org", "ssa.gov", "aclu-nj.org", "hobokengirl.com", "needhelppayingbills.com", "studentaid.gov", "hesaa.org",
   "propertytaxreliefapp.nj.gov", "apps.apple.com"];
 // Old church domains that expired or now show spam (found by the weekly link check). Never link to them again.
-const BLOCKED_HOSTS = ["amsmcoptic.org", "stphilopater.ca", "smspvancouver.ca", "coloradocopticchurch.com", "pensacolacopticchurch.com", "saintanthonynj.org", "dp-sk.org"];
+const BLOCKED_HOSTS = ["amsmcoptic.org", "stphilopater.ca", "stmarystmercuriusphilly.org", "smspvancouver.ca", "coloradocopticchurch.com", "pensacolacopticchurch.com", "saintanthonynj.org", "dp-sk.org"];
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
 const under = (h, d) => h === d || h.endsWith("." + d);
 // Country is stored as a 2-letter ISO code (US, CA, MX). Full names are accepted and converted.
