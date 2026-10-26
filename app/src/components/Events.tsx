@@ -27,6 +27,9 @@ export function dayLabel(t: Strings, lang: Lang, day: string, end?: string | nul
   const one = (d: string) => (d === t0 ? t.today : d === addDays(t0, 1) ? t.tomorrow : fmt(d, lang, { weekday: "short", month: "short", day: "numeric" }));
   return end && end !== day ? `${fmt(day, lang, { month: "short", day: "numeric" })} – ${fmt(end, lang, { month: "short", day: "numeric" })}` : one(day);
 }
+// Words a search can match: titles and rooms in both languages, the church, its city, the type and the day.
+export const itemHay = (it: Item, p: Place | undefined, t: Strings) => norm([it.title_en, it.title_ar, it.room_en, it.room_ar, p?.name, p?.name_ar, p?.city,
+  t.kinds[it.kind] ?? "", it.weekly !== null ? t.days[it.weekly] : ""].filter(Boolean).join(" "));
 const timeRange = (it: Item, t: Strings, lang: Lang) => (it.start ? fmtTime(it.start, lang) + (it.end ? ` – ${fmtTime(it.end, lang)}` : "") : t.allDay);
 
 function whenText(it: Item, t: Strings, lang: Lang): string {
@@ -94,11 +97,10 @@ const Caret = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" s
 interface Props {
   t: Strings; lang: Lang; places: Map<string, Place>; services: Service[]; events: ChurchEvent[];
   saved: Set<string>; toggleSave: (k: string) => void; filters: EvFilters; setFilters: (f: EvFilters) => void;
-  distanceOf: (p: Place) => string | null; onOpen: (id: string) => void;
+  distanceOf: (p: Place) => string | null; onOpen: (id: string) => void; q: string; setQ: (q: string) => void;
 }
 
-export function EventsView({ t, lang, places, services, events, saved, toggleSave, filters: F, setFilters, distanceOf, onOpen }: Props) {
-  const [q, setQ] = useState("");
+export function EventsView({ t, lang, places, services, events, saved, toggleSave, filters: F, setFilters, distanceOf, onOpen, q, setQ }: Props) {
   const [grp, setGrpState] = useState<Grp>(() => store.get<Grp>("evGroup", "day"));
   const setGrp = (g: Grp) => { setGrpState(g); store.set("evGroup", g); };
   const [dd, setDd] = useState<DD | null>(null);
@@ -123,11 +125,7 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
   }, [services, events, places, lang]);
   const kinds = KIND_ORDER.filter(k => services.some(s => s.kind === k) || events.some(e => e.kind === k));
 
-  const hay = (it: Item) => {
-    const p = P(it.place_id);
-    return norm([it.title_en, it.title_ar, it.room_en, it.room_ar, p?.name, p?.name_ar, p?.city, (t.kinds[it.kind] ?? ""),
-      it.weekly !== null ? t.days[it.weekly] : ""].filter(Boolean).join(" "));
-  };
+  const hay = (it: Item) => itemHay(it, P(it.place_id), t);
   const toks = norm(q).split(" ").filter(Boolean);
   const ok = (it: Item) => (!F.churches.length || F.churches.includes(it.place_id)) && (!F.kinds.length || F.kinds.includes(it.kind))
     && (!toks.length || (h => toks.every(x => h.includes(x)))(hay(it)));
