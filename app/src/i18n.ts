@@ -10,7 +10,7 @@ const en = {
   search: "Search by name, city or state",
   results: (n: number) => `${n} ${n === 1 ? "place" : "places"}`,
   noneFound: "Nothing found. Try a city or state name.",
-  allStates: "All states",
+  allStates: "All states and provinces",
   allTypes: "All types",
   types: {
     church: "Church", mission: "Mission", community: "Community", monastery: "Monastery", convent: "Convent",
@@ -104,7 +104,7 @@ const ar: Strings = {
   search: "ابحث بالاسم أو المدينة أو الولاية",
   results: (n: number) => `${n.toLocaleString("ar-EG")} ${n === 1 ? "مكان" : n === 2 ? "مكانان" : n <= 10 ? "أماكن" : "مكانًا"}`,
   noneFound: "لم نجد شيئًا. جرّب اسم مدينة أو ولاية.",
-  allStates: "كل الولايات",
+  allStates: "كل الولايات والمقاطعات",
   allTypes: "كل الأنواع",
   types: {
     church: "كنيسة", mission: "خدمة", community: "جماعة", monastery: "دير رهبان", convent: "دير راهبات",

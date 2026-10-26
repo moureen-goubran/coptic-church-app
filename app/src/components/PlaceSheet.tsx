@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import type { Place, Service } from "../lib/types";
 import type { Lang, Strings } from "../i18n";
 import { fmtDate, fmtTime, nextService } from "../lib/time";
-import { stateName } from "../lib/search";
+import { regionLine } from "./bits";
 import { CorrectionForm } from "./CorrectionForm";
-import { placeName, cityName, addressLine, telHref, mapsLinks, Icon } from "./bits";
+import { placeName, addressLine, telHref, mapsLinks, Icon } from "./bits";
 
 interface Props { place: Place; services: Service[]; t: Strings; lang: Lang; distance: string | null; onClose: () => void }
 
@@ -40,7 +40,7 @@ export function PlaceSheet({ place: p, services, t, lang, distance, onClose }: P
         <h2 id="sheet-h">{placeName(p, lang)}</h2>
         <div class="chips">
           <span class="chip">{t.types[p.type] ?? p.type}</span>
-          <span class="chip plain">{cityName(p, lang)}, {lang === "ar" ? p.state : stateName(p.state)}</span>
+          <span class="chip plain">{regionLine(p, lang)}</span>
           {distance && <span class="chip gold num">{distance}</span>}
         </div>
 

@@ -16,13 +16,24 @@ const STATE_NAMES: Record<string, string> = {
   PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia",
   WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", PR: "Puerto Rico", VI: "U.S. Virgin Islands",
 };
-export const stateName = (code: string) => STATE_NAMES[code] ?? code;
+const PROVINCES: Record<string, string> = {
+  AB: "Alberta", BC: "British Columbia", MB: "Manitoba", NB: "New Brunswick", NL: "Newfoundland and Labrador", NS: "Nova Scotia",
+  NT: "Northwest Territories", NU: "Nunavut", ON: "Ontario", PE: "Prince Edward Island", QC: "Quebec", SK: "Saskatchewan", YT: "Yukon",
+};
+const MX_STATES: Record<string, string> = { MOR: "Morelos", CMX: "Mexico City", JAL: "Jalisco", NLE: "Nuevo León", MEX: "State of Mexico", BCN: "Baja California", QROO: "Quintana Roo" };
+const BY_COUNTRY: Record<string, Record<string, string>> = { US: STATE_NAMES, CA: PROVINCES, MX: MX_STATES };
+export const COUNTRY_NAMES: Record<string, { en: string; ar: string }> = {
+  US: { en: "United States", ar: "الولايات المتحدة" }, CA: { en: "Canada", ar: "كندا" }, MX: { en: "Mexico", ar: "المكسيك" },
+};
+export const stateName = (state: string, country = "US") => BY_COUNTRY[country]?.[state] ?? state;
+// Country order in lists: US first, then the rest alphabetically.
+export const countryRank = (c: string) => (c === "US" ? "0" : "1" + c);
 
 const hayCache = new WeakMap<Place, string>();
 function hay(p: Place): string {
   let h = hayCache.get(p);
   if (!h) {
-    h = " " + norm([p.name, p.name_ar, p.city, p.city_ar, p.state, stateName(p.state), p.zip, p.diocese].filter(Boolean).join(" ")) + " ";
+    h = " " + norm([p.name, p.name_ar, p.city, p.city_ar, p.state, stateName(p.state, p.country), COUNTRY_NAMES[p.country]?.en, COUNTRY_NAMES[p.country]?.ar, p.zip, p.diocese].filter(Boolean).join(" ")) + " ";
     hayCache.set(p, h);
   }
   return h;

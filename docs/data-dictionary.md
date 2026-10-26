@@ -8,7 +8,7 @@ One row per place. Blank means "not added yet". Never guess a value.
 | `name` | Official name as the source writes it. | Virgin Mary & St. John Coptic Orthodox Church |
 | `type` | `church`, `mission`, `community` (meets without its own building or priest), `monastery`, `convent`, `retreat_center`, `diocese_office`, `seminary` or `school` | `church` |
 | `street` | Street address | 4405 West Edinger Avenue |
-| `city`, `state`, `zip`, `country` | Location. `state` is the two-letter code. | Bayonne, NJ, 07002, US |
+| `city`, `state`, `zip`, `country` | Location. `state` is the state or province code (NJ, ON). `country` should be the 2-letter ISO code (US, CA, MX); full names like "Canada" are converted by the app build. | Bayonne, NJ, 07002, US |
 | `region` | Area within a state, used to work through the list in order. New Jersey: `North`, `Central`, `South` (by county). | North |
 | `diocese` | Diocese and bishop, as the source names them | Archdiocese of North America |
 | `website`, `phone` | Official church contact only. Never a priest's personal number. | |

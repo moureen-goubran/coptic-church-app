@@ -7,6 +7,8 @@ const read = name => parseCsv(readFileSync(new URL(name, DATA), "utf8"));
 
 export const TYPES = ["church", "mission", "community", "monastery", "convent", "retreat_center", "diocese_office", "seminary", "school"];
 export const KINDS = ["liturgy", "praise", "bible", "youth", "meeting", "classes", "servants"];
+// Country is stored as a 2-letter ISO code (US, CA, MX). Full names are accepted and converted.
+const COUNTRY = { "": "US", US: "US", USA: "US", "United States": "US", CA: "CA", Canada: "CA", MX: "MX", Mexico: "MX" };
 const num = v => (v === "" ? null : Number(v));
 const opt = v => (v === "" ? null : v);
 
@@ -16,6 +18,8 @@ export function loadData() {
   // Places without an exact pin yet get their city's center, marked approximate.
   const cityPin = new Map(read("sources/city-coords-approx.csv").map(r => [`${r.state}|${r.city}`, [Number(r.lat), Number(r.lng)]]));
   const places = read("places.csv").map(r => {
+    const country = COUNTRY[r.country];
+    if (!country) errors.push(`${r.id}: unknown country "${r.country}" (add it to COUNTRY in app/scripts/load-data.mjs)`);
     if (!TYPES.includes(r.type)) errors.push(`${r.id}: unknown type "${r.type}"`);
     let lat = num(r.lat), lng = num(r.lng), approx = false;
     if (lat === null) { const c = cityPin.get(`${r.state}|${r.city}`); if (c) { [lat, lng] = c; approx = true; } }
@@ -25,7 +29,7 @@ export function loadData() {
     return {
       id: r.id, name: r.name, name_ar: opt(t?.name_ar ?? ""), type: r.type,
       street: opt(r.street), city: r.city, city_ar: opt(t?.city_ar ?? ""), state: r.state, zip: opt(r.zip),
-      country: r.country || "US", diocese: opt(r.diocese), website: opt(r.website), phone: opt(r.phone),
+      country: country ?? r.country, diocese: opt(r.diocese), website: opt(r.website), phone: opt(r.phone),
       lat, lng, location_approx: approx, verification: r.verification, last_verified: opt(r.source_checked),
     };
   });

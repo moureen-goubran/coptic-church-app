@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { STRINGS, type Lang } from "./i18n";
 import type { Dataset, Place } from "./lib/types";
 import { loadBuiltIn, loadLive } from "./lib/data";
-import { matches, stateName } from "./lib/search";
+import { matches, stateName, countryRank, COUNTRY_NAMES } from "./lib/search";
 import { milesBetween } from "./lib/geo";
 import { fmtDate } from "./lib/time";
 import { store } from "./lib/store";
 import { MapView } from "./components/MapView";
 import { PlaceSheet } from "./components/PlaceSheet";
 import { CorrectionForm } from "./components/CorrectionForm";
-import { Icon, Logo, placeName, cityName } from "./components/bits";
+import { Icon, Logo, placeName, regionLine } from "./components/bits";
 
 type Tab = "churches" | "about";
 const SIZES = [0.875, 0.9375, 1.0625, 1.1875, 1.3125];
@@ -62,7 +62,13 @@ export function App() {
   }, []);
   useEffect(() => setShown(PAGE), [q, stateF, typeF, userLoc]);
 
-  const states = useMemo(() => [...new Set(data?.places.map(p => p.state))].sort((a, b) => stateName(a).localeCompare(stateName(b))), [data]);
+  // Filter options grouped by country: [country, [state codes]].
+  const regions = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const p of data?.places ?? []) { if (!m.has(p.country)) m.set(p.country, new Set()); m.get(p.country)!.add(p.state); }
+    return [...m].sort((a, b) => countryRank(a[0]).localeCompare(countryRank(b[0])))
+      .map(([c, set]) => [c, [...set].sort((a, b) => stateName(a, c).localeCompare(stateName(b, c)))] as const);
+  }, [data]);
   const types = useMemo(() => [...new Set(data?.places.map(p => p.type))], [data]);
   const servicesBy = useMemo(() => {
     const m = new Map<string, Dataset["services"]>();
@@ -72,9 +78,9 @@ export function App() {
   const dist = (p: Place) => (userLoc && p.lat !== null && p.lng !== null ? milesBetween(userLoc, [p.lat, p.lng]) : null);
 
   const results = useMemo(() => {
-    const list = (data?.places ?? []).filter(p => (!stateF || p.state === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q)));
+    const list = (data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q)));
     if (userLoc) return list.map(p => [p, dist(p) ?? Infinity] as const).sort((a, b) => a[1] - b[1]).map(x => x[0]);
-    return list.sort((a, b) => stateName(a.state).localeCompare(stateName(b.state)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
+    return list.sort((a, b) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
   }, [data, q, stateF, typeF, userLoc]);
 
   const go = (hash: string) => { if (location.hash !== hash) location.hash = hash; };
@@ -140,7 +146,11 @@ export function App() {
         <div class="filters">
           <select value={stateF} onChange={e => setStateF((e.target as HTMLSelectElement).value)} aria-label={t.allStates}>
             <option value="">{t.allStates}</option>
-            {states.map(s => <option value={s} key={s}>{stateName(s)}</option>)}
+            {regions.map(([c, list]) => (
+              <optgroup label={COUNTRY_NAMES[c]?.[lang] ?? c} key={c}>
+                {list.map(s => <option value={`${c}-${s}`} key={s}>{stateName(s, c)}</option>)}
+              </optgroup>
+            ))}
           </select>
           <select value={typeF} onChange={e => setTypeF((e.target as HTMLSelectElement).value)} aria-label={t.allTypes}>
             <option value="">{t.allTypes}</option>
@@ -158,7 +168,7 @@ export function App() {
               <button type="button" class="card pcard" key={p.id} onClick={() => openPlace(p.id)} data-kind={p.type}>
                 <span class="pmain">
                   <b class="pname">{placeName(p, lang)}</b>
-                  <span class="muted small">{cityName(p, lang)}, {lang === "ar" ? p.state : stateName(p.state)}{p.type !== "church" && <> · {t.types[p.type]}</>}</span>
+                  <span class="muted small">{regionLine(p, lang)}{p.type !== "church" && <> · {t.types[p.type]}</>}</span>
                 </span>
                 <span class="pside">
                   {mi && <span class="chip gold num">{mi}</span>}

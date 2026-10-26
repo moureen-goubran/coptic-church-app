@@ -1,9 +1,13 @@
 import type { Place } from "../lib/types";
 import type { Lang } from "../i18n";
+import { stateName, COUNTRY_NAMES } from "../lib/search";
 
 export const placeName = (p: Place, lang: Lang) => (lang === "ar" && p.name_ar) || p.name;
 export const cityName = (p: Place, lang: Lang) => (lang === "ar" && p.city_ar) || p.city;
-export const addressLine = (p: Place) => [p.street, p.city, [p.state, p.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+// "Jersey City, New Jersey", or "Calgary, Alberta, Canada" outside the US.
+export const regionLine = (p: Place, lang: Lang) =>
+  [cityName(p, lang), lang === "ar" ? p.state : stateName(p.state, p.country), p.country !== "US" ? COUNTRY_NAMES[p.country]?.[lang] ?? p.country : null].filter(Boolean).join(lang === "ar" ? "، " : ", ");
+export const addressLine = (p: Place) => [p.street, p.city, [p.state, p.zip].filter(Boolean).join(" "), p.country !== "US" ? COUNTRY_NAMES[p.country]?.en ?? p.country : null].filter(Boolean).join(", ");
 export const telHref = (phone: string) => "tel:" + phone.replace(/[^\d+]/g, "");
 
 export function mapsLinks(p: Place) {

@@ -14,7 +14,8 @@ interface Props {
 }
 
 const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-const US_BOUNDS: [[number, number], [number, number]] = [[-125, 24], [-66.5, 49.5]];
+// First view: the US, Canada and Mexico places.
+const START_BOUNDS: [[number, number], [number, number]] = [[-125, 18], [-55, 54]];
 
 // Recolor the free OpenStreetMap style to the app's palette, so the map matches the theme.
 function paintToTheme(map: MLMap) {
@@ -82,7 +83,7 @@ export function MapView({ places, selectedId, userLoc, onSelect, t, theme }: Pro
         ml.setWorkerUrl(worker.default); // served from our own site, so the security rules allow it
         if (cancelled || !box.current) return;
         const map = new ml.Map({
-          container: box.current, style: MAP_STYLE as string | StyleSpecification, bounds: US_BOUNDS,
+          container: box.current, style: MAP_STYLE as string | StyleSpecification, bounds: START_BOUNDS,
           attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, cooperativeGestures: false,
         });
         map.touchZoomRotate.disableRotation();
