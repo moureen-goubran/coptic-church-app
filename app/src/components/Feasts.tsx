@@ -85,7 +85,7 @@ export function FeastStrip({ t, lang }: P) {
             <button class="icobtn" type="button" aria-label={t.closeCal} onClick={() => setCal(false)}><Arrow d={CLOSE} /></button></span>
         </header>
         <MonthGrid t={t} lang={lang} month={month} feasts={feasts} selected={f.date} onPick={d => { setI(feasts.findIndex(x => x.date === d)); setCal(false); }} />
-        <div class="legend"><span><i style="background:var(--gold)" />{t.legFeast}</span><span><i style="background:var(--lapis-soft)" />{t.legFast}</span><span><i style="border:2px solid var(--lapis)" />{t.legToday}</span></div>
+        <div class="legend"><span><i style="background:var(--gold)" />{t.legFeast}</span><span><i style="background:var(--maroon-soft)" />{t.legFast}</span><span><i style="border:2px solid var(--maroon)" />{t.legToday}</span></div>
         <p class="calnote">{t.calNote}</p>
       </div>}
     </div>
@@ -158,7 +158,7 @@ export function Synaxarium({ t, lang, inHero }: P & { inHero?: boolean }) {
           <button class="icobtn flip" type="button" aria-label={t.nextMonth} onClick={() => setMonth(addMonth(month, 1))}><Arrow d={NEXT} /></button>
         </header>
         <MonthGrid t={t} lang={lang} month={month} feasts={feasts} selected={day} coptic onPick={d => { setDay(d); setCal(false); }} />
-        <div class="legend"><span><i style="background:var(--lapis)" />{t.legComm}</span><span><i style="background:var(--gold)" />{t.legFeast}</span></div>
+        <div class="legend"><span><i style="background:var(--maroon)" />{t.legComm}</span><span><i style="background:var(--gold)" />{t.legFeast}</span></div>
       </div>}
     </div>
   );
