@@ -220,7 +220,7 @@ export function App() {
       </nav>
 
       {route.tab === "today" && <TodayView t={t} lang={lang} places={placesById} services={data?.services ?? []} events={data?.events ?? []} saved={saved} toggleSave={toggleSave}
-        nearest={nearest} distanceOf={fmtMi} onOpen={openPlace} onLocate={findMe} />}
+        nearest={nearest} distanceOf={fmtMi} milesOf={dist} onOpen={openPlace} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
         <MapView places={data?.places ?? []} matchIds={matchIds} fitKey={filtering ? `${q}|${stateF}|${typeF}` : ""} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
