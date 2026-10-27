@@ -142,6 +142,8 @@ html[dir="rtl"] .flip svg { transform: scaleX(-1); }
 .cbanner img { display: block; max-width: 100%; width: auto; object-fit: contain; }
 .clogo-tile { flex: none; height: 64px; box-sizing: border-box; padding: 6px; border-radius: 12px; background: var(--logo-bg, #faf8f4); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
 .clogo-tile img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+.cbanner.fill, .clogo-tile.fill { padding: 0; overflow: hidden; }
+.cbanner.fill img, .clogo-tile.fill img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; object-position: top; }
 .cname { display: flex; gap: 12px; align-items: center; }
 .social { display: flex; flex-wrap: wrap; gap: 6px; }
 .social a { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); text-decoration: none; font-size: .84rem; }
@@ -210,6 +212,8 @@ html[lang="ar"] .nextcard .lbl { letter-spacing: 0; }
 /* Logos: wide banners get a white strip on top, near-square emblems a white tile beside the name (see ChurchLogo). */
 .ccard .cbanner { margin: -14px -16px 0; padding: 10px 16px; height: 76px; border-radius: 13px 13px 0 0; }
 .ccard .cbanner img { max-width: 88%; }
+.ccard .cbanner.fill { padding: 0; }
+.ccard .cbanner.fill img { max-width: none; }
 .ccard .next { box-sizing: border-box; background: var(--next-bg); }
 .ccard .next small { color: var(--gold); }
 .ccard .next:hover { background: var(--gold-soft); }

@@ -205,6 +205,10 @@ form.f .issues label { display: flex; flex-direction: row; text-align: start; al
 /* details sheet */
 .sheet-bg { position: fixed; inset: 0; z-index: 60; background: rgba(10,15,30,.45); display: flex; align-items: flex-end; justify-content: center; }
 .sheet { position: relative; width: min(560px, 100%); max-height: 88vh; max-height: 88dvh; overflow-y: auto; background: var(--surface); color: var(--fg); border-radius: 18px 18px 0 0; padding: 18px 18px calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -10px 40px rgba(0,0,0,.2); }
+/* The sheet takes focus when it opens (for screen readers); it needs no outline of its own. */
+.sheet:focus { outline: none; }
+/* Wide screens: a centred box rather than a sheet stuck to the bottom edge. */
+@media (min-width: 700px) and (min-height: 500px) { .sheet-bg { align-items: center; padding: 24px; } .sheet { border-radius: 18px; padding-bottom: 22px; max-height: 85vh; box-shadow: 0 10px 40px rgba(0,0,0,.25); } }
 .sheet h2 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; line-height: 1.25; padding-inline-end: 40px; }
 /* The close button stays pinned while the sheet scrolls, above the logo banner. */
 .sheet .x { position: sticky; top: 0; z-index: 2; align-self: flex-end; flex: none; margin-block: -6px -50px; margin-inline-end: -6px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; place-items: center; }
