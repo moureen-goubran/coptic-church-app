@@ -328,3 +328,27 @@ details.acc > .accbody { padding: 0 16px 16px; display: flex; flex-direction: co
 form.f input:not([type="checkbox"]):not([type="radio"]) { width: 100%; box-sizing: border-box; min-height: 44px; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
 form.f .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 form.f .two > span { display: flex; flex-direction: column; gap: 8px; }
+/* "Suggest an event" church picker: the filter dropdown look, one choice, full width. */
+form.f .pick .ddb { width: 100%; min-height: 44px; justify-content: space-between; text-align: start; box-shadow: none; background: var(--bg); }
+form.f .pick .ddb.on { background: var(--bg); color: var(--fg); border-color: var(--line); font-weight: 400; }
+form.f .pick .ddb span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+form.f .pick .ddp { width: 100%; z-index: 5; }
+form.f .pick .opt { width: 100%; min-height: 44px; border: 0; background: none; font: inherit; color: var(--fg); text-align: start; }
+form.f .pick .opt[aria-selected="true"] { background: var(--maroon-soft); color: var(--maroon); font-weight: 600; }
+form.f .pick .opt.add { color: var(--maroon); font-weight: 600; border-bottom: 1px solid var(--line); border-radius: 8px 8px 0 0; }
+form.f .newchurch { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-inline-start: 3px solid var(--accent-line); background: var(--bg); border-radius: 10px; }
+form.f .newchurch input:not([type="checkbox"]):not([type="radio"]) { background: var(--surface); }
+form.f select { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+/* Phones: the name and tagline get the full first line (instead of four short wrapped lines), the buttons sit below on the end side. */
+@media (max-width: 480px) {
+  header.top { row-gap: 6px; }
+  header.top .brand { flex: 1 1 100%; }
+  header.top .brand h1 { white-space: nowrap; }
+  header.top .topctl > :first-child { margin-inline-start: auto; }
+  header.top .ctlbtn { height: 44px; min-width: 44px; }
+  /* More tabs off to the side: fade the edge so it's clear the row scrolls. */
+  nav.tabs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); padding-inline-end: 24px; }
+  html[dir="rtl"] nav.tabs { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+  .filters select { max-width: none; }
+}
+form.f .pick .opt small { white-space: nowrap; }

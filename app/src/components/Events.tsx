@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import type { Lang, Strings } from "../i18n";
 import type { ChurchEvent, Place, Service } from "../lib/types";
-import { type Item, alsoOffered, fromService, nextDateFor, onDate, specialDates } from "../lib/events";
+import { type Item, KIND_ORDER, alsoOffered, fromService, nextDateFor, onDate, specialDates } from "../lib/events";
 import { addDays, iso, parseIso } from "../lib/coptic";
 import { downloadIcs, googleCalUrl, type CalEntry } from "../lib/cal";
 import { fmtTime } from "../lib/time";
@@ -10,11 +10,11 @@ import { store } from "../lib/store";
 import { Icon, SortBy, addressLine, churchColor, placeName, shortName } from "./bits";
 import { seasonLine } from "./Feasts";
 import { CorrectionForm } from "./CorrectionForm";
+export { KIND_ORDER };
 
 // terms: searches kept as filter bubbles (Enter in the search box); an item shows if it matches any of them.
 export type EvFilters = { churches: string[]; kinds: string[]; days: number[]; date: string; terms: string[] };
 export const NO_FILTERS: EvFilters = { churches: [], kinds: [], days: [], date: "", terms: [] };
-export const KIND_ORDER = ["liturgy", "praise", "bible", "youth", "meeting", "classes", "servants", "retreat", "social"];
 type Grp = "day" | "church" | "type";
 type DD = "churches" | "kinds" | "days" | "date";
 
