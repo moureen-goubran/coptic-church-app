@@ -12,12 +12,12 @@ interface Props {
   t: Strings; lang: Lang; places: Map<string, Place>; services: Service[]; events: ChurchEvent[];
   saved: Set<string>; toggleSave: (k: string) => void;
   nearest: Place[] | null; // places with services, closest first (when location is on)
-  distanceOf: (p: Place) => string | null;
+  distanceOf: (p: Place) => string | null; milesOf: (p: Place) => number | null;
   onOpen: (id: string) => void; onLocate: () => void;
 }
 
 
-export function TodayView({ t, lang, places, services, events, saved, toggleSave, nearest, distanceOf, onOpen, onLocate }: Props) {
+export function TodayView({ t, lang, places, services, events, saved, toggleSave, nearest, distanceOf, milesOf, onOpen, onLocate }: Props) {
   const now = new Date(), t0 = iso(now);
   const when = (it: Item) => dayLabel(t, lang, it.date!, it.end_date);
   const time = (it: Item) => (it.start ? fmtTime(it.start, lang) : t.allDay);
@@ -40,6 +40,8 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
   const mine = [...services.filter(s => saved.has(fromService(s, "").key)).map(s => fromService(s, nextDateFor(s.day, s.start, now))),
     ...specialDates(events, now).filter(it => saved.has(it.key))].sort(byWhen(t0));
   const comingIds = nearest?.length ? new Set(nearest.slice(0, 5).map(x => x.id)) : null;
+  // Schedules are only filled in for some churches so far: say so when the closest one with times is far away.
+  const farOnly = Boolean(nearest?.length && (milesOf(nearest[0]) ?? 0) > 30);
   const coming = all.filter(it => !comingIds || comingIds.has(it.place_id)).slice(0, 6);
   const churches = [...places.values()];
 
@@ -48,7 +50,7 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
     return (
       <button type="button" class="mrow" key={it.key + it.date} onClick={() => onOpen(it.place_id)}>
         <span class="w"><b>{when(it)}</b><span class="num">{time(it)}</span></span>
-        <span><span class="t">{itemTitle(it, lang)}</span><span class="s">{pl ? shortName(pl, lang) : ""}</span></span>
+        <span><span class="t">{itemTitle(it, lang)}</span><span class="s">{pl ? [shortName(pl, lang), nearest && distanceOf(pl)].filter(Boolean).join(" · ") : ""}</span></span>
         <svg class="chev flip" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16"><path d="m6 3 5 5-5 5" /></svg>
       </button>
     );
@@ -89,7 +91,8 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
       </div>}
 
       {coming.length > 0 && <>
-        <div class="sec-h"><h2>{t.comingUp}</h2><a class="linkbtn" href="#/events">{t.seeAllEvents}</a></div>
+        <div class="sec-h"><h2>{nearest?.length ? t.comingUpNear : t.comingUp}</h2><a class="linkbtn" href="#/events">{t.seeAllEvents}</a></div>
+        {farOnly && <p class="muted small">{t.noSchedulesNear}</p>}
         <div class="mini">{coming.map(row)}</div>
       </>}
 
