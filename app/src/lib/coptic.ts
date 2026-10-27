@@ -62,6 +62,8 @@ const N = {
   transfiguration: { en: "Transfiguration", ar: "عيد التجلي" },
   mary: { en: "Feast of St. Mary (Assumption)", ar: "عيد صعود جسد السيدة العذراء" },
   nativityFast: { en: "Nativity Fast begins", ar: "بداية صوم الميلاد" },
+  nayrouz: { en: "Nayrouz (Coptic New Year)", ar: "عيد النيروز (رأس السنة القبطية)" },
+  cross: { en: "Feast of the Cross", ar: "عيد الصليب" },
 } satisfies Record<string, Bi>;
 
 const keyOf = (name: Bi) => (Object.keys(N) as (keyof typeof N)[]).find(k => N[k] === name)!;
@@ -140,6 +142,12 @@ export const ABOUT: Record<AboutKey, About> = {
   nativityFast: { src: "https://st-takla.org/Feastes-&-Special-Events/Coptic-Nativity-of-Jesus-Christ-Milad-El-Masih/Coptic-Jesus-Incarnation-Christmas-00-index.html",
     en: "43 days of fasting to get ready for Christmas: 40 days, like Moses before he received God's Law, plus 3 days that remember the miracle of moving the Muqattam Mountain in Cairo.",
     ar: "43 يومًا صوم استعدادًا لعيد الميلاد: أربعون يومًا مثل صوم موسى قبل أن يستلم الشريعة، وثلاثة أيام تذكارًا لمعجزة نقل جبل المقطم في القاهرة." },
+  nayrouz: { src: "https://st-takla.org/Feastes-&-Special-Events/Nayrouz-Coptic-New-Year-Eid-El-Nairouz/Coptic-Year-Eid-Al-Nayroz-or-Nairoz-or-Nairuz_01-The-Feast-of-Nairouz.html",
+    en: "The Coptic New Year, on 1 Tout. The Church remembers the many martyrs who gave their lives for Christ, which is why Coptic years are counted as the Years of the Martyrs.",
+    ar: "رأس السنة القبطية في أول توت. تتذكر الكنيسة الشهداء الكثيرين الذين بذلوا حياتهم من أجل المسيح، ولهذا تُحسب السنوات القبطية بتقويم الشهداء." },
+  cross: { src: SX + "01-toot/17-tout.html",
+    en: "St. Helena, the mother of Emperor Constantine, found the Cross of Jesus in Jerusalem and built a church there. We celebrate on 10 Baramhat (March), when it was found, and on 17 Tout (September), when the church was consecrated, with a procession like Palm Sunday.",
+    ar: "وجدت الملكة هيلانة، أم الإمبراطور قسطنطين، صليب يسوع في أورشليم وبنت هناك كنيسة. نحتفل في 10 برمهات (مارس) يوم ظهوره، وفي 17 توت (سبتمبر) يوم تدشين الكنيسة، بدورة مثل أحد الشعانين." },
   wedFri: { src: "https://www.suscopts.org/mightyarrows/vol1_no3/fasting.html",
     en: "Since the time of the apostles, the Church fasts on Wednesdays, the day Judas agreed to betray Jesus, and on Fridays, the day Jesus was crucified. There is no fasting in the 50 days after Easter.",
     ar: "منذ أيام الرسل تصوم الكنيسة يوم الأربعاء الذي اتفق فيه يهوذا على تسليم يسوع، ويوم الجمعة الذي صُلب فيه. ولا صوم في الخمسين يومًا بعد القيامة." },
@@ -183,6 +191,9 @@ export function feastsFor(y: number): Feast[] {
     F(`${y}-08-07`, "fast", N.maryFast),
     F(fromCoptic(y, 12, 13), "minor", N.transfiguration),
     F(`${y}-08-22`, "other", N.mary),
+    F(fromCoptic(y, 7, 10), "other", N.cross), // Finding of the Cross; kept again on 17 Tout.
+    F(fromCoptic(y, 1, 1), "other", N.nayrouz),
+    F(fromCoptic(y, 1, 17), "other", N.cross),
     F(`${y}-11-25`, "fast", N.nativityFast), // 43 days, always ending the day before Nativity.
   ].sort((a, b) => a.date.localeCompare(b.date));
 }
