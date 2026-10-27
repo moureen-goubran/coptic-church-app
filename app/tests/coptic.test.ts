@@ -19,8 +19,16 @@ describe("coptic calendar", () => {
   });
 
   it("matches the published feast dates for 2026 and 2027", () => {
-    const got = [...feastsFor(2026), ...feastsFor(2027)].filter(f => f.date <= "2027-08-31").map(f => [f.date, f.kind, f.name.en]);
+    const got = [...feastsFor(2026), ...feastsFor(2027)].filter(f => f.date <= "2027-08-31" && f.key !== "cross" && f.key !== "nayrouz").map(f => [f.date, f.kind, f.name.en]);
     expect(got).toEqual(DEMO_FEASTS);
+  });
+
+  it("adds Nayrouz and both Feasts of the Cross (10 Baramhat and 17 Tout)", () => {
+    const d = (y: number, k: string) => feastsFor(y).filter(f => f.key === k).map(f => f.date);
+    expect(d(2026, "nayrouz")).toEqual(["2026-09-11"]);
+    expect(d(2027, "nayrouz")).toEqual(["2027-09-12"]);
+    expect(d(2026, "cross")).toEqual(["2026-03-19", "2026-09-27"]);
+    expect(d(2027, "cross")).toEqual(["2027-03-19", "2027-09-28"]);
   });
 
   it("moves fixed feasts a day after a Coptic leap year, but keeps Nativity on January 7", () => {
@@ -56,7 +64,7 @@ describe("feast background", () => {
   it("every feast and fast has English, Arabic and a trusted https source", async () => {
     const { ABOUT, fastAbout, fastsFor } = await import("../src/lib/coptic");
     const items = [...feastsFor(2026).map(f => ABOUT[f.key]), ...fastsFor(2026).map(f => fastAbout(f.key))];
-    expect(items).toHaveLength(26);
+    expect(items).toHaveLength(29);
     items.push(...Object.values(ABOUT));
     for (const a of items) {
       expect(a.en.length).toBeGreaterThan(40);
