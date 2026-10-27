@@ -7,6 +7,7 @@ import { fmtDate, fmtTime, nextService } from "../lib/time";
 import { placeName, cityName, addressLine, telHref, mapsLinks, Icon, SocialIcon } from "./bits";
 import { stateName } from "../lib/search";
 import { CorrectionForm } from "./CorrectionForm";
+import { LOGOS } from "../lib/logo-shapes";
 
 export const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 const SOCIAL = ["facebook", "instagram", "youtube", "x", "tiktok", "other"];
@@ -21,6 +22,19 @@ export function churchBits(d: Details | null, links: Link[], lang: Lang) {
     social: links.filter(l => SOCIAL.includes(l.kind)),
     parking: pick(d?.parking_en, d?.parking_ar), clergyNote: pick(d?.clergy_note_en, d?.clergy_note_ar),
   };
+}
+
+// Church logos come in two shapes: near-square emblems sit as a tile beside the name, wide banners as a strip on top.
+// The box takes the logo's own background colour so the two blend (see tools/logo_shapes.py), and logos are sized to look equally heavy.
+export const logoIsTile = (src: string) => (LOGOS[src]?.ratio ?? 3) < 2;
+export function ChurchLogo({ src, tile, lazy }: { src: string; tile?: boolean; lazy?: boolean }) {
+  const { ratio: r, bg, fill } = LOGOS[src] ?? { ratio: 3, bg: null };
+  const img = (style?: Record<string, string>) => <img src={src} alt="" loading={lazy ? "lazy" : undefined} style={style} />;
+  const style = bg ? { "--logo-bg": bg } : {};
+  // Paintings and photos fill their box, cropped from the top so the faces show.
+  const cls = fill ? " fill" : "";
+  if (tile) return <div class={"clogo-tile" + cls} style={{ ...style, width: `${Math.round(Math.min(104, Math.max(64, 52 * r + 12)))}px` }}>{img()}</div>;
+  return <div class={"cbanner" + cls} style={style}>{img(fill ? undefined : { height: `${Math.round(Math.min(56, Math.sqrt(5200 / r)))}px` })}</div>;
 }
 
 type More = { place: Place; details: Details | null; clergy: Clergy[]; links: Link[]; t: Strings; lang: Lang };
@@ -103,10 +117,13 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
   return (
     <article class={"card ccard" + (active ? " active" : "")} style={{ "--cc": TYPE_COLOR[p.type] ?? "var(--accent-line)" }}
       onClick={e => !(e.target as HTMLElement).closest("a,button,summary,details,form") && onFocus()}>
-      {d?.logo && <div class={"cbanner" + (d.logo_dark ? " dark" : "")}><img src={d.logo} alt="" loading="lazy" /></div>}
-      <div>
-        <div class="city">{region}{p.type !== "church" && <> · {t.types[p.type]}</>}{distance && <> · <span class="num">{distance}</span></>}</div>
-        <h2>{placeName(p, lang)}</h2>
+      {d?.logo && !logoIsTile(d.logo) && <ChurchLogo src={d.logo} lazy />}
+      <div class="cname">
+        {d?.logo && logoIsTile(d.logo) && <ChurchLogo src={d.logo} tile lazy />}
+        <div>
+          <div class="city">{region}{p.type !== "church" && <> · {t.types[p.type]}</>}{distance && <> · <span class="num">{distance}</span></>}</div>
+          <h2>{placeName(p, lang)}</h2>
+        </div>
       </div>
       {services.length > 0 && nx && <button class="next" type="button" onClick={onOpen}>
         <small>{t.nextHere}</small>

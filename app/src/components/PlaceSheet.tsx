@@ -5,7 +5,7 @@ import { fmtDate, fmtTime, nextService, serviceKey } from "../lib/time";
 import { regionLine } from "./bits";
 import { CorrectionForm } from "./CorrectionForm";
 import { placeName, addressLine, telHref, mapsLinks, Icon, SocialIcon } from "./bits";
-import { CalendarSubscribe, ChurchSections, churchBits, ext } from "./ChurchInfo";
+import { CalendarSubscribe, ChurchLogo, ChurchSections, churchBits, ext } from "./ChurchInfo";
 import { alsoOffered, specialDates } from "../lib/events";
 import { dayLabel, itemTitle } from "./Events";
 
@@ -47,7 +47,7 @@ export function PlaceSheet({ place: p, services, events, details: d, clergy, lin
     <div class="sheet-bg" onClick={e => e.target === e.currentTarget && onClose()}>
       <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-h" tabIndex={-1} ref={ref}>
         <button class="x" type="button" aria-label={t.close} onClick={onClose}><Icon name="x" /></button>
-        {d?.logo && <div class={"cbanner" + (d.logo_dark ? " dark" : "")}><img src={d.logo} alt="" /></div>}
+        {d?.logo && <ChurchLogo src={d.logo} />}
         <h2 id="sheet-h">{placeName(p, lang)}</h2>
         <div class="chips">
           <span class="chip">{t.types[p.type] ?? p.type}</span>
