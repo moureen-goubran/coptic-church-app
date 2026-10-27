@@ -204,9 +204,10 @@ form.f .issues label { display: flex; flex-direction: row; text-align: start; al
 .status.err { color: var(--warn); }
 /* details sheet */
 .sheet-bg { position: fixed; inset: 0; z-index: 60; background: rgba(10,15,30,.45); display: flex; align-items: flex-end; justify-content: center; }
-.sheet { position: relative; width: min(560px, 100%); max-height: 88vh; overflow-y: auto; background: var(--surface); color: var(--fg); border-radius: 18px 18px 0 0; padding: 18px 18px calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -10px 40px rgba(0,0,0,.2); }
+.sheet { position: relative; width: min(560px, 100%); max-height: 88vh; max-height: 88dvh; overflow-y: auto; background: var(--surface); color: var(--fg); border-radius: 18px 18px 0 0; padding: 18px 18px calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -10px 40px rgba(0,0,0,.2); }
 .sheet h2 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; line-height: 1.25; padding-inline-end: 40px; }
-.sheet .x { position: absolute; top: 12px; inset-inline-end: 12px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; place-items: center; }
+/* The close button stays pinned while the sheet scrolls, above the logo banner. */
+.sheet .x { position: sticky; top: 0; z-index: 2; align-self: flex-end; flex: none; margin-block: -6px -50px; margin-inline-end: -6px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: grid; place-items: center; }
 .sheet .kv a { color: var(--maroon); }
 .sheet .note { font-size: .8rem; color: var(--muted); margin: 0; }
 .sheet .sharelist { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
