@@ -1,0 +1,28 @@
+# Reads church websites for service times and office contacts. The raw lines are saved as a run artifact
+# (kept 14 days), never committed: church pages list priests' personal phones and emails, which stay out of the repo.
+# Run by hand from the Actions tab, or by pushing a change to the scraper on a branch.
+name: Read church websites
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [main]
+    paths: ["tools/scrape-church-sites.mjs", ".github/workflows/scrape-sites.yml"]
+permissions:
+  contents: read
+concurrency: scrape-sites-${{ github.ref }}
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm install --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
+      - run: node tools/scrape-church-sites.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: church-website-lines
+          path: data/sources/site-scrape/
+          retention-days: 14

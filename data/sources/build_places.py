@@ -121,6 +121,8 @@ for r in rows:
         why=f['reason'] if f else 'domain is on the blocked list'
         r['website']=''; r['notes']=(r['notes']+'; ' if r['notes'] else '')+f'Website removed 2026-10-26: {why} (was {u})'
     elif f and f['action']=='https': r['website']='https://'+u[len('http://'):]
+# Note: places.csv phones were updated by hand on 2026-10-26 from the churches' own websites (office numbers;
+# see sources/site-contacts-2026-10-26.csv). Re-apply that file if this script is ever rerun.
 PINS={r['id']:r for r in csv.DictReader(open('sources/exact-pins.csv'))}  # exact map pins from other sources
 for r in rows:
     if r['id'] in PINS: r['lat'],r['lng']=PINS[r['id']]['lat'],PINS[r['id']]['lng']
