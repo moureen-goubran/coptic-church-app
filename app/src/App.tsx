@@ -8,6 +8,8 @@ import { fmtDate } from "./lib/time";
 import { store } from "./lib/store";
 import { MapView } from "./components/MapView";
 import { PlaceSheet } from "./components/PlaceSheet";
+import { EventSheet } from "./components/EventSheet";
+import type { Item } from "./lib/events";
 import { ChurchCard } from "./components/ChurchInfo";
 import { CorrectionForm } from "./components/CorrectionForm";
 import { Icon, Logo, SortBy, placeName, regionLine } from "./components/bits";
@@ -155,6 +157,7 @@ export function App() {
   const nearest = useMemo(() => (userLoc ? (data?.places ?? []).filter(p => servicesBy.has(p.id) && dist(p) !== null).sort((a, b) => dist(a)! - dist(b)!) : null), [data, userLoc]);
   const tabHash: Record<Tab, string> = { today: "#/", churches: "#/churches", events: "#/events", feasts: "#/feasts", welcome: "#/welcome", about: "#/about" };
   const openPlace = (id: string) => go(`#/place/${id}`);
+  const [item, setItem] = useState<Item | null>(null);
   const closePlace = () => (history.length > 1 && route.place ? history.back() : go(tabHash[route.tab]));
   const selected = route.place ? data?.places.find(p => p.id === route.place) ?? null : null;
 
@@ -220,7 +223,7 @@ export function App() {
       </nav>
 
       {route.tab === "today" && <TodayView t={t} lang={lang} places={placesById} services={data?.services ?? []} events={data?.events ?? []} saved={saved} toggleSave={toggleSave}
-        nearest={nearest} distanceOf={fmtMi} milesOf={dist} onOpen={openPlace} onLocate={findMe} />}
+        nearest={nearest} distanceOf={fmtMi} milesOf={dist} onItem={setItem} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
         <MapView places={data?.places ?? []} matchIds={matchIds} fitKey={filtering ? `${q}|${stateF}|${typeF}` : ""} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
@@ -261,7 +264,7 @@ export function App() {
       </main>}
 
       {route.tab === "events" && <EventsView t={t} lang={lang} places={placesById} services={data?.services ?? []} events={data?.events ?? []}
-        saved={saved} toggleSave={toggleSave} filters={evFilters} setFilters={setEvFilters} distanceOf={fmtMi} onOpen={openPlace} q={evQ} setQ={setEvQ} />}
+        saved={saved} toggleSave={toggleSave} filters={evFilters} setFilters={setEvFilters} distanceOf={fmtMi} onOpen={setItem} q={evQ} setQ={setEvQ} />}
 
       {route.tab === "feasts" && <FeastsView t={t} lang={lang} />}
 
@@ -288,6 +291,8 @@ export function App() {
         </section>
       </main>}
 
+      {item && (p => <EventSheet it={item} place={p} t={t} lang={lang} distance={p ? fmtMi(p) : null} saved={saved} toggleSave={toggleSave}
+        onClose={() => setItem(null)} onOpenPlace={id => { setItem(null); openPlace(id); }} />)(placesById.get(item.place_id))}
       {selected && <PlaceSheet place={selected} services={servicesBy.get(selected.id) ?? []} events={eventsBy.get(selected.id) ?? []} details={detailsBy.get(selected.id) ?? null} clergy={clergyBy.get(selected.id) ?? []} links={linksBy.get(selected.id) ?? []} saved={saved} toggleSave={toggleSave} t={t} lang={lang} distance={fmtMi(selected)} onClose={closePlace}
         onSeeEvents={() => { setEvFilters({ ...NO_FILTERS, churches: [selected.id] }); go("#/events"); }} />}
     </div>

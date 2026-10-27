@@ -45,9 +45,9 @@ export function SuggestEvent({ t, lang, churches }: { t: Strings; lang: Lang; ch
 // Words a search can match: titles and rooms in both languages, the church, its city, the type and the day.
 export const itemHay = (it: Item, p: Place | undefined, t: Strings) => norm([it.title_en, it.title_ar, it.room_en, it.room_ar, p?.name, p?.name_ar, p?.city,
   t.kinds[it.kind] ?? "", it.weekly !== null ? t.days[it.weekly] : ""].filter(Boolean).join(" "));
-const timeRange = (it: Item, t: Strings, lang: Lang) => (it.start ? fmtTime(it.start, lang) + (it.end ? ` – ${fmtTime(it.end, lang)}` : "") : t.allDay);
+export const timeRange = (it: Item, t: Strings, lang: Lang) => (it.start ? fmtTime(it.start, lang) + (it.end ? ` – ${fmtTime(it.end, lang)}` : "") : t.allDay);
 
-function whenText(it: Item, t: Strings, lang: Lang): string {
+export function whenText(it: Item, t: Strings, lang: Lang): string {
   if (!it.date) return t.undatedWhen;
   if (it.weekly !== null) return `${t.every(t.days[it.weekly])} · ${timeRange(it, t, lang)}`;
   const d = fmt(it.date, lang, { weekday: "long", month: "long", day: "numeric" });
@@ -57,7 +57,7 @@ export function shareText(it: Item, p: Place | undefined, t: Strings, lang: Lang
   const room = pick(lang, it.room_en, it.room_ar);
   return [itemTitle(it, lang), whenText(it, t, lang), p ? placeName(p, lang) + (room ? " · " + room : "") : "", p ? addressLine(p) : ""].filter(Boolean).join("\n");
 }
-const calEntry = (it: Item, p: Place | undefined, t: Strings, lang: Lang): CalEntry => ({
+export const calEntry = (it: Item, p: Place | undefined, t: Strings, lang: Lang): CalEntry => ({
   title: itemTitle(it, lang), date: it.date!, endDate: it.end_date, start: it.start, end: it.end,
   location: p ? `${p.name}, ${addressLine(p)}` : undefined, details: [shareText(it, p, t, lang), t.eventsNote].join("\n\n"),
 });
@@ -87,10 +87,10 @@ export function ItemMenu({ it, place, t, lang, saved, toggleSave }: { it: Item; 
   );
 }
 
-interface RowProps { it: Item; place: Place | undefined; t: Strings; lang: Lang; saved: Set<string>; toggleSave: (k: string) => void; onOpen: (id: string) => void; showDate?: boolean; extra?: string }
+interface RowProps { it: Item; place: Place | undefined; t: Strings; lang: Lang; saved: Set<string>; toggleSave: (k: string) => void; onOpen: (it: Item) => void; showDate?: boolean; extra?: string }
 export function EvRow({ it, place, t, lang, saved, toggleSave, onOpen, showDate, extra }: RowProps) {
   const room = pick(lang, it.room_en, it.room_ar);
-  const open = () => onOpen(it.place_id);
+  const open = () => onOpen(it);
   return (
     <div class="ev" role="button" tabIndex={0} style={{ "--cc": churchColor(it.place_id) }} onClick={open}
       onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) { e.preventDefault(); open(); } }}>
@@ -112,7 +112,7 @@ const Caret = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" s
 interface Props {
   t: Strings; lang: Lang; places: Map<string, Place>; services: Service[]; events: ChurchEvent[];
   saved: Set<string>; toggleSave: (k: string) => void; filters: EvFilters; setFilters: (f: EvFilters) => void;
-  distanceOf: (p: Place) => string | null; onOpen: (id: string) => void; q: string; setQ: (q: string) => void;
+  distanceOf: (p: Place) => string | null; onOpen: (it: Item) => void; q: string; setQ: (q: string) => void;
 }
 
 export function EventsView({ t, lang, places, services, events, saved, toggleSave, filters: F, setFilters, distanceOf, onOpen, q, setQ }: Props) {
@@ -294,8 +294,8 @@ export function EventsView({ t, lang, places, services, events, saved, toggleSav
         <div class="upcoming">{special.map(it => {
           const p = P(it.place_id);
           return (
-            <div class="up" key={it.key} role="button" tabIndex={0} style={{ "--cc": churchColor(it.place_id) }} onClick={() => onOpen(it.place_id)}
-              onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) { e.preventDefault(); onOpen(it.place_id); } }}>
+            <div class="up" key={it.key} role="button" tabIndex={0} style={{ "--cc": churchColor(it.place_id) }} onClick={() => onOpen(it)}
+              onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) { e.preventDefault(); onOpen(it); } }}>
               <span class="when">{dayLabel(t, lang, it.date!, it.end_date)} · <span class="num">{it.start ? fmtTime(it.start, lang) : t.allDay}</span></span>
               <b>{itemTitle(it, lang)}</b>
               <span class="muted small">{p ? shortName(p, lang) : ""}</span>

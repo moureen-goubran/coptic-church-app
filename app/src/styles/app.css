@@ -183,6 +183,19 @@ html[lang="ar"] .nextcard .lbl { letter-spacing: 0; }
 .mrow .t { display: block; font-weight: 600; font-size: .92rem; line-height: 1.3; }
 .mrow .s { display: block; font-size: .78rem; color: var(--muted); }
 .mrow .chev { color: var(--muted); }
+/* My Events: swipe a row sideways or tap ✕ to remove it */
+.mswipe { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; background: var(--surface); touch-action: pan-y; transition: transform .15s, opacity .15s; }
+.mswipe + .mswipe { border-top: 1px solid var(--line); }
+.mswipe .mrow .chev { display: none; }
+.unsave { width: 44px; height: 44px; margin-inline-end: 4px; display: grid; place-items: center; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.unsave:hover { background: var(--bg); color: var(--fg); }
+.unsave svg { width: 16px; height: 16px; }
+.tip.undo { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+/* event sheet: one service or event */
+.evsheet h2 { margin: 2px 0 0; }
+.evwhen { margin: 0; font-weight: 600; }
+.evwhere { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-sm); }
+.evcal { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 12px; }
 .tip { font-size: .86rem; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; }
 .center { display: flex; justify-content: center; }
 
