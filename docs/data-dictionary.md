@@ -56,7 +56,7 @@ Links in this file count as admin-approved. Links clergy add in the app later st
 
 The "Suggest an Event" form saves to two admin-only tables in Supabase (and emails the owner). Nothing in them is shown in the app.
 
-- `event_suggestions`: `place_id` (a church picked from the list) or `church_suggestion_id` (a church typed in as new), `kind` (one of the event types in `events`, or `other` with `other_text`), `date`, `start_time`, `details`, `status` (`new`, `approved`, `dismissed`), `created_at`. `details` is cleared after 90 days; the rest stays as a record.
+- `event_suggestions`: `place_id` (a church picked from the list) or `church_suggestion_id` (a church typed in as new), `kind` (one of the event types in `events`, or `other` with `other_text`), `repeat` (`once`, `weekly`, `biweekly`, `monthly`), `date` (the first date if it repeats), `start_time`, `end_time`, `speaker` (optional), `details`, `status` (`new`, `approved`, `dismissed`), `created_at`. `details` is cleared after 90 days; the rest stays as a record.
 - `church_suggestions`: `name`, `city`, `state`, `status` (`new`, `added`, `dismissed`), `place_id` (the church it became, once added), `created_at`.
 
 To approve an event: check it with the church, add it to `data/events.csv`, then set its `status` to `approved` in Table Editor.

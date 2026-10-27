@@ -8,6 +8,7 @@ import { norm } from "../lib/search";
 import { placeName } from "./bits";
 
 // The owner's email is in English whatever language the form is in.
+const EN_REPEATS: Record<string, string> = { once: "Just this once", weekly: "Every week", biweekly: "Every two weeks", monthly: "Every month" };
 const EN_KINDS: Record<string, string> = { liturgy: "Liturgy", praise: "Vespers & praises", bible: "Bible study", youth: "Youth & college", meeting: "Meeting",
   classes: "Classes", servants: "Servants", retreat: "Retreat or trip", social: "Fellowship" };
 
@@ -75,7 +76,7 @@ export function CorrectionForm({ placeId, t, lang, intro, label, claim, churches
   const [topic, setTopic] = useState<"info" | "safety" | "other">("info");
   const isEvent = Boolean(churches);
   const isReport = !intro && !claim && !isEvent;
-  const [ev, setEv] = useState({ church: "", kind: "", other: "", name: "", city: "", state: "", date: "", time: "" });
+  const [ev, setEv] = useState({ church: "", kind: "", other: "", name: "", city: "", state: "", repeat: "once", date: "", time: "", end: "", speaker: "" });
   const widget = useRef<HTMLDivElement>(null);
   const id = `${claim ? "claim" : isEvent ? "event" : "fix"}-${placeId ?? "app"}`;
 
@@ -99,15 +100,19 @@ export function CorrectionForm({ placeId, t, lang, intro, label, claim, churches
       if (!ev.church) { setProblem(t.evNeedChurch); return; }
       if (ev.church === "new" && (ev.name.trim().length < 3 || ev.city.trim().length < 2)) { setProblem(t.evNeedNew); return; }
       if (!ev.kind || (ev.kind === "other" && !ev.other.trim())) { setProblem(t.evNeedTitle); return; }
+      if (!ev.date || !ev.time || !ev.end) { setProblem(t.evNeedWhen); return; }
+      if (ev.end <= ev.time) { setProblem(t.evEndBefore); return; }
       const isNew = ev.church === "new";
       church = isNew ? null : ev.church;
       // Dates and times go in as words, so the phone-number screen doesn't mistake "2026-11-08" for a number.
       const day = ev.date && new Date(ev.date + "T12:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-      const at = ev.time && new Date(`2000-01-01T${ev.time}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+      const clock = (v: string) => new Date(`2000-01-01T${v}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+      const at = `${clock(ev.time)} to ${clock(ev.end)}`;
       const what = ev.kind === "other" ? `Other: ${ev.other.trim()}` : EN_KINDS[ev.kind] ?? ev.kind;
       text = [`Event: ${what}`, isNew && `New church (not in the app yet): ${[ev.name.trim(), ev.city.trim(), ev.state.trim()].filter(Boolean).join(", ")}`,
-        day && `Date: ${day}`, at && `Time: ${at}`, msg.trim() && `Details: ${msg.trim()}`].filter(Boolean).join("\n");
-      event = { kind: ev.kind, other: ev.other, date: ev.date, time: ev.time, details: msg,
+        `Repeats: ${EN_REPEATS[ev.repeat]}`, `${ev.repeat === "once" ? "Date" : "First date"}: ${day}`, `Time: ${at}`,
+        ev.speaker.trim() && `Speaker or leader: ${ev.speaker.trim()}`, msg.trim() && `Details: ${msg.trim()}`].filter(Boolean).join("\n");
+      event = { kind: ev.kind, other: ev.other, repeat: ev.repeat, date: ev.date, time: ev.time, end: ev.end, speaker: ev.speaker, details: msg,
         new_church: isNew ? { name: ev.name, city: ev.city, state: ev.state } : undefined };
     }
     const r = screenMessage(text);
@@ -152,10 +157,18 @@ export function CorrectionForm({ placeId, t, lang, intro, label, claim, churches
           <option value="other">{t.evOther}</option>
         </select>
         {ev.kind === "other" && <input aria-label={t.evOtherPh} maxLength={120} autocomplete="off" placeholder={t.evOtherPh} value={ev.other} onInput={e => setEv({ ...ev, other: (e.target as HTMLInputElement).value })} />}
+        <label for={id + "-r"}>{t.evRepeat}</label>
+        <select id={id + "-r"} value={ev.repeat} onChange={e => setEv({ ...ev, repeat: (e.target as HTMLSelectElement).value })}>
+          {Object.keys(EN_REPEATS).map(k => <option key={k} value={k}>{t.evRepeats[k]}</option>)}
+        </select>
+        <label for={id + "-d"}>{ev.repeat === "once" ? t.evDate : t.evDateRep}</label>
+        <input id={id + "-d"} type="date" required min={new Date().toISOString().slice(0, 10)} value={ev.date} onInput={e => setEv({ ...ev, date: (e.target as HTMLInputElement).value })} />
         <div class="two">
-          <span><label for={id + "-d"}>{t.evDate}</label><input id={id + "-d"} type="date" value={ev.date} onInput={e => setEv({ ...ev, date: (e.target as HTMLInputElement).value })} /></span>
-          <span><label for={id + "-h"}>{t.evTime}</label><input id={id + "-h"} type="time" value={ev.time} onInput={e => setEv({ ...ev, time: (e.target as HTMLInputElement).value })} /></span>
+          <span><label for={id + "-h"}>{t.evFrom}</label><input id={id + "-h"} type="time" required value={ev.time} onInput={e => setEv({ ...ev, time: (e.target as HTMLInputElement).value })} /></span>
+          <span><label for={id + "-e"}>{t.evTo}</label><input id={id + "-e"} type="time" required value={ev.end} onInput={e => setEv({ ...ev, end: (e.target as HTMLInputElement).value })} /></span>
         </div>
+        <label for={id + "-sp"}>{t.evSpeaker}</label>
+        <input id={id + "-sp"} maxLength={120} autocomplete="off" placeholder={t.evSpeakerPh} value={ev.speaker} onInput={e => setEv({ ...ev, speaker: (e.target as HTMLInputElement).value })} />
       </>}
       <label for={id}>{claim ? t.claimLabel : isEvent ? t.evMore : label ?? t.reportLabel}</label>
       <textarea id={id} maxLength={1000} rows={4} value={msg} onInput={e => setMsg((e.target as HTMLTextAreaElement).value)} autocomplete="off" />

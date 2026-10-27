@@ -55,7 +55,7 @@ async function notify(topic: string, placeId: string | null, message: string) {
 }
 
 const KINDS = ["liturgy", "praise", "bible", "youth", "meeting", "classes", "servants", "retreat", "social", "other"];
-type EventFields = { kind?: string; other?: string; date?: string; time?: string; details?: string; new_church?: { name?: string; city?: string; state?: string } };
+type EventFields = { kind?: string; other?: string; repeat?: string; date?: string; time?: string; end?: string; speaker?: string; details?: string; new_church?: { name?: string; city?: string; state?: string } };
 // One short typed field: screened like the message, empty becomes null.
 const field = (v: unknown, max: number): { ok: true; v: string | null } | { ok: false; reason: string } => {
   const s = typeof v === "string" ? v.trim() : "";
@@ -67,12 +67,15 @@ const field = (v: unknown, max: number): { ok: true; v: string | null } | { ok: 
 async function saveEvent(ev: EventFields | undefined, placeId: string | null) {
   const bad = (error: string) => ({ error, status: 422, codes: [] as string[] });
   if (!ev || !KINDS.includes(ev.kind ?? "")) return bad("bad_request");
-  const other = field(ev.other, 120), details = field(ev.details, 1000);
+  const other = field(ev.other, 120), details = field(ev.details, 1000), speaker = field(ev.speaker, 120);
   if (!other.ok) return bad(other.reason);
   if (!details.ok) return bad(details.reason);
+  if (!speaker.ok) return bad(speaker.reason);
   if (ev.kind === "other" && !other.v) return bad("bad_request");
   const date = /^\d{4}-\d{2}-\d{2}$/.test(ev.date ?? "") ? ev.date : null;
   const time = /^\d{2}:\d{2}$/.test(ev.time ?? "") ? ev.time : null;
+  const end = /^\d{2}:\d{2}$/.test(ev.end ?? "") && time && ev.end! > time ? ev.end : null;
+  const repeat = ["once", "weekly", "biweekly", "monthly"].includes(ev.repeat ?? "") ? ev.repeat : "once";
   let churchId: number | null = null;
   if (!placeId) {
     const name = field(ev.new_church?.name, 140), city = field(ev.new_church?.city, 80), state = field(ev.new_church?.state, 40);
@@ -84,7 +87,7 @@ async function saveEvent(ev: EventFields | undefined, placeId: string | null) {
   }
   const e = await rest("event_suggestions", { method: "POST", headers: { prefer: "return=minimal" }, body: JSON.stringify({
     place_id: placeId, church_suggestion_id: churchId, kind: ev.kind, other_text: ev.kind === "other" ? other.v : null,
-    date, start_time: time, details: details.v,
+    repeat, date, start_time: time, end_time: end, speaker: speaker.v, details: details.v,
   }) });
   if (!e.ok) return { error: "save", status: 500, codes: [await e.json().then(x => x.code, () => String(e.status))] };
   return { ok: true };
