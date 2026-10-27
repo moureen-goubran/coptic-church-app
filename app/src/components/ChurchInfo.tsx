@@ -4,7 +4,7 @@ import { useState } from "preact/hooks";
 import type { Clergy, Details, Link, Place, Service } from "../lib/types";
 import type { Lang, Strings } from "../i18n";
 import { fmtDate, fmtTime, nextService } from "../lib/time";
-import { placeName, cityName, addressLine, telHref, mapsLinks, Icon, SocialIcon } from "./bits";
+import { placeName, cityName, addressLine, telHref, mapsLinks, Icon, SocialIcon, Logo } from "./bits";
 import { stateName } from "../lib/search";
 import { CorrectionForm } from "./CorrectionForm";
 import { LOGOS } from "../lib/logo-shapes";
@@ -119,7 +119,8 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
       onClick={e => !(e.target as HTMLElement).closest("a,button,summary,details,form") && onFocus()}>
       {d?.logo && !logoIsTile(d.logo) && <ChurchLogo src={d.logo} lazy />}
       <div class="cname">
-        {d?.logo && logoIsTile(d.logo) && <ChurchLogo src={d.logo} tile lazy />}
+        {d?.logo ? logoIsTile(d.logo) && <ChurchLogo src={d.logo} tile lazy />
+          : <div class="clogo-tile ph" aria-hidden="true"><Logo /></div>}{/* No logo yet: our own logo holds the place. */}
         <div>
           <div class="city">{region}{p.type !== "church" && <> · {t.types[p.type]}</>}{distance && <> · <span class="num">{distance}</span></>}</div>
           <h2>{placeName(p, lang)}</h2>
