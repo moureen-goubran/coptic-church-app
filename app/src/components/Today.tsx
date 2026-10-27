@@ -6,7 +6,7 @@ import { type Item, byWhen, fromService, nextDateFor, specialDates, upcomingItem
 import { iso } from "../lib/coptic";
 import { Icon, mapsLinks, placeName, shortName, telHref } from "./bits";
 import { seasonLine } from "./Feasts";
-import { dayLabel, itemTitle } from "./Events";
+import { SuggestEvent, dayLabel, itemTitle } from "./Events";
 
 interface Props {
   t: Strings; lang: Lang; places: Map<string, Place>; services: Service[]; events: ChurchEvent[];
@@ -40,7 +40,8 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
   const mine = [...services.filter(s => saved.has(fromService(s, "").key)).map(s => fromService(s, nextDateFor(s.day, s.start, now))),
     ...specialDates(events, now).filter(it => saved.has(it.key))].sort(byWhen(t0));
   const comingIds = nearest?.length ? new Set(nearest.slice(0, 5).map(x => x.id)) : null;
-  const coming = all.filter(it => !comingIds || comingIds.has(it.place_id)).slice(0, 4);
+  const coming = all.filter(it => !comingIds || comingIds.has(it.place_id)).slice(0, 6);
+  const churches = [...places.values()];
 
   const row = (it: Item) => {
     const pl = places.get(it.place_id);
@@ -63,6 +64,8 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
 
   return (
     <main class="stack">
+      <h1 class="homelead">{t.homeLead}</h1>
+
       {next && nextPlace && <div class="nextcard">
         <button type="button" class="top" onClick={() => onOpen(nextPlace.id)}>
           <span class="lbl">{label}</span>
@@ -79,13 +82,15 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
         </div>
       </div>}
 
-      <div class="sec-h"><h2>{t.myEvents}</h2></div>
-      {mine.length ? <div class="mini">{mine.map(row)}</div> : <div class="tip">{t.saveTip}</div>}
-
       {coming.length > 0 && <>
-        <div class="sec-h"><h2>{t.comingUp}</h2><a class="linkbtn" href="#/events">{t.tabEvents}</a></div>
+        <div class="sec-h"><h2>{t.comingUp}</h2><a class="linkbtn" href="#/events">{t.seeAllEvents}</a></div>
         <div class="mini">{coming.map(row)}</div>
       </>}
+
+      <SuggestEvent t={t} lang={lang} churches={churches} />
+
+      <div class="sec-h"><h2>{t.myEvents}</h2></div>
+      {mine.length ? <div class="mini">{mine.map(row)}</div> : <div class="tip">{t.saveTip}</div>}
 
       <div class="center"><button class="btn" type="button" onClick={shareApp}><Icon name="share" />{copied ? t.copied : t.shareApp}</button></div>
     </main>

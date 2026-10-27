@@ -47,6 +47,9 @@ describe("next service", () => {
 
 describe("corrections filter", () => {
   it("accepts a normal message", () => expect(screenMessage("The Sunday liturgy starts at 8 now, not 7.").ok).toBe(true));
+  // "Suggest an Event" writes the date and time as words, so they pass; a raw "2026-11-08" would look like a phone number.
+  it("accepts an event suggestion", () => expect(screenMessage("Event: Youth meeting\nDate: Sunday, November 8, 2026\nTime: 7:00 PM").ok).toBe(true));
+  it("would block a raw ISO date", () => expect(screenMessage("Date: 2026-11-08").ok).toBe(false));
   it.each([
     ["write me at kid@example.com", "email"],
     ["call 201 555 0199", "phone"],
