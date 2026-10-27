@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useRef, useState } from "preact/hooks";
 import type { Lang, Strings } from "../i18n";
 import type { ChurchEvent, Place, Service } from "../lib/types";
 import { fmtTime } from "../lib/time";
@@ -13,11 +13,11 @@ interface Props {
   saved: Set<string>; toggleSave: (k: string) => void;
   nearest: Place[] | null; // places with services, closest first (when location is on)
   distanceOf: (p: Place) => string | null; milesOf: (p: Place) => number | null;
-  onOpen: (id: string) => void; onLocate: () => void;
+  onItem: (it: Item) => void; onLocate: () => void;
 }
 
 
-export function TodayView({ t, lang, places, services, events, saved, toggleSave, nearest, distanceOf, milesOf, onOpen, onLocate }: Props) {
+export function TodayView({ t, lang, places, services, events, saved, toggleSave, nearest, distanceOf, milesOf, onItem, onLocate }: Props) {
   const now = new Date(), t0 = iso(now);
   const when = (it: Item) => dayLabel(t, lang, it.date!, it.end_date);
   const time = (it: Item) => (it.start ? fmtTime(it.start, lang) : t.allDay);
@@ -54,13 +54,42 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
   const row = (it: Item) => {
     const pl = places.get(it.place_id);
     return (
-      <button type="button" class="mrow" key={it.key + it.date} onClick={() => onOpen(it.place_id)}>
+      <button type="button" class="mrow" key={it.key + it.date} onClick={() => onItem(it)}>
         <span class="w"><b>{when(it)}</b><span class="num">{time(it)}</span></span>
         <span><span class="t">{itemTitle(it, lang)}</span><span class="s">{pl ? [shortName(pl, lang), nearest && distanceOf(pl)].filter(Boolean).join(" · ") : ""}</span></span>
         <svg class="chev flip" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16"><path d="m6 3 5 5-5 5" /></svg>
       </button>
     );
   };
+  // My Events rows: swipe sideways or tap ✕ to remove, with a short Undo in case it was a slip.
+  const [removed, setRemoved] = useState<string | null>(null);
+  const undoTimer = useRef(0);
+  const unsave = (k: string) => {
+    toggleSave(k); setRemoved(k);
+    clearTimeout(undoTimer.current); undoTimer.current = window.setTimeout(() => setRemoved(null), 6000);
+  };
+  const swipe = useRef<{ x: number; y: number; el: HTMLElement; dx: number } | null>(null), swiped = useRef(false);
+  const mineRow = (it: Item) => (
+    <div class="mswipe" key={it.key + it.date}
+      onPointerDown={e => { swiped.current = false; if (e.pointerType !== "mouse") swipe.current = { x: e.clientX, y: e.clientY, el: e.currentTarget as HTMLElement, dx: 0 }; }}
+      onPointerMove={e => {
+        const s = swipe.current; if (!s) return;
+        const dx = e.clientX - s.x, dy = e.clientY - s.y;
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(s.dx) < 10) { swipe.current = null; s.el.style.transform = ""; return; }
+        s.dx = dx; s.el.style.transform = `translateX(${dx}px)`; s.el.style.opacity = String(1 - Math.min(Math.abs(dx) / 240, .6));
+      }}
+      onPointerUp={() => {
+        const s = swipe.current; swipe.current = null; if (!s) return;
+        s.el.style.transform = ""; s.el.style.opacity = "";
+        swiped.current = Math.abs(s.dx) > 10;
+        if (Math.abs(s.dx) > 90) unsave(it.key);
+      }}
+      onPointerCancel={() => { const s = swipe.current; swipe.current = null; if (s) { s.el.style.transform = ""; s.el.style.opacity = ""; } }}
+      onClickCapture={e => { if (swiped.current) { swiped.current = false; e.stopPropagation(); } }}>
+      {row(it)}
+      <button type="button" class="unsave" aria-label={`${t.removeSaved}: ${itemTitle(it, lang)}`} title={t.removeSaved} onClick={() => unsave(it.key)}><Icon name="x" /></button>
+    </div>
+  );
   // No share sheet (most computers): copy the link and say so, so the button never seems to do nothing.
   const [copied, setCopied] = useState(false);
   const shareApp = async () => {
@@ -76,10 +105,11 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
 
       {/* Saved events always come first; until there are some, a one-line tip says how to add them. */}
       <div class="sec-h"><h2>{t.myEvents}</h2></div>
-      {mine.length ? <div class="mini">{mine.map(row)}</div> : <div class="tip">{t.saveTip}</div>}
+      {mine.length ? <div class="mini">{mine.map(mineRow)}</div> : !removed && <div class="tip">{t.saveTip}</div>}
+      {removed && <div class="tip undo" role="status">{t.removedSaved} <button class="linkbtn" type="button" onClick={() => { toggleSave(removed); setRemoved(null); }}>{t.undo}</button></div>}
 
       {next && nextPlace && <div class="nextcard">
-        <button type="button" class="top" onClick={() => onOpen(nextPlace.id)}>
+        <button type="button" class="top" onClick={() => onItem(next!)}>
           <span class="lbl">{label}</span>
           <span class="big">{when(next)} · <span class="num">{time(next)}</span></span>
           <span class="ttl">{itemTitle(next, lang)}</span>
