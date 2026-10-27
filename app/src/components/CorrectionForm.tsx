@@ -49,7 +49,8 @@ function ChurchPick({ id, t, lang, churches, value, onPick }: { id: string; t: S
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
       </button>
       {open && <div class="pop-panel ddp" role="listbox" aria-label={t.evChurch}>
-        <input class="ddfind" type="search" placeholder={t.evChurchFind} aria-label={t.evChurchFind} value={find} autoFocus onInput={e => setFind((e.target as HTMLInputElement).value)} />
+        <input class="ddfind" type="search" placeholder={t.evChurchFind} aria-label={t.evChurchFind} value={find} autoFocus onInput={e => setFind((e.target as HTMLInputElement).value)}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); if (list.length) choose(list[0].id); } }} />
         <button type="button" role="option" aria-selected={value === "new"} class="opt add" onClick={() => choose("new")}>+ {t.evNewChurch}</button>
         {list.map(p => <button type="button" role="option" key={p.id} aria-selected={p.id === value} class="opt" onClick={() => choose(p.id)}>
           <span>{name(p)}</span><small class="muted">{[(lang === "ar" && p.city_ar) || p.city, p.state].filter(Boolean).join(" · ")}</small>

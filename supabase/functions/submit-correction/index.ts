@@ -111,7 +111,8 @@ Deno.serve(async req => {
 
   const topic = TOPICS.includes(body.topic ?? "") ? body.topic! : "info";
 
-  if (topic === "event") {
+  // An app copy from before the event fields existed (still cached on a phone) sends no "event": save it like a report.
+  if (topic === "event" && body.event) {
     const saved = await saveEvent(body.event, placeId);
     if ("error" in saved) return reply(saved.status, { error: saved.error, codes: saved.codes });
     await notify(topic, placeId, screened.text).catch(() => {});
