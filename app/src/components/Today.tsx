@@ -66,6 +66,12 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
     <main class="stack">
       <h1 class="homelead">{t.homeLead}</h1>
 
+      {/* Saved events come first once there are some; until then a one-line tip sits under Coming Up. */}
+      {mine.length > 0 && <>
+        <div class="sec-h"><h2>{t.myEvents}</h2></div>
+        <div class="mini">{mine.map(row)}</div>
+      </>}
+
       {next && nextPlace && <div class="nextcard">
         <button type="button" class="top" onClick={() => onOpen(nextPlace.id)}>
           <span class="lbl">{label}</span>
@@ -87,10 +93,12 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
         <div class="mini">{coming.map(row)}</div>
       </>}
 
-      <SuggestEvent t={t} lang={lang} churches={churches} />
+      {!mine.length && <>
+        <div class="sec-h"><h2>{t.myEvents}</h2></div>
+        <div class="tip">{t.saveTip}</div>
+      </>}
 
-      <div class="sec-h"><h2>{t.myEvents}</h2></div>
-      {mine.length ? <div class="mini">{mine.map(row)}</div> : <div class="tip">{t.saveTip}</div>}
+      <SuggestEvent t={t} lang={lang} churches={churches} />
 
       <div class="center"><button class="btn" type="button" onClick={shareApp}><Icon name="share" />{copied ? t.copied : t.shareApp}</button></div>
     </main>
