@@ -10,6 +10,8 @@ const migration = readdirSync(dir).filter(f => f.endsWith(".sql")).sort().map(f 
   .replace("create extension if not exists pg_cron with schema pg_catalog;", "")
   .replace(/select cron\.schedule\([^;]*\$\$[^$]*\$\$\);/g, "");
 const seed = readFileSync(new URL("supabase/seed.sql", root), "utf8");
+// One row per service time in data/services.csv (header line not counted).
+const SERVICES = readFileSync(new URL("data/services.csv", root), "utf8").trim().split("\n").length - 1;
 
 const STUBS = `
   create role anon; create role authenticated; create role service_role bypassrls;
@@ -43,7 +45,7 @@ describe("database", () => {
     const p = await db.query<any>("select count(*)::int n from public.places");
     const s = await db.query<any>("select count(*)::int n from public.services");
     expect(p.rows[0].n).toBeGreaterThan(300);
-    expect(s.rows[0].n).toBe(63);
+    expect(s.rows[0].n).toBe(SERVICES);
   });
 
   it("lets the public read places and schedules, but not admin notes", async () => {
@@ -51,7 +53,7 @@ describe("database", () => {
     expect(r.rows.length).toBeGreaterThan(300);
     expect(Object.keys(r.rows[0])).not.toContain("notes");
     await expect(as("anon", null, "select notes from public.places")).rejects.toThrow();
-    expect((await as("anon", null, "select count(*)::int n from public.services")).rows[0].n).toBe(63);
+    expect((await as("anon", null, "select count(*)::int n from public.services")).rows[0].n).toBe(SERVICES);
   });
 
   it("blocks the public from writing anything", async () => {
@@ -152,6 +154,6 @@ describe("database", () => {
     const r = await db.query<any>("select phone from public.places where id = 'nj-jersey-city-st-mark-jersey-city'");
     expect(r.rows[0].phone).toBe("edited");
     const s = await db.query<any>("select count(*)::int n from public.services");
-    expect(s.rows[0].n).toBe(63);
+    expect(s.rows[0].n).toBe(SERVICES);
   });
 });

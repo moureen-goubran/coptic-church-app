@@ -217,6 +217,14 @@ const en = {
 
 type Strings = typeof en;
 
+// Arabic counted noun: يوم واحد، يومان/يومين، ٣–١٠ أيام، ١١–٩٩ يومًا، ١٠٠ يوم. afterPrep: after بعد/منذ (يومين, not يومان).
+function arDays(n: number, afterPrep: boolean) {
+  const r = n % 100, num = n.toLocaleString("ar-EG");
+  if (n === 1) return "يوم واحد";
+  if (n === 2) return afterPrep ? "يومين" : "يومان";
+  return `${num} ${r >= 3 && r <= 10 ? "أيام" : r >= 11 ? "يومًا" : "يوم"}`;
+}
+
 const ar: Strings = {
   appName: "كنيستي القبطية",
   tagline: "الكنائس والقداسات والاجتماعات بالقرب منك",
@@ -361,8 +369,8 @@ const ar: Strings = {
   feastNext: "العيد القادم:", feastUp: "قريبًا:", feastPast: "مضى:", feastToday: "اليوم:", backNext: "العودة للعيد القادم",
   prevFeast: "العيد السابق", nextFeast: "العيد التالي", openCal: "تقويم الأعياد", closeCal: "إغلاق",
   prevMonth: "الشهر السابق", nextMonth: "الشهر التالي", prevDay: "اليوم السابق", nextDay: "اليوم التالي", backToday: "العودة لليوم",
-  inDays: (n: number) => (n === 1 ? "غدًا" : `بعد ${n.toLocaleString("ar-EG")} يوم`),
-  daysAgo: (n: number) => (n === 1 ? "أمس" : `منذ ${n.toLocaleString("ar-EG")} يوم`),
+  inDays: (n: number) => (n === 1 ? "غدًا" : `بعد ${arDays(n, true)}`),
+  daysAgo: (n: number) => (n === 1 ? "أمس" : `منذ ${arDays(n, true)}`),
   legFeast: "عيد أو بداية صوم", legFast: "أيام صوم", legToday: "اليوم", legComm: "تذكار شهري",
   calNote: "لا يظهر صوم الأربعاء والجمعة. اسأل كنيستك عند الشك.",
   copticMonths: ["توت", "بابه", "هاتور", "كيهك", "طوبة", "أمشير", "برمهات", "برمودة", "بشنس", "بؤونة", "أبيب", "مسرى", "النسيء"],
@@ -374,7 +382,7 @@ const ar: Strings = {
   fastDay: (name: string, n: number, len: number) => `${name} · اليوم ${n.toLocaleString("ar-EG")} من ${len.toLocaleString("ar-EG")}`,
   fastEnds: (d: string) => `ينتهي ${d}`,
   fastStarts: (name: string, r: string) => `${name} يبدأ ${r}`,
-  startsL: "يبدأ", endsL: "ينتهي", lengthL: "المدة", endsWithL: "ينتهي بـ", nDays: (n: number) => `${n.toLocaleString("ar-EG")} يوم`,
+  startsL: "يبدأ", endsL: "ينتهي", lengthL: "المدة", endsWithL: "ينتهي بـ", nDays: (n: number) => arDays(n, false),
   wedFriTitle: "الأربعاء والجمعة",
   wedFriBody: "الأربعاء والجمعة أيام صوم طوال السنة، ما عدا الخمسين يومًا من عيد القيامة إلى عيد العنصرة، وإذا وقع عيد الميلاد أو الغطاس في أحدهما.",
   synaxL: "السنكسار", synaxToday: "اقرأ سنكسار اليوم", synaxDay: "اقرأ سنكسار هذا اليوم",
