@@ -51,3 +51,12 @@ Links in this file count as admin-approved. Links clergy add in the app later st
 ## `data/resources.csv`: Coptic Welcome (help for newcomers)
 
 `id` (unique, lowercase and dashes), `kind` (`link` or `video`), `region` (a state or province code like `NJ`, `US` for the whole country, or `ALL` for anywhere), `title_en`, `title_ar`, `body_en`, `body_ar`, `url`, `source_checked`. Rows show in file order. A `link` needs an `https://` url on the approved list (`RESOURCE_HOSTS` in `app/scripts/load-data.mjs`); adding a site there is the admin's approval. A `video` with no url shows "Coming soon". Only admins can change these in the database; an edit made in the app is kept when the CSV is imported again.
+
+## Suggestions from the app (database only, private)
+
+The "Suggest an Event" form saves to two admin-only tables in Supabase (and emails the owner). Nothing in them is shown in the app.
+
+- `event_suggestions`: `place_id` (a church picked from the list) or `church_suggestion_id` (a church typed in as new), `kind` (one of the event types in `events`, or `other` with `other_text`), `date`, `start_time`, `details`, `status` (`new`, `approved`, `dismissed`), `created_at`. `details` is cleared after 90 days; the rest stays as a record.
+- `church_suggestions`: `name`, `city`, `state`, `status` (`new`, `added`, `dismissed`), `place_id` (the church it became, once added), `created_at`.
+
+To approve an event: check it with the church, add it to `data/events.csv`, then set its `status` to `approved` in Table Editor.

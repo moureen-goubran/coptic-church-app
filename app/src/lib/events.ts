@@ -2,6 +2,9 @@ import type { ChurchEvent, Service } from "./types";
 import { serviceKey } from "./time";
 import { addDays, iso } from "./coptic";
 
+// Event types, in the order the filters and the "Suggest an event" form list them (the database allows these).
+export const KIND_ORDER = ["liturgy", "praise", "bible", "youth", "meeting", "classes", "servants", "retreat", "social"];
+
 // One shape for everything on the Events tab: a weekly service on a given date, a one-off
 // event, or an "also offered" ministry (no date). `key` is what "Save" remembers.
 export interface Item {

@@ -8,7 +8,7 @@ const root = new URL("../../", import.meta.url);
 const dir = new URL("supabase/migrations/", root);
 const migration = readdirSync(dir).filter(f => f.endsWith(".sql")).sort().map(f => readFileSync(new URL(f, dir), "utf8")).join("\n")
   .replace("create extension if not exists pg_cron with schema pg_catalog;", "")
-  .replace(/select cron\.schedule\([^;]*\$\$[^$]*\$\$\);/, "");
+  .replace(/select cron\.schedule\([^;]*\$\$[^$]*\$\$\);/g, "");
 const seed = readFileSync(new URL("supabase/seed.sql", root), "utf8");
 
 const STUBS = `
@@ -63,6 +63,20 @@ describe("database", () => {
   it("lets the report box's server function save reports and read church names", async () => {
     await as("service_role", null, "insert into public.corrections (message) values ('hello')");
     await as("service_role", null, "select name, city, state from public.places limit 1");
+  });
+
+  it("keeps event and new-church suggestions private until an admin reads them", async () => {
+    const c = await as("service_role", null, "insert into public.church_suggestions (name, city, state) values ('St. Mina Coptic Orthodox Church', 'Newark', 'NJ') returning id");
+    await as("service_role", null, `insert into public.event_suggestions (church_suggestion_id, kind, other_text) values (${c.rows[0].id}, 'other', 'Coptic hymns class')`);
+    await as("service_role", null, "insert into public.event_suggestions (place_id, kind, date, start_time) values ('nj-jersey-city-st-mark-jersey-city', 'youth', '2026-11-20', '19:30')");
+    await expect(as("service_role", null, "insert into public.event_suggestions (place_id, kind) values ('nj-jersey-city-st-mark-jersey-city', 'other')")).rejects.toThrow();
+    await expect(as("service_role", null, "insert into public.event_suggestions (kind) values ('youth')")).rejects.toThrow();
+    for (const t of ["event_suggestions", "church_suggestions"]) {
+      await expect(as("anon", null, `select * from public.${t}`)).rejects.toThrow();
+      await expect(as("anon", null, `insert into public.${t} (kind, name) values ('youth', 'x')`)).rejects.toThrow();
+      expect((await as("authenticated", CLERGY, `select count(*)::int n from public.${t}`)).rows[0].n).toBe(0);
+      expect((await as("authenticated", ADMIN, `select count(*)::int n from public.${t}`)).rows[0].n).toBeGreaterThan(0);
+    }
   });
 
   it("lets clergy edit only their own church", async () => {
