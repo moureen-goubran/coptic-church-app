@@ -212,8 +212,8 @@ export function App() {
 
       <nav class="tabs" role="tablist">
         <button role="tab" type="button" aria-selected={route.tab === "today"} onClick={() => go("#/")}><Icon name="home" />{t.tabToday}</button>
-        <button role="tab" type="button" aria-selected={route.tab === "churches"} onClick={() => go("#/churches")}><Icon name="church" />{t.tabChurches}</button>
         <button role="tab" type="button" aria-selected={route.tab === "events"} onClick={() => go("#/events")}><Icon name="clock" />{t.tabEvents}</button>
+        <button role="tab" type="button" aria-selected={route.tab === "churches"} onClick={() => go("#/churches")}><Icon name="church" />{t.tabChurches}</button>
         <button role="tab" type="button" aria-selected={route.tab === "feasts"} onClick={() => go("#/feasts")}><Icon name="calendar" />{t.tabFeasts}</button>
         <button role="tab" type="button" aria-selected={route.tab === "welcome"} onClick={() => go("#/welcome")}><Icon name="help" />{t.tabWelcome}</button>
         <button role="tab" type="button" aria-selected={route.tab === "about"} onClick={() => go("#/about")}><Icon name="info" />{t.tabAbout}</button>
