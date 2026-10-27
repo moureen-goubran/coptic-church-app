@@ -52,7 +52,16 @@ import re
 places_js = json.loads(re.search(r'const PLACES = (\[.*?\]);\n', mp, re.S).group(1)) if 'const PLACES = ' in mp else None
 pos = {p['id']: (p['lat'], p['lng']) for p in places_js} if places_js else {}
 out = []
-for r in csv.DictReader(open(os.path.join(root, 'data/places.csv'))):
+# Never link a removed or blocked domain, even as a source link, and don't print its address.
+def host(u): return re.sub(r'^www\.', '', re.sub(r'^https?://', '', u).split('/')[0].lower())
+ALL = list(csv.DictReader(open(os.path.join(root, 'data/places.csv'))))
+BAD = {'amsmcoptic.org', 'stphilopater.ca', 'stmarystmercuriusphilly.org', 'smspvancouver.ca', 'coloradocopticchurch.com', 'pensacolacopticchurch.com', 'saintanthonynj.org', 'dp-sk.org'}
+GONE = {u for r in ALL for u in re.findall(r'\(was (\S+?)\)', r['notes'])}
+for r in ALL:
+    for k in ('source_url', 'website'):
+        if host(r[k]) in BAD or r[k] in GONE: r[k] = ''
+    r['notes'] = re.sub(r' \(was \S+?\)', '', r['notes'])
+for r in ALL:
     if r['id'] in DEMO: continue
     lat, lng = pos.get(r['id']) or coords[(r['state'], r['city'])]
     addr = ', '.join(x for x in [r['street'], r['city'], (r['state'] + ' ' + r['zip']).strip()] if x)

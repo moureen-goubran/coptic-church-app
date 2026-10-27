@@ -93,7 +93,7 @@ function placeSheet(id) {
     ${p.p ? kv(t("phoneL"), `<a class="num" href="${telHref(p.p)}">${esc(p.p)}</a>`) : ""}
     ${p.w ? kv(t("visit"), `<a href="${esc(p.w)}" target="_blank" rel="noopener" style="overflow-wrap:anywhere">${esc(p.w.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""))}</a>`) : ""}
     ${p.dio ? kv(t("dioL"), esc(p.dio)) : ""}
-    ${kv(t("statusL"), `${esc(fmtChecked(p.d))} · <a href="${esc(p.src)}" target="_blank" rel="noopener">${esc(t("sourceL"))}</a>`)}
+    ${kv(t("statusL"), `${esc(fmtChecked(p.d))}${p.src ? ` · <a href="${esc(p.src)}" target="_blank" rel="noopener">${esc(t("sourceL"))}</a>` : ""}`)}
     ${p.nt ? `<p class="note">${esc(p.nt)}</p>` : ""}
     <p class="note">${esc(t("basicNote"))}${p.la && !p.st ? " " + esc(t("townOnly")) : ""}</p>
     <div class="actions" style="justify-content:space-between"><button class="btn" type="button" data-showmap="${p.id}">${IC.pin}${esc(t("showMap"))}</button>${rptButton(`data-report="place:${p.id}"`)}</div>`;

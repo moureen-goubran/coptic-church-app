@@ -55,6 +55,8 @@ Open NJ conflicts (also in `notes`):
 
 ## Link safety (standing rule, 2026-10-26)
 
+- Since 2026-10-26, app threads edit `data/places.csv` on main directly (link removals, phone updates). Main's copy is the source of truth. Don't regenerate it with `build_places.py` (that would undo those edits); add new places by editing it or by merging new rows in.
+
 - Every outside link is checked for spam, adult content and malware before it goes in, and re-checked weekly by the automatic link check.
 - Website fields copied from Nihov or Wikipedia are unverified until checked. A hijacked or expired domain is worse than no link.
 - `data/sources/link-fixes-2026-10-26.csv` holds removed domains (with the reason) and http-to-https upgrades. The build applies it, and the blocked domains are also hard-coded in `build_places.py`, so they can never come back on a rebuild. Add new findings there, never by editing `places.csv`.
