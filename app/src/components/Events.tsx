@@ -19,7 +19,7 @@ type Grp = "day" | "church" | "type";
 type DD = "churches" | "kinds" | "days" | "date";
 
 const loc = (lang: Lang) => (lang === "ar" ? "ar-EG" : "en-US");
-const fmt = (day: string, lang: Lang, o: Intl.DateTimeFormatOptions) => parseIso(day).toLocaleDateString(loc(lang), o);
+export const fmt = (day: string, lang: Lang, o: Intl.DateTimeFormatOptions) => parseIso(day).toLocaleDateString(loc(lang), o);
 const pick = (lang: Lang, en: string | null, ar: string | null) => (lang === "ar" && ar) || en || "";
 export const itemTitle = (it: Item, lang: Lang) => pick(lang, it.title_en, it.title_ar);
 

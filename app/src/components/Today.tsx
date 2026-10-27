@@ -3,10 +3,10 @@ import type { Lang, Strings } from "../i18n";
 import type { ChurchEvent, Place, Service } from "../lib/types";
 import { fmtTime } from "../lib/time";
 import { type Item, byWhen, fromService, nextDateFor, specialDates, upcomingItems } from "../lib/events";
-import { iso } from "../lib/coptic";
+import { addDays, iso } from "../lib/coptic";
 import { Icon, mapsLinks, placeName, shortName, telHref } from "./bits";
 import { seasonLine } from "./Feasts";
-import { SuggestEvent, dayLabel, itemTitle } from "./Events";
+import { SuggestEvent, dayLabel, fmt, itemTitle } from "./Events";
 
 interface Props {
   t: Strings; lang: Lang; places: Map<string, Place>; services: Service[]; events: ChurchEvent[];
@@ -42,7 +42,13 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
   const comingIds = nearest?.length ? new Set(nearest.slice(0, 5).map(x => x.id)) : null;
   // Schedules are only filled in for some churches so far: say so when the closest one with times is far away.
   const farOnly = Boolean(nearest?.length && (milesOf(nearest[0]) ?? 0) > 30);
-  const coming = all.filter(it => !comingIds || comingIds.has(it.place_id)).slice(0, 6);
+  // Coming Up: the soonest few, or everything on one picked day this week.
+  const [day, setDay] = useState<string | null>(null);
+  const week = Array.from({ length: 7 }, (_, i) => addDays(t0, i));
+  const onDay = (it: Item) => !day || (it.date! <= day && (it.end_date ?? it.date!) >= day);
+  const coming = all.filter(it => (!comingIds || comingIds.has(it.place_id)) && onDay(it)).slice(0, day ? 30 : 6);
+  const dayBtn = (d: string | null, i: number) => <button type="button" key={d ?? "next"} aria-pressed={day === d} onClick={() => setDay(d)}>
+    {d === null ? t.soonest : i === 1 ? t.today : i === 2 ? t.tomorrow : `${fmt(d, lang, { weekday: "short" })} ${fmt(d, lang, { day: "numeric" })}`}</button>;
   const churches = [...places.values()];
 
   const row = (it: Item) => {
@@ -68,11 +74,9 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
     <main class="stack">
       <h1 class="homelead">{t.homeLead}</h1>
 
-      {/* Saved events come first once there are some; until then a one-line tip sits under Coming Up. */}
-      {mine.length > 0 && <>
-        <div class="sec-h"><h2>{t.myEvents}</h2></div>
-        <div class="mini">{mine.map(row)}</div>
-      </>}
+      {/* Saved events always come first; until there are some, a one-line tip says how to add them. */}
+      <div class="sec-h"><h2>{t.myEvents}</h2></div>
+      {mine.length ? <div class="mini">{mine.map(row)}</div> : <div class="tip">{t.saveTip}</div>}
 
       {next && nextPlace && <div class="nextcard">
         <button type="button" class="top" onClick={() => onOpen(nextPlace.id)}>
@@ -90,15 +94,11 @@ export function TodayView({ t, lang, places, services, events, saved, toggleSave
         </div>
       </div>}
 
-      {coming.length > 0 && <>
+      {all.length > 0 && <>
         <div class="sec-h"><h2>{nearest?.length ? t.comingUpNear : t.comingUp}</h2><a class="linkbtn" href="#/events">{t.seeAllEvents}</a></div>
+        <div class="days" role="group" aria-label={t.pickDay}>{[null, ...week].map(dayBtn)}</div>
         {farOnly && <p class="muted small">{t.noSchedulesNear}</p>}
-        <div class="mini">{coming.map(row)}</div>
-      </>}
-
-      {!mine.length && <>
-        <div class="sec-h"><h2>{t.myEvents}</h2></div>
-        <div class="tip">{t.saveTip}</div>
+        {coming.length ? <div class="mini">{coming.map(row)}</div> : <p class="muted small">{t.nothingThatDay}</p>}
       </>}
 
       <SuggestEvent t={t} lang={lang} churches={churches} />

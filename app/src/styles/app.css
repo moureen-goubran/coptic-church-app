@@ -14,6 +14,11 @@ body { margin: 0; }
 .topics { display: flex; flex-wrap: wrap; gap: 6px; }
 .topics button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .85rem; padding: 7px 12px; border-radius: 999px; cursor: pointer; min-height: 36px; }
 .topics button[aria-pressed="true"] { background: var(--maroon); border-color: var(--maroon); color: var(--surface); }
+/* Coming Up: pick a day this week (one scrolling row on phones) */
+.days { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.days::-webkit-scrollbar { display: none; }
+.days button { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: var(--fs-sm); padding: 6px 12px; border-radius: 999px; cursor: pointer; min-height: 44px; white-space: nowrap; }
+.days button[aria-pressed="true"] { background: var(--maroon); border-color: var(--maroon); color: var(--surface); }
 
 /* search and filters */
 .searchrow { display: flex; gap: 8px; }
