@@ -37,6 +37,12 @@ export function App() {
   const [data, setData] = useState<Dataset | null>(null);
   const [route, setRoute] = useState(readHash);
   const [q, setQ] = useState("");
+  // Searches kept as removable bubbles (Enter in the search box), like Events: a church shows if it matches any of them.
+  const [terms, setTerms] = useState<string[]>([]);
+  const toks = useMemo(() => [...terms, q.trim()].filter(Boolean), [terms, q]);
+  const qKey = toks.join("|");
+  const hit = (p: Place) => !toks.length || toks.some(x => matches(p, x));
+  const keepTerm = () => { const v = q.trim(); if (v && !terms.includes(v)) setTerms([...terms, v]); setQ(""); };
   const [stateF, setStateF] = useState("");
   const [typeF, setTypeF] = useState("");
   // Your spot (from the phone or picked on the map). Kept on this phone only, never sent.
@@ -50,7 +56,7 @@ export function App() {
   const [gsOpen, setGsOpen] = useState(false);
   const [evQ, setEvQ] = useState("");
   const [welcomeQ, setWelcomeQ] = useState("");
-  const [churchSort, setChurchSortState] = useState<string>(() => store.get("churchSort", "recommended"));
+  const [churchSort, setChurchSortState] = useState<string>(() => (v => (v === "recommended" ? "near" : v))(store.get("churchSort", "near")));
   const setChurchSort = (v: string) => { setChurchSortState(v); store.set("churchSort", v); };
   const [locMsg, setLocMsg] = useState<string | null>(null);
   const [pop, setPop] = useState<"loc" | "settings" | null>(null);
@@ -92,9 +98,9 @@ export function App() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
-  useEffect(() => setShown(PAGE), [q, stateF, typeF, userLoc, mapView, churchSort]);
+  useEffect(() => setShown(PAGE), [qKey, stateF, typeF, userLoc, mapView, churchSort]);
   // Typing a search or picking a filter takes over from the map area.
-  useEffect(() => setMapView(null), [q, stateF, typeF]);
+  useEffect(() => setMapView(null), [qKey, stateF, typeF]);
 
   // Filter options grouped by country: [country, [state codes]].
   const regions = useMemo(() => {
@@ -124,25 +130,24 @@ export function App() {
   // state (so you can see what's nearby). The type filter still applies. A new search or filter starts over.
   const inView = (p: Place) => !mapView || (p.lat !== null && p.lng !== null && p.lng >= mapView[0][0] && p.lng <= mapView[1][0] && p.lat >= mapView[0][1] && p.lat <= mapView[1][1]);
   const results = useMemo(() => {
-    const list = (data?.places ?? []).filter(p => (!typeF || p.type === typeF) && (mapView ? inView(p) : (!stateF || `${p.country}-${p.state}` === stateF) && (!q || matches(p, q))));
+    const list = (data?.places ?? []).filter(p => (!typeF || p.type === typeF) && (mapView ? inView(p) : (!stateF || `${p.country}-${p.state}` === stateF) && hit(p)));
     const byState = (a: Place, b: Place) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name);
     const near = (a: Place, b: Place) => (dist(a) ?? Infinity) - (dist(b) ?? Infinity);
     const name = (a: Place, b: Place) => placeName(a, lang).localeCompare(placeName(b, lang), lang === "ar" ? "ar" : "en");
-    const full = (a: Place, b: Place) => Number(servicesBy.has(b.id)) - Number(servicesBy.has(a.id));
-    // "Recommended": closest first when your location is on, otherwise churches with full schedules first.
-    const cmp = { recommended: userLoc ? near : (a: Place, b: Place) => full(a, b) || byState(a, b), near: userLoc ? near : byState, name, state: byState,
+    // "Nearest to me" falls back to state and city until a location is set.
+    const cmp = { near: userLoc ? near : byState, name, state: byState,
       verified: (a: Place, b: Place) => (b.last_verified ?? "").localeCompare(a.last_verified ?? "") || byState(a, b) }[churchSort] ?? byState;
     return list.sort(cmp);
-  }, [data, q, stateF, typeF, userLoc, mapView, churchSort, lang]);
+  }, [data, qKey, stateF, typeF, userLoc, mapView, churchSort, lang]);
   // The map always shows every place; with a search or filter on, the matches are bright and the rest faded.
-  const filtering = Boolean(q || stateF || typeF);
-  const matchIds = useMemo(() => (filtering ? new Set((data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && (!q || matches(p, q))).map(p => p.id)) : null), [data, q, stateF, typeF]);
+  const filtering = Boolean(toks.length || stateF || typeF);
+  const matchIds = useMemo(() => (filtering ? new Set((data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && hit(p)).map(p => p.id)) : null), [data, qKey, stateF, typeF]);
 
   const [focus, setFocus] = useState<string | null>(null);
   const card = (p: Place) => (
     <ChurchCard key={p.id} place={p} details={detailsBy.get(p.id) ?? null} clergy={clergyBy.get(p.id) ?? []} links={linksBy.get(p.id) ?? []}
       services={servicesBy.get(p.id) ?? []} distance={fmtMi(p)} active={focus === p.id} t={t} lang={lang}
-      onOpen={() => openPlace(p.id)} onFocus={() => { setFocus(p.id); document.querySelector(".mapbox")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+      onOpen={() => openPlace(p.id)} onFocus={() => setFocus(p.id)} />
   );
   const go = (hash: string) => { if (location.hash !== hash) location.hash = hash; };
   useEffect(() => { try { sessionStorage.setItem("mcc.tab", route.tab); } catch { /* private mode */ } }, [route.tab]);
@@ -226,15 +231,24 @@ export function App() {
         nearest={nearest} distanceOf={fmtMi} milesOf={dist} onItem={setItem} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
-        <MapView places={data?.places ?? []} matchIds={matchIds} fitKey={filtering ? `${q}|${stateF}|${typeF}` : ""} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
+        <MapView places={data?.places ?? []} matchIds={matchIds} fitKey={filtering ? `${qKey}|${stateF}|${typeF}` : ""} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
           onPick={l => { setUserLoc(l, "pick"); setPicking(false); setLocMsg(null); }} selectedId={route.place ?? focus} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
         <div class="searchrow">
           <label class="search">
             <Icon name="search" />
-            <input type="search" placeholder={t.search} aria-label={t.search} value={q} onInput={e => setQ((e.target as HTMLInputElement).value)} />
+            <input type="search" placeholder={t.search} aria-label={t.search} value={q} title={t.qEnter} enterKeyHint="search" onInput={e => setQ((e.target as HTMLInputElement).value)}
+              onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); keepTerm(); } }} />
           </label>
           <button class={"btn" + (userLoc ? " primary" : "")} type="button" onClick={() => (userLoc ? setUserLoc(null) : findMe())}><Icon name="pin" />{t.nearMe}</button>
         </div>
+        {q.trim() && <p class="muted small hint">{t.qEnter}</p>}
+        {(terms.length > 0 || stateF || typeF) && <div class="showing">
+          <b>{t.showing}</b>
+          {terms.map(x => <span class="chip" key={"q" + x}>“{x}”<button type="button" aria-label={`${t.removeF} ${x}`} onClick={() => setTerms(terms.filter(y => y !== x))}>✕</button></span>)}
+          {stateF && <span class="chip">{stateName(stateF.split("-").slice(1).join("-"), stateF.split("-")[0])}<button type="button" aria-label={t.removeF} onClick={() => setStateF("")}>✕</button></span>}
+          {typeF && <span class="chip">{t.types[typeF] ?? typeF}<button type="button" aria-label={t.removeF} onClick={() => setTypeF("")}>✕</button></span>}
+          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => { setTerms([]); setQ(""); setStateF(""); setTypeF(""); }}>{t.clearAll}</button>
+        </div>}
         {locMsg && !pop && <p class="muted small" role="status">{locMsg}</p>}
         <div class="filters">
           <select value={stateF} onChange={e => setStateF((e.target as HTMLSelectElement).value)} aria-label={t.allStates}>
@@ -250,14 +264,14 @@ export function App() {
             {types.map(k => <option value={k} key={k}>{t.types[k] ?? k}</option>)}
           </select>
           <SortBy t={t} value={churchSort} onChange={v => { setChurchSort(v); if (v === "near" && !userLoc) findMe(); }}
-            options={[["recommended", t.sortRecommended], ["near", t.sortNear], ["name", t.sortName], ["state", t.sortState], ["verified", t.sortVerified]]} />
+            options={[["near", t.sortNear], ["name", t.sortName], ["state", t.sortState], ["verified", t.sortVerified]]} />
           <span class="muted small count" role="status">{data ? t.results(results.length) : "…"}</span>
         </div>
-        {mapView && <div class="showing"><span>{q || stateF ? t.inMapAreaAll(results.length) : t.inMapArea(results.length)}</span>
-          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setMapView(null)}>{q || stateF ? t.backToResults : t.fullMap}</button></div>}
+        {mapView && <div class="showing"><span>{filtering ? t.inMapAreaAll(results.length) : t.inMapArea(results.length)}</span>
+          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setMapView(null)}>{filtering ? t.backToResults : t.fullMap}</button></div>}
 
         {data && results.length === 0 && <div class="empty">{t.noneFound}</div>}
-        {data && !userLoc && !q && !stateF && !typeF && !mapView && <p class="muted small lead">{t.setLocHint}</p>}
+        {data && !userLoc && !toks.length && !stateF && !typeF && !mapView && <p class="muted small lead">{t.setLocHint}</p>}
         <div class="cgrid">{results.slice(0, shown).map(card)}</div>
         {results.length > shown && <button class="btn more" type="button" onClick={() => setShown(shown + PAGE * 3)}>{t.showMore(results.length - shown)}</button>}
         {data && <p class="muted small">{t.updated(fmtDate(data.generated, lang))}</p>}

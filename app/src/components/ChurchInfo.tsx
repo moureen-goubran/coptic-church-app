@@ -108,6 +108,7 @@ const TYPE_COLOR: Record<string, string> = { church: "var(--accent-line)", monas
 
 export function ChurchCard({ place: p, details: d, clergy, links, services, distance, active, t, lang, onOpen, onFocus }: CardProps) {
   const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
   const [form, setForm] = useState<"report" | "claim" | null>(null);
   const { live, parking } = churchBits(d, links, lang);
   const nx = nextService(services);
@@ -116,7 +117,7 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
   const copy = async () => { try { await navigator.clipboard.writeText(p.phone!); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* no clipboard */ } };
   return (
     <article class={"card ccard" + (active ? " active" : "")} style={{ "--cc": TYPE_COLOR[p.type] ?? "var(--accent-line)" }}
-      onClick={e => !(e.target as HTMLElement).closest("a,button,summary,details,form") && onFocus()}>
+      onClick={e => !(e.target as HTMLElement).closest("a,button,summary,details,form") && (setOpen(o => !o), onFocus())}>
       {d?.logo && !logoIsTile(d.logo) && <ChurchLogo src={d.logo} lazy />}
       <div class="cname">
         {d?.logo ? logoIsTile(d.logo) && <ChurchLogo src={d.logo} tile lazy />
@@ -144,7 +145,7 @@ export function ChurchCard({ place: p, details: d, clergy, links, services, dist
       </div>
       <div class="reportrow"><button class="linkbtn" type="button" aria-expanded={form === "report"} onClick={() => setForm(form === "report" ? null : "report")}><Icon name="flag" />{t.report}</button></div>
       {form === "report" && <CorrectionForm placeId={p.id} t={t} lang={lang} />}
-      <details class="more">
+      <details class="more" open={open} onToggle={e => setOpen((e.currentTarget as HTMLDetailsElement).open)}>
         <summary>{t.moreInfo}</summary>
         <div class="morebody">
           <details class="more">
