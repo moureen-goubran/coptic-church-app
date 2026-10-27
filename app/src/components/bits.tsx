@@ -1,6 +1,7 @@
+import { useEffect, useState } from "preact/hooks";
 import type { Place } from "../lib/types";
 import type { Lang } from "../i18n";
-import { stateName, COUNTRY_NAMES } from "../lib/search";
+import { stateName, COUNTRY_NAMES, norm } from "../lib/search";
 
 export const placeName = (p: Place, lang: Lang) => (lang === "ar" && p.name_ar) || p.name;
 // "St. Mark" instead of "St. Mark Coptic Orthodox Church", for tight rows.
@@ -74,5 +75,48 @@ export function SortBy({ t, value, options, onChange }: { t: { sortBy: string };
         {options.map(([v, l]) => <option value={v} key={v}>{l}</option>)}
       </select>
     </label>
+  );
+}
+
+// Pick-many filter, the same look as the Events filters: lists every option, a type-to-find box, and a check per choice.
+// groups: [heading, [value, label][]]; the heading is left out when empty.
+export function MultiDD({ label, groups, value, onChange, t }: {
+  label: string; groups: [string, [string, string][]][]; value: string[]; onChange: (v: string[]) => void;
+  t: { findIn: string; clear: string; done: string };
+}) {
+  const [open, setOpen] = useState(false);
+  const [find, setFind] = useState("");
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => { if (box && !box.contains(e.target as Node)) setOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("click", close); document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("click", close); document.removeEventListener("keydown", esc); };
+  }, [open, box]);
+  const labelOf = (v: string) => groups.flatMap(g => g[1]).find(o => o[0] === v)?.[1] ?? v;
+  const toks = norm(find).split(" ").filter(Boolean);
+  const shown = groups.map(([h, list]) => [h, list.filter(([, l]) => !toks.length || toks.every(x => norm(l).includes(x)))] as const).filter(g => g[1].length);
+  const text = value.length ? `${label}: ${labelOf(value[0])}${value.length > 1 ? " +" + (value.length - 1) : ""}` : label;
+  return (
+    <div class="dd" ref={setBox}>
+      <button class={"ddb" + (value.length ? " on" : "")} type="button" aria-expanded={open} onClick={() => { setOpen(!open); setFind(""); }}>
+        <span>{text}</span>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+      </button>
+      {open && <div class="pop-panel ddp">
+        <input class="ddfind" type="search" placeholder={t.findIn} aria-label={t.findIn} value={find} autoFocus onInput={e => setFind((e.target as HTMLInputElement).value)} />
+        {shown.map(([h, list]) => <div key={h}>
+          {h && <p class="muted small">{h}</p>}
+          {list.map(([v, l]) => <label class="opt" key={v}>
+            <input type="checkbox" checked={value.includes(v)} onChange={() => onChange(value.includes(v) ? value.filter(x => x !== v) : [...value, v])} /><span>{l}</span>
+          </label>)}
+        </div>)}
+        <div class="ddfoot">
+          <button class="linkbtn" type="button" onClick={() => onChange([])}>{t.clear}</button>
+          <button class="btn primary small" type="button" onClick={() => setOpen(false)}>{t.done}</button>
+        </div>
+      </div>}
+    </div>
   );
 }

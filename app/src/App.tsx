@@ -12,7 +12,7 @@ import { EventSheet } from "./components/EventSheet";
 import type { Item } from "./lib/events";
 import { ChurchCard } from "./components/ChurchInfo";
 import { CorrectionForm } from "./components/CorrectionForm";
-import { Icon, Logo, SortBy, placeName, regionLine } from "./components/bits";
+import { Icon, Logo, MultiDD, SortBy, placeName, regionLine } from "./components/bits";
 import { FeastStrip, FeastsView } from "./components/Feasts";
 import { TodayView } from "./components/Today";
 import { GlobalSearch } from "./components/GlobalSearch";
@@ -43,8 +43,8 @@ export function App() {
   const qKey = toks.join("|");
   const hit = (p: Place) => !toks.length || toks.some(x => matches(p, x));
   const keepTerm = () => { const v = q.trim(); if (v && !terms.includes(v)) setTerms([...terms, v]); setQ(""); };
-  const [stateF, setStateF] = useState("");
-  const [typeF, setTypeF] = useState("");
+  const [stateF, setStateF] = useState<string[]>([]);
+  const [typeF, setTypeF] = useState<string[]>([]);
   // Your spot (from the phone or picked on the map). Kept on this phone only, never sent.
   const [userLoc, setUserLocState] = useState<[number, number] | null>(() => store.get<[number, number] | null>("loc", null));
   const [locHow, setLocHow] = useState<"gps" | "pick" | null>(() => store.get("locHow", null));
@@ -130,7 +130,7 @@ export function App() {
   // state (so you can see what's nearby). The type filter still applies. A new search or filter starts over.
   const inView = (p: Place) => !mapView || (p.lat !== null && p.lng !== null && p.lng >= mapView[0][0] && p.lng <= mapView[1][0] && p.lat >= mapView[0][1] && p.lat <= mapView[1][1]);
   const results = useMemo(() => {
-    const list = (data?.places ?? []).filter(p => (!typeF || p.type === typeF) && (mapView ? inView(p) : (!stateF || `${p.country}-${p.state}` === stateF) && hit(p)));
+    const list = (data?.places ?? []).filter(p => (!typeF.length || typeF.includes(p.type)) && (mapView ? inView(p) : (!stateF.length || stateF.includes(`${p.country}-${p.state}`)) && hit(p)));
     const byState = (a: Place, b: Place) => countryRank(a.country).localeCompare(countryRank(b.country)) || stateName(a.state, a.country).localeCompare(stateName(b.state, b.country)) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name);
     const near = (a: Place, b: Place) => (dist(a) ?? Infinity) - (dist(b) ?? Infinity);
     const name = (a: Place, b: Place) => placeName(a, lang).localeCompare(placeName(b, lang), lang === "ar" ? "ar" : "en");
@@ -140,8 +140,8 @@ export function App() {
     return list.sort(cmp);
   }, [data, qKey, stateF, typeF, userLoc, mapView, churchSort, lang]);
   // The map always shows every place; with a search or filter on, the matches are bright and the rest faded.
-  const filtering = Boolean(toks.length || stateF || typeF);
-  const matchIds = useMemo(() => (filtering ? new Set((data?.places ?? []).filter(p => (!stateF || `${p.country}-${p.state}` === stateF) && (!typeF || p.type === typeF) && hit(p)).map(p => p.id)) : null), [data, qKey, stateF, typeF]);
+  const filtering = Boolean(toks.length || stateF.length || typeF.length);
+  const matchIds = useMemo(() => (filtering ? new Set((data?.places ?? []).filter(p => (!stateF.length || stateF.includes(`${p.country}-${p.state}`)) && (!typeF.length || typeF.includes(p.type)) && hit(p)).map(p => p.id)) : null), [data, qKey, stateF, typeF]);
 
   const [focus, setFocus] = useState<string | null>(null);
   const card = (p: Place) => (
@@ -231,7 +231,7 @@ export function App() {
         nearest={nearest} distanceOf={fmtMi} milesOf={dist} onItem={setItem} onLocate={findMe} />}
 
       {route.tab === "churches" && <main class="stack">
-        <MapView places={data?.places ?? []} matchIds={matchIds} fitKey={filtering ? `${qKey}|${stateF}|${typeF}` : ""} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
+        <MapView places={data?.places ?? []} matchIds={matchIds} fitKey={filtering ? `${qKey}|${stateF.join()}|${typeF.join()}` : ""} onView={setMapView} picking={picking} onPickCancel={() => setPicking(false)}
           onPick={l => { setUserLoc(l, "pick"); setPicking(false); setLocMsg(null); }} selectedId={route.place ?? focus} userLoc={userLoc} onSelect={openPlace} t={t} theme={theme} />
         <div class="searchrow">
           <label class="search">
@@ -242,27 +242,18 @@ export function App() {
           <button class={"btn" + (userLoc ? " primary" : "")} type="button" onClick={() => (userLoc ? setUserLoc(null) : findMe())}><Icon name="pin" />{t.nearMe}</button>
         </div>
         {q.trim() && <p class="muted small hint">{t.qEnter}</p>}
-        {(terms.length > 0 || stateF || typeF) && <div class="showing">
+        {(terms.length > 0 || stateF.length > 0 || typeF.length > 0) && <div class="showing">
           <b>{t.showing}</b>
           {terms.map(x => <span class="chip" key={"q" + x}>“{x}”<button type="button" aria-label={`${t.removeF} ${x}`} onClick={() => setTerms(terms.filter(y => y !== x))}>✕</button></span>)}
-          {stateF && <span class="chip">{stateName(stateF.split("-").slice(1).join("-"), stateF.split("-")[0])}<button type="button" aria-label={t.removeF} onClick={() => setStateF("")}>✕</button></span>}
-          {typeF && <span class="chip">{t.types[typeF] ?? typeF}<button type="button" aria-label={t.removeF} onClick={() => setTypeF("")}>✕</button></span>}
-          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => { setTerms([]); setQ(""); setStateF(""); setTypeF(""); }}>{t.clearAll}</button>
+          {stateF.map(v => <span class="chip" key={"s" + v}>{stateName(v.split("-").slice(1).join("-"), v.split("-")[0])}<button type="button" aria-label={t.removeF} onClick={() => setStateF(stateF.filter(x => x !== v))}>✕</button></span>)}
+          {typeF.map(v => <span class="chip" key={"t" + v}>{t.types[v] ?? v}<button type="button" aria-label={t.removeF} onClick={() => setTypeF(typeF.filter(x => x !== v))}>✕</button></span>)}
+          <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => { setTerms([]); setQ(""); setStateF([]); setTypeF([]); }}>{t.clearAll}</button>
         </div>}
         {locMsg && !pop && <p class="muted small" role="status">{locMsg}</p>}
         <div class="filters">
-          <select value={stateF} onChange={e => setStateF((e.target as HTMLSelectElement).value)} aria-label={t.allStates}>
-            <option value="">{t.allStates}</option>
-            {regions.map(([c, list]) => (
-              <optgroup label={COUNTRY_NAMES[c]?.[lang] ?? c} key={c}>
-                {list.map(s => <option value={`${c}-${s}`} key={s}>{stateName(s, c)}</option>)}
-              </optgroup>
-            ))}
-          </select>
-          <select value={typeF} onChange={e => setTypeF((e.target as HTMLSelectElement).value)} aria-label={t.allTypes}>
-            <option value="">{t.allTypes}</option>
-            {types.map(k => <option value={k} key={k}>{t.types[k] ?? k}</option>)}
-          </select>
+          <MultiDD t={t} label={t.ddState} value={stateF} onChange={setStateF}
+            groups={regions.map(([c, list]) => [COUNTRY_NAMES[c]?.[lang] ?? c, list.map(st => [`${c}-${st}`, stateName(st, c)] as [string, string])] as [string, [string, string][]])} />
+          <MultiDD t={t} label={t.ddType} value={typeF} onChange={setTypeF} groups={[["", types.map(k => [k, t.types[k] ?? k] as [string, string])]]} />
           <SortBy t={t} value={churchSort} onChange={v => { setChurchSort(v); if (v === "near" && !userLoc) findMe(); }}
             options={[["near", t.sortNear], ["name", t.sortName], ["state", t.sortState], ["verified", t.sortVerified]]} />
           <span class="muted small count" role="status">{data ? t.results(results.length) : "…"}</span>
@@ -271,7 +262,7 @@ export function App() {
           <button class="linkbtn" type="button" style={{ marginInlineStart: "auto" }} onClick={() => setMapView(null)}>{filtering ? t.backToResults : t.fullMap}</button></div>}
 
         {data && results.length === 0 && <div class="empty">{t.noneFound}</div>}
-        {data && !userLoc && !toks.length && !stateF && !typeF && !mapView && <p class="muted small lead">{t.setLocHint}</p>}
+        {data && !userLoc && !toks.length && !stateF.length && !typeF.length && !mapView && <p class="muted small lead">{t.setLocHint}</p>}
         <div class="cgrid">{results.slice(0, shown).map(card)}</div>
         {results.length > shown && <button class="btn more" type="button" onClick={() => setShown(shown + PAGE * 3)}>{t.showMore(results.length - shown)}</button>}
         {data && <p class="muted small">{t.updated(fmtDate(data.generated, lang))}</p>}
